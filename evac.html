@@ -30,38 +30,72 @@
 
     .map-controls {
       margin-bottom: 10px;
+    }
+
+    .map-controls-label {
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 8px;
       text-align: center;
     }
 
-    .map-controls label {
-      font-weight: bold;
-      margin-right: 5px;
-      font-size: 14px;
+    .incident-menu {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 8px;
     }
 
-    .map-controls select {
-      padding: 8px 12px;
+    .incident-btn {
+      padding: 10px 16px;
       font-size: 14px;
-      margin-right: 10px;
-      min-width: 200px;
-      border-radius: 4px;
-      border: 1px solid rgba(0,0,0,0.2);
+      font-weight: 500;
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: #333;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .incident-btn:hover {
+      background: #f5f5f5;
+      border-color: #0079c1;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .incident-btn.active {
+      background: #0079c1;
+      color: white;
+      border-color: #0079c1;
+      font-weight: 600;
+    }
+
+    .incident-btn.loading {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     @media (max-width: 600px) {
-      .map-controls select {
-        min-width: 150px;
+      .incident-btn {
+        padding: 8px 12px;
         font-size: 13px;
-        padding: 6px 10px;
+        flex: 1 1 calc(50% - 8px);
+        min-width: 120px;
       }
     }
 
     .map-status {
-      margin-left: 10px;
+      text-align: center;
       color: #444;
       font-size: 12px;
       font-style: italic;
       opacity: 0.75;
+      margin-top: 8px;
     }
 
     .map-wrapper {
@@ -345,11 +379,11 @@
 <!-- INCIDENT MAP -->
 <div class="map-container">
   <div class="map-controls">
-    <label for="incidentSelect">Select Incident: </label>
-    <select id="incidentSelect">
-      <option value="">Loading incidents...</option>
-    </select>
-    <span id="mapStatus" class="map-status"></span>
+    <div class="map-controls-label">Select Incident:</div>
+    <div id="incidentMenu" class="incident-menu">
+      <div class="incident-btn loading">Loading incidents...</div>
+    </div>
+    <div id="mapStatus" class="map-status"></div>
   </div>
   
   <div class="map-wrapper">
@@ -402,7 +436,7 @@
     const incidentLayerUrl = "https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0";
     const incidentFieldName = "incident";
     
-    const incidentSelect = document.getElementById('incidentSelect');
+    const incidentMenu = document.getElementById('incidentMenu');
     const mapStatus = document.getElementById('mapStatus');
     
     const webmap = new WebMap({
@@ -447,7 +481,7 @@
         });
     }
     
-    // Populate dropdown after map + layer load
+    // Populate menu after map + layer load
     view.when()
       .then(() => incidentLayer.when())
       .then(() => {
@@ -463,47 +497,46 @@
       .then((featureSet) => {
         const features = featureSet.features || [];
         
-        // Clear dropdown
-        incidentSelect.innerHTML = "";
-        const defaultOption = document.createElement("option");
-        defaultOption.value = "";
-        defaultOption.textContent = "Select an incident…";
-        incidentSelect.appendChild(defaultOption);
+        // Clear menu
+        incidentMenu.innerHTML = "";
         
-        // Add distinct incident names
+        // Add incident buttons
         features.forEach((f) => {
           const val = f.attributes[incidentFieldName];
           if (!val) return;
           
-          const option = document.createElement("option");
-          option.value = val;
-          option.textContent = val;
-          incidentSelect.appendChild(option);
+          const btn = document.createElement('a');
+          btn.className = 'incident-btn';
+          btn.textContent = val;
+          btn.href = '?incident=' + encodeURIComponent(val);
+          
+          // Mark as active if it matches current URL incident
+          if (urlIncident && urlIncident.toLowerCase() === val.toLowerCase()) {
+            btn.classList.add('active');
+          }
+          
+          incidentMenu.appendChild(btn);
         });
         
-        mapStatus.textContent = `Loaded ${features.length} incident(s).`;
+        mapStatus.textContent = `${features.length} incident(s) available`;
         
-        // After dropdown is built, check URL for ?incident=
+        // After menu is built, check URL for ?incident= and zoom
         if (urlIncident) {
           const urlNorm = urlIncident.toLowerCase().trim();
           let matchedValue = null;
           
-          // Try to find a matching option (case-insensitive)
-          for (let i = 0; i < incidentSelect.options.length; i++) {
-            const opt = incidentSelect.options[i];
-            const optNorm = opt.value.toLowerCase().trim();
-            if (optNorm === urlNorm) {
-              matchedValue = opt.value;
-              break;
+          // Try to find a matching incident
+          features.forEach((f) => {
+            const val = f.attributes[incidentFieldName];
+            if (val && val.toLowerCase().trim() === urlNorm) {
+              matchedValue = val;
             }
-          }
+          });
           
           if (matchedValue) {
-            // Set dropdown and zoom
-            incidentSelect.value = matchedValue;
             zoomToIncident(matchedValue);
           } else {
-            // Fallback: still try to zoom, even if it's not in the list
+            // Fallback: still try to zoom
             zoomToIncident(urlIncident);
           }
         }
@@ -511,15 +544,8 @@
       .catch((err) => {
         console.error(err);
         mapStatus.textContent = "Error loading incidents.";
-        incidentSelect.innerHTML = "<option>Error loading incidents</option>";
+        incidentMenu.innerHTML = '<div class="incident-btn loading">Error loading incidents</div>';
       });
-    
-    // Dropdown change handler
-    incidentSelect.addEventListener("change", function() {
-      const incidentVal = this.value;
-      if (!incidentVal) return;
-      zoomToIncident(incidentVal);
-    });
   });
 </script>
 
