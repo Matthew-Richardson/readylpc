@@ -385,7 +385,6 @@
   <div id="incident-panel">Loading incident status…</div>
 </div>
 
-
 <script>
   // Get incident from URL parameters
   const params = new URLSearchParams(window.location.search);
@@ -525,12 +524,10 @@
 </script>
 
 <script>
-  // Get incident from URL parameters
-  const params = new URLSearchParams(window.location.search);
-  const rawIncident = params.get('incident');
-  const INCIDENT = rawIncident && rawIncident.trim() ? rawIncident.trim() : null;
-
   // ========== EVACUATION INFORMATION ==========
+  // Get incident from URL parameters
+  const INCIDENT = urlIncident;
+
   // Constants
   const STATUS_LABELS = {
     SET: 'SET - Pre-Evacuation',
@@ -766,5 +763,6 @@
   loadEvacuationZones();
   loadIncidentStatus(INCIDENT);
 </script>
+
 </body>
 </html>
