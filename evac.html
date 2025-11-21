@@ -404,8 +404,9 @@
   require([
     "esri/rest/query",
     "esri/rest/support/Query",
-    "esri/geometry/Extent"
-  ], function(query, Query, Extent) {
+    "esri/geometry/Extent",
+    "esri/core/reactiveUtils"
+  ], function(query, Query, Extent, reactiveUtils) {
     
     const featureLayerUrl = "https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0";
     const incidentSelect = document.getElementById('incidentSelect');
@@ -417,22 +418,40 @@
     let mapIsReady = false;
     let pendingZoomIncident = null;
     
-    // Fallback: Check for view periodically
+    // Fallback: Check for view periodically with more detailed logging
     let viewCheckAttempts = 0;
     const checkForView = setInterval(() => {
       viewCheckAttempts++;
-      if (!mapView && embeddedMap.view) {
-        console.log('✓ Found map view via polling');
-        mapView = embeddedMap.view;
-        mapIsReady = true;
-        clearInterval(checkForView);
+      console.log(`Polling attempt ${viewCheckAttempts}: checking for view...`);
+      console.log('embeddedMap:', embeddedMap);
+      console.log('embeddedMap.view:', embeddedMap.view);
+      
+      if (!mapView) {
+        // Try different properties
+        const possibleView = embeddedMap.view || 
+                            embeddedMap.mapView || 
+                            embeddedMap._view ||
+                            (embeddedMap.shadowRoot && embeddedMap.shadowRoot.querySelector('arcgis-map')?.view);
         
-        if (pendingZoomIncident && incidentGroups[pendingZoomIncident]) {
-          console.log('Executing pending zoom after polling found view');
-          setTimeout(() => zoomToIncident(pendingZoomIncident), 1000);
+        if (possibleView) {
+          console.log('✓ Found map view via polling:', possibleView);
+          mapView = possibleView;
+          mapIsReady = true;
+          clearInterval(checkForView);
+          
+          console.log('Map view spatial reference:', mapView.spatialReference);
+          
+          if (pendingZoomIncident && incidentGroups[pendingZoomIncident]) {
+            console.log('Executing pending zoom after polling found view');
+            setTimeout(() => zoomToIncident(pendingZoomIncident), 1000);
+          }
         }
-      } else if (viewCheckAttempts > 20) {
+      }
+      
+      if (viewCheckAttempts > 20) {
         console.error('✗ Failed to find map view after 20 attempts');
+        console.log('embeddedMap properties:', Object.keys(embeddedMap));
+        mapStatus.textContent = 'Error: Could not access map view';
         clearInterval(checkForView);
       }
     }, 500);
@@ -467,6 +486,19 @@
       console.log('✓ Map view obtained:', mapView);
       onMapReady();
     });
+    
+    // Also try using reactiveUtils to watch for the view
+    reactiveUtils.when(
+      () => embeddedMap.view != null,
+      () => {
+        console.log('=== reactiveUtils detected view ready ===');
+        if (!mapView) {
+          mapView = embeddedMap.view;
+          console.log('Got map view via reactiveUtils:', mapView);
+          onMapReady();
+        }
+      }
+    );
     
     function onMapReady() {
       mapIsReady = true;
