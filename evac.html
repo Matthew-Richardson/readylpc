@@ -352,6 +352,7 @@
     <select id="incidentSelect">
       <option value="">Loading incidents...</option>
     </select>
+    <button id="testZoomBtn" style="padding: 8px 12px; margin-left: 10px; background: #0079c1; color: white; border: none; cursor: pointer; border-radius: 4px;">Test Zoom</button>
     <span id="mapStatus" class="map-status"></span>
   </div>
   
@@ -416,19 +417,68 @@
     let mapIsReady = false;
     let pendingZoomIncident = null;
     
+    // Fallback: Check for view periodically
+    let viewCheckAttempts = 0;
+    const checkForView = setInterval(() => {
+      viewCheckAttempts++;
+      if (!mapView && embeddedMap.view) {
+        console.log('✓ Found map view via polling');
+        mapView = embeddedMap.view;
+        mapIsReady = true;
+        clearInterval(checkForView);
+        
+        if (pendingZoomIncident && incidentGroups[pendingZoomIncident]) {
+          console.log('Executing pending zoom after polling found view');
+          setTimeout(() => zoomToIncident(pendingZoomIncident), 1000);
+        }
+      } else if (viewCheckAttempts > 20) {
+        console.error('✗ Failed to find map view after 20 attempts');
+        clearInterval(checkForView);
+      }
+    }, 500);
+    
     // Wait for the embedded map to load
     embeddedMap.addEventListener('arcgisViewReadyChange', (event) => {
-      mapView = event.target.view;
+      console.log('=== arcgisViewReadyChange EVENT ===');
+      console.log('Event:', event);
+      console.log('Event detail:', event.detail);
+      console.log('Event target:', event.target);
+      console.log('Event target view:', event.target.view);
+      
+      // Try different ways to access the view
+      mapView = event.target.view || event.detail?.view || embeddedMap.view;
+      
+      if (!mapView) {
+        console.error('Could not access map view from event!');
+        console.log('Trying to access embeddedMap.view directly...');
+        // Try again after a short delay
+        setTimeout(() => {
+          mapView = embeddedMap.view;
+          if (mapView) {
+            console.log('✓ Got map view from embeddedMap.view');
+            onMapReady();
+          } else {
+            console.error('✗ Still cannot access map view');
+          }
+        }, 500);
+        return;
+      }
+      
+      console.log('✓ Map view obtained:', mapView);
+      onMapReady();
+    });
+    
+    function onMapReady() {
       mapIsReady = true;
       console.log('=== MAP VIEW READY ===');
-      console.log('Spatial reference:', mapView.spatialReference);
+      console.log('Spatial reference:', mapView?.spatialReference);
       
       // If there's a pending zoom (from URL or dropdown), execute it now
       if (pendingZoomIncident && incidentGroups[pendingZoomIncident]) {
         console.log('Pending zoom found, executing for:', pendingZoomIncident);
         setTimeout(() => zoomToIncident(pendingZoomIncident), 1000);
       }
-    });
+    }
     
     // Query the feature layer for incidents
     async function loadIncidents() {
@@ -655,6 +705,44 @@
       }
       
       zoomToIncident(selectedIncident);
+    });
+    
+    // Test zoom button
+    document.getElementById('testZoomBtn').addEventListener('click', () => {
+      console.log('=== TEST ZOOM BUTTON CLICKED ===');
+      console.log('Map view:', mapView);
+      console.log('Map ready:', mapIsReady);
+      console.log('Incident groups:', Object.keys(incidentGroups));
+      console.log('Selected incident:', incidentSelect.value);
+      
+      if (mapView) {
+        console.log('Current map extent:', mapView.extent);
+        console.log('Current map center:', mapView.center);
+        console.log('Current map zoom:', mapView.zoom);
+        
+        // Try a simple zoom to a fixed location to test if goTo works at all
+        console.log('Testing simple zoom...');
+        mapView.goTo({
+          center: [-107.88, 37.27],
+          zoom: 12
+        }).then(() => {
+          console.log('✓ Simple zoom successful!');
+          mapStatus.textContent = 'Simple zoom test successful';
+        }).catch(err => {
+          console.error('✗ Simple zoom failed:', err);
+          mapStatus.textContent = 'Simple zoom test failed';
+        });
+      } else {
+        console.error('Map view not available!');
+        alert('Map view not available. Check console.');
+      }
+      
+      if (incidentSelect.value) {
+        setTimeout(() => {
+          console.log('Now trying incident zoom...');
+          zoomToIncident(incidentSelect.value);
+        }, 2000);
+      }
     });
     
     // Load incidents when page loads
