@@ -91,9 +91,19 @@
       font-size: 15px;
       font-weight: 600;
       letter-spacing: 0.04em;
-      white-space: nowrap;
       color: #6e6e6e;
       opacity: 0.85;
+      line-height: 1.3;
+      /* allow wrapping so it doesn’t get cut off */
+      white-space: normal;
+    }
+
+    @media (max-width: 600px) {
+      .site-title {
+        font-size: 13px;
+        line-height: 1.4;
+        padding: 0 8px;
+      }
     }
 
     /* Call center as a cleaner info card */
@@ -136,14 +146,14 @@
       box-sizing: border-box;
     }
 
-    /* Top row: Active incidents + button aligned */
+    /* Top row: Active incidents + info button aligned */
     .incident-strip-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
       margin-bottom: 8px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
     }
 
     .incident-strip-label {
@@ -167,16 +177,21 @@
       line-height: 1.4;
     }
 
+    /* Info button: desktop = icon + text, mobile = icon only */
     .info-link {
       font-size: 16px;
       padding: 8px 16px;
-      border-radius: 8px;
+      border-radius: 999px;
       border: 1px solid #0b4da2;
       background: #ffffff;
       color: #0b4da2;
       cursor: pointer;
-      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s, opacity 0.2s;
       white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
     }
 
     .info-link:hover {
@@ -185,13 +200,33 @@
       box-shadow: 0 0 0 1px rgba(11,77,162,0.3);
     }
 
+    .info-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .info-label {
+      font-size: 15px;
+    }
+
+    /* On mobile: icon only to avoid colliding with the menu text */
     @media (max-width: 600px) {
       .incident-strip-top {
-        flex-direction: column;
-        align-items: stretch;
+        gap: 8px;
       }
       .info-link {
-        text-align: center;
+        padding: 6px 10px;
+      }
+      .info-label {
+        display: none;
       }
     }
 
@@ -528,8 +563,14 @@
               Active incidents
               <span id="incidentCountBadge" class="incident-count-badge">0</span>
             </div>
-            <button id="infoButton" class="info-link">
-              Evacuation Information Homepage
+            <button
+              id="infoButton"
+              class="info-link"
+              type="button"
+              aria-label="Evacuation Information Homepage"
+            >
+              <span class="info-icon">i</span>
+              <span class="info-label">Evacuation Information Homepage</span>
             </button>
           </div>
           <div id="incidentList" class="incident-list"></div>
