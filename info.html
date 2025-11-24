@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evacuation Information Homepage – ReadyLaPlata</title>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      font-family: Arial, sans-serif;
+      background: #f5f5f7;
+      font-size: 18px;
+      overflow-x: hidden;
+    }
+
+    @media (max-width: 600px) {
+      html, body {
+        font-size: 15px;
+      }
+    }
+
+    .page-shell {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .map-wrapper {
+      max-width: 900px;
+      width: 100%;
+      margin: 16px auto 0 auto;
+      padding: 12px;
+      box-sizing: border-box;
+    }
+
+    .map-card {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,0.2);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+      overflow: hidden;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ------- SHARED HEADER (logo + title + call center) ------- */
+    .card-brand {
+      padding: 18px 18px 10px 18px;
+      box-sizing: border-box;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-logo {
+      max-width: 260px;
+      width: 70%;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+    }
+
+    @media (max-width: 600px) {
+      .header-logo {
+        width: 73%;
+        max-width: 275px;
+      }
+    }
+
+    .site-title {
+      text-align: center;
+      margin-top: 4px;
+      margin-bottom: 4px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: #6e6e6e;
+      opacity: 0.85;
+      line-height: 1.3;
+      white-space: normal;
+    }
+
+    @media (max-width: 600px) {
+      .site-title {
+        font-size: 13px;
+        line-height: 1.4;
+        padding: 0 8px;
+      }
+    }
+
+    .call-center {
+      background: #f5f7ff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(11, 77, 162, 0.18);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      color: #333;
+    }
+
+    .call-center strong {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.85;
+    }
+
+    .call-center a {
+      color: #0b4da2;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 20px;
+    }
+
+    .call-center a:hover {
+      text-decoration: underline;
+    }
+
+    /* ------- MENU STRIP (consistent pill button) ------- */
+    .incident-strip {
+      padding: 12px 18px 10px 18px;
+      box-sizing: border-box;
+      border-bottom: none;
+    }
+
+    .incident-strip-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 4px;
+      flex-wrap: nowrap;
+    }
+
+    .incident-strip-label {
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #b3261e;
+    }
+
+    /* reuse pill/button styling */
+    .info-link {
+      font-size: 16px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid #0b4da2;
+      background: #ffffff;
+      color: #0b4da2;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s, opacity 0.2s;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .info-link:hover {
+      background: #0b4da2;
+      color: #ffffff;
+      box-shadow: 0 0 0 1px rgba(11,77,162,0.3);
+    }
+
+    .info-icon-home {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .info-label {
+      font-size: 15px;
+    }
+
+    @media (max-width: 600px) {
+      .incident-strip-top {
+        gap: 8px;
+      }
+      .info-link {
+        padding: 6px 10px;
+      }
+      .info-label {
+        display: none;
+      }
+      .info-icon-home {
+        font-size: 20px;
+      }
+    }
+
+    .map-divider {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+
+    /* ------- HOMEPAGE CARDS (content) ------- */
+    main {
+      display: block;
+      width: 100%;
+    }
+
+    .incident-panel {
+      max-width: 900px;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0 12px 24px 12px;
+      margin: 0 auto 24px auto;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .incident-panel a {
+      color: #0b4da2;
+      font-weight: 700;
+      text-decoration: underline;
+    }
+
+    .home-wrapper {
+      max-width: 900px;
+      margin: 16px auto 0 auto;
+      padding: 0 4px 0 4px;
+      box-sizing: border-box;
+    }
+
+    .home-card {
+      border-radius: 14px;
+      border: 2px solid #222;
+      margin-bottom: 14px;
+      padding: 14px 18px;
+      box-sizing: border-box;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      background: #ffffff;
+    }
+
+    .home-card-info {
+      background: #e6f0ff;
+      border-color: #3b78c2;
+    }
+
+    .home-card-ready {
+      background: #ffd6d6;
+      border-color: #d93a3a;
+      text-align: center;
+    }
+
+    .home-card-setgo {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+
+    .home-card-set,
+    .home-card-go {
+      flex: 1;
+      border-radius: 14px;
+      padding: 12px 14px;
+      box-sizing: border-box;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      border: 2px solid #222;
+    }
+
+    .home-card-set {
+      background: #fff36a;
+    }
+
+    .home-card-go {
+      background: #41f56e;
+    }
+
+    .home-card-codered {
+      background: #e6f0ff;
+      border-color: #3b78c2;
+    }
+
+    .home-title-strong {
+      font-weight: 700;
+    }
+
+    .home-title-line {
+      font-size: 19px;
+      margin-bottom: 6px;
+    }
+
+    .home-small {
+      font-size: 16px;
+    }
+
+    .home-set-title,
+    .home-go-title {
+      font-weight: 700;
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    .home-ready-heading {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .home-ready-heading span {
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 600px) {
+      .home-card-setgo {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-shell">
+    <div class="map-wrapper">
+      <div class="map-card">
+
+        <!-- same header as incident page -->
+        <div class="card-brand">
+          <img
+            src="https://cms9files.revize.com/laplata/_assets_/images/logo.png"
+            alt="La Plata County Logo"
+            class="header-logo"
+          />
+          <div class="site-title">
+            ReadyLaPlata — La Plata County Evacuation Viewer
+          </div>
+          <div class="call-center">
+            <strong>Call Center</strong>
+            <a href="tel:9703858700">970-385-8700</a>
+          </div>
+        </div>
+
+        <!-- menu strip: button sends user back to incident map page -->
+        <div class="incident-strip">
+          <div class="incident-strip-top">
+            <div class="incident-strip-label">
+              Evacuation information
+            </div>
+            <button
+              id="infoButton"
+              class="info-link"
+              type="button"
+              aria-label="Back to Incident Map"
+            >
+              <span class="info-icon-home" aria-hidden="true">🏠</span>
+              <span class="info-label">Back to Incident Map</span>
+            </button>
+          </div>
+          <div class="map-divider"></div>
+        </div>
+      </div>
+    </div>
+
+    <main>
+      <div class="incident-panel">
+        <div class="home-wrapper">
+          <div class="home-card home-card-info">
+            <div class="home-title-line">
+              <span class="home-title-strong">
+                La Plata County Office of Emergency Management (LPCOEM)
+              </span>
+              &nbsp;uses the Ready, Set, Go! system to establish evacuation zones.
+            </div>
+            <div class="home-small">
+              <strong>Click the incident map above</strong> to confirm your zone.
+              During an incident your zone name and area may change.
+            </div>
+          </div>
+
+          <div class="home-card home-card-ready">
+            <div class="home-ready-heading">
+              Be <span>READY</span>, Stay <span>SAFE</span>
+            </div>
+            <div class="home-small" style="text-align:left;">
+              <p><strong>Stay Informed:</strong>
+                <a href="https://public.coderedweb.com/CNE/en-US/4A6A53EDDC0E"
+                   target="_blank" rel="noopener">
+                  CodeRED signup
+                </a>
+                or text <strong>'LPCOEM' to 99411</strong>. Ensure Gov’t Alerts are
+                enabled on your cell phone, and use apps like Watch Duty.
+              </p>
+              <p><strong>Arrangements:</strong>
+                 Make a plan and practice your evacuation; People, Pets, Photos, Papers and Pills.
+              </p>
+              <p><strong>Fire Ready:</strong>
+                 Fire mitigation and last-minute safety measures; have a “Go Kit” with protective clothing and masks.
+              </p>
+              <p><strong>Evacuate:</strong>
+                 Don’t hesitate or ignore evacuation orders. Know multiple ways out.
+              </p>
+            </div>
+          </div>
+
+          <div class="home-card home-card-setgo">
+            <div class="home-card-set">
+              <div class="home-set-title">SET - Pre-Evacuation</div>
+              <div class="home-small">
+                Voluntary evacuation;<br/>
+                evacuation orders are likely.
+              </div>
+            </div>
+            <div class="home-card-go">
+              <div class="home-go-title">GO - Evacuate Now</div>
+              <div class="home-small">
+                <strong>LEAVE NOW.</strong> Immediate threat to life.<br/>
+                This area is closed to public access.
+              </div>
+            </div>
+          </div>
+
+          <div class="home-card home-card-codered">
+            <div class="home-title-line home-title-strong" style="margin-bottom:10px;">
+              La Plata County’s emergency notification system is called CodeRED.
+            </div>
+            <div class="home-small">
+              If you live in La Plata County, you may register up to five cell or internet
+              phone numbers with your physical street address so you receive emergency
+              notifications even when you’re not at home or don’t have a landline.
+            </div>
+            <div class="home-small" style="margin-top:10px;">
+              Mobile signup: <strong>Text 'LPCOEM' to 99411</strong>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Set this to the URL of your incident map page (the one you already have working)
+    const INCIDENT_MAP_URL = "evac.html"; // <-- change to your actual map page file name
+
+    const btn = document.getElementById("infoButton");
+    if (btn) {
+      btn.addEventListener("click", () => {
+        window.location.href = INCIDENT_MAP_URL;
+      });
+    }
+  </script>
+</body>
+</html>
