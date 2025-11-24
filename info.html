@@ -128,7 +128,7 @@
       text-decoration: underline;
     }
 
-    /* ------- MENU STRIP (consistent pill button) ------- */
+    /* ------- INCIDENT MENU ------- */
     .incident-strip {
       padding: 12px 18px 10px 18px;
       box-sizing: border-box;
@@ -140,7 +140,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
       flex-wrap: nowrap;
     }
 
@@ -155,60 +155,58 @@
       color: #b3261e;
     }
 
-    /* reuse pill/button styling */
-    .info-link {
-      font-size: 16px;
-      padding: 8px 14px;
+    .incident-count-badge {
+      padding: 4px 12px;
       border-radius: 999px;
-      border: 1px solid #0b4da2;
-      background: #ffffff;
-      color: #0b4da2;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s, box-shadow 0.2s, opacity 0.2s;
-      white-space: nowrap;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
-    .info-link:hover {
-      background: #0b4da2;
+      background: #b3261e;
       color: #ffffff;
-      box-shadow: 0 0 0 1px rgba(11,77,162,0.3);
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.4;
     }
 
-    .info-icon-home {
-      font-size: 18px;
-      line-height: 1;
-    }
-
-    .info-label {
-      font-size: 15px;
-    }
-
-    @media (max-width: 600px) {
-      .incident-strip-top {
-        gap: 8px;
-      }
-      .info-link {
-        padding: 6px 10px;
-      }
-      .info-label {
-        display: none;
-      }
-      .info-icon-home {
-        font-size: 20px;
-      }
+    .incident-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 260px;
+      overflow-y: auto;
     }
 
     .map-divider {
-      margin-top: 6px;
-      padding-top: 6px;
+      margin-top: 10px;
+      padding-top: 10px;
       border-top: 1px solid rgba(0,0,0,0.08);
     }
 
-    /* ------- HOMEPAGE CARDS (content) ------- */
+    .incident-button {
+      width: 100%;
+      text-align: center;
+      padding: 14px 16px;
+      font-size: 20px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: #f7f7f7;
+      cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, opacity 0.15s;
+      line-height: 1.5;
+      color: #000;
+    }
+
+    .incident-button.compact {
+      padding: 8px 14px;
+      font-size: 17px;
+      background: #fafafa;
+    }
+
+    .incident-button:hover {
+      background: #eef4ff;
+      border-color: #c4d7ff;
+    }
+
+    /* ------- HOMEPAGE CONTENT ------- */
     main {
       display: block;
       width: 100%;
@@ -255,34 +253,16 @@
     .home-card-ready {
       background: #ffd6d6;
       border-color: #d93a3a;
-      text-align: center;
-    }
-
-    .home-card-setgo {
-      display: flex;
-      gap: 10px;
-      padding: 10px;
-      background: transparent;
-      border: none;
-      box-shadow: none;
-    }
-
-    .home-card-set,
-    .home-card-go {
-      flex: 1;
-      border-radius: 14px;
-      padding: 12px 14px;
-      box-sizing: border-box;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-      border: 2px solid #222;
     }
 
     .home-card-set {
       background: #fff36a;
+      border-color: #d2b700;
     }
 
     .home-card-go {
       background: #41f56e;
+      border-color: #0f8c30;
     }
 
     .home-card-codered {
@@ -303,26 +283,28 @@
       font-size: 16px;
     }
 
-    .home-set-title,
-    .home-go-title {
-      font-weight: 700;
-      font-size: 20px;
-      margin-bottom: 4px;
-    }
-
     .home-ready-heading {
       font-size: 24px;
       font-weight: 700;
       margin-bottom: 8px;
+      text-align: center;
     }
 
     .home-ready-heading span {
       text-transform: uppercase;
     }
 
+    .home-set-title,
+    .home-go-title {
+      font-weight: 700;
+      font-size: 20px;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+
     @media (max-width: 600px) {
-      .home-card-setgo {
-        flex-direction: column;
+      .home-card {
+        margin-bottom: 12px;
       }
     }
   </style>
@@ -333,7 +315,7 @@
     <div class="map-wrapper">
       <div class="map-card">
 
-        <!-- same header as incident page -->
+        <!-- shared header -->
         <div class="card-brand">
           <img
             src="https://cms9files.revize.com/laplata/_assets_/images/logo.png"
@@ -349,22 +331,17 @@
           </div>
         </div>
 
-        <!-- menu strip: button sends user back to incident map page -->
+        <!-- incident menu (no home/back button) -->
         <div class="incident-strip">
           <div class="incident-strip-top">
             <div class="incident-strip-label">
-              Evacuation information
+              Active incidents
+              <span id="incidentCountBadge" class="incident-count-badge">0</span>
             </div>
-            <button
-              id="infoButton"
-              class="info-link"
-              type="button"
-              aria-label="Back to Incident Map"
-            >
-              <span class="info-icon-home" aria-hidden="true">🏠</span>
-              <span class="info-label">Back to Incident Map</span>
-            </button>
           </div>
+
+          <div id="incidentList" class="incident-list"></div>
+
           <div class="map-divider"></div>
         </div>
       </div>
@@ -373,6 +350,7 @@
     <main>
       <div class="incident-panel">
         <div class="home-wrapper">
+          <!-- top blue info card -->
           <div class="home-card home-card-info">
             <div class="home-title-line">
               <span class="home-title-strong">
@@ -386,18 +364,22 @@
             </div>
           </div>
 
+          <!-- red READY card -->
           <div class="home-card home-card-ready">
             <div class="home-ready-heading">
               Be <span>READY</span>, Stay <span>SAFE</span>
             </div>
-            <div class="home-small" style="text-align:left;">
+            <div class="home-small">
               <p><strong>Stay Informed:</strong>
                 <a href="https://public.coderedweb.com/CNE/en-US/4A6A53EDDC0E"
                    target="_blank" rel="noopener">
                   CodeRED signup
                 </a>
-                or text <strong>'LPCOEM' to 99411</strong>. Ensure Gov’t Alerts are
-                enabled on your cell phone, and use apps like Watch Duty.
+                or
+                <a href="sms:99411?&body=LPCOEM">
+                  text 'LPCOEM' to 99411
+                </a>.
+                Ensure Gov’t Alerts are enabled on your cell phone, and use apps like Watch Duty.
               </p>
               <p><strong>Arrangements:</strong>
                  Make a plan and practice your evacuation; People, Pets, Photos, Papers and Pills.
@@ -411,23 +393,25 @@
             </div>
           </div>
 
-          <div class="home-card home-card-setgo">
-            <div class="home-card-set">
-              <div class="home-set-title">SET - Pre-Evacuation</div>
-              <div class="home-small">
-                Voluntary evacuation;<br/>
-                evacuation orders are likely.
-              </div>
-            </div>
-            <div class="home-card-go">
-              <div class="home-go-title">GO - Evacuate Now</div>
-              <div class="home-small">
-                <strong>LEAVE NOW.</strong> Immediate threat to life.<br/>
-                This area is closed to public access.
-              </div>
+          <!-- yellow SET card (full-width) -->
+          <div class="home-card home-card-set">
+            <div class="home-set-title">SET - Pre-Evacuation</div>
+            <div class="home-small" style="text-align:center;">
+              Voluntary evacuation;<br/>
+              evacuation orders are likely.
             </div>
           </div>
 
+          <!-- green GO card (full-width) -->
+          <div class="home-card home-card-go">
+            <div class="home-go-title">GO - Evacuate Now</div>
+            <div class="home-small" style="text-align:center;">
+              <strong>LEAVE NOW.</strong> Immediate threat to life.<br/>
+              This area is closed to public access.
+            </div>
+          </div>
+
+          <!-- bottom blue CodeRED card -->
           <div class="home-card home-card-codered">
             <div class="home-title-line home-title-strong" style="margin-bottom:10px;">
               La Plata County’s emergency notification system is called CodeRED.
@@ -438,7 +422,10 @@
               notifications even when you’re not at home or don’t have a landline.
             </div>
             <div class="home-small" style="margin-top:10px;">
-              Mobile signup: <strong>Text 'LPCOEM' to 99411</strong>.
+              Mobile signup:
+              <a href="sms:99411?&body=LPCOEM">
+                Text 'LPCOEM' to 99411
+              </a>.
             </div>
           </div>
         </div>
@@ -447,15 +434,79 @@
   </div>
 
   <script>
-    // Set this to the URL of your incident map page (the one you already have working)
-    const INCIDENT_MAP_URL = "evac.html"; // <-- change to your actual map page file name
+    // URL of your INCIDENT MAP page (for incident buttons)
+    const INCIDENT_MAP_URL = "evac.html"; // change to your real filename if different
 
-    const btn = document.getElementById("infoButton");
-    if (btn) {
-      btn.addEventListener("click", () => {
-        window.location.href = INCIDENT_MAP_URL;
+    const incidentLayerUrl =
+      "https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0";
+    const incidentFieldName = "incident";
+
+    const listEl = document.getElementById("incidentList");
+    const countBadge = document.getElementById("incidentCountBadge");
+
+    // Load distinct incident names and build menu
+    function loadIncidents() {
+      const params = new URLSearchParams({
+        where: "1=1",
+        outFields: incidentFieldName,
+        returnDistinctValues: "true",
+        returnGeometry: "false",
+        orderByFields: incidentFieldName,
+        f: "json"
       });
+
+      fetch(incidentLayerUrl + "/query?" + params.toString())
+        .then((r) => {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json();
+        })
+        .then((data) => {
+          const features = data.features || [];
+          const names = [];
+
+          features.forEach((f) => {
+            const attrs = f.attributes || {};
+            const name = attrs[incidentFieldName];
+            if (name) names.push(name);
+          });
+
+          names.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+
+          if (countBadge) {
+            countBadge.textContent = names.length;
+          }
+
+          if (!names.length) {
+            listEl.innerHTML = "";
+            return;
+          }
+
+          const total = names.length;
+          names.forEach((name) => {
+            const btn = document.createElement("button");
+            btn.className = "incident-button";
+            btn.textContent = `${name} — Evac Map`;
+
+            if (total > 1) {
+              btn.classList.add("compact");
+            }
+
+            btn.addEventListener("click", () => {
+              const url = new URL(INCIDENT_MAP_URL, window.location.href);
+              url.searchParams.set("incident", name);
+              window.location.href = url.toString();
+            });
+
+            listEl.appendChild(btn);
+          });
+        })
+        .catch((err) => {
+          console.error("Error loading incidents for info page:", err);
+          if (countBadge) countBadge.textContent = "0";
+        });
     }
+
+    loadIncidents();
   </script>
 </body>
 </html>
