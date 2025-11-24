@@ -141,7 +141,6 @@
     /* ======= INCIDENT BAR + MENU ======= */
     .incident-strip {
       padding: 12px 18px 10px 18px;
-      /* moved separation to .map-divider instead of here */
       border-bottom: none;
       box-sizing: border-box;
     }
@@ -574,7 +573,7 @@
               type="button"
               aria-label="Evacuation Information Homepage"
             >
-              <span class="info-icon-home">🏠</span>
+              <span class="info-icon-home" aria-hidden="true">🏠</span>
               <span class="info-label">Evacuation Information Homepage</span>
             </button>
           </div>
@@ -921,7 +920,7 @@
             });
             view.ui.add(search, "top-right");
 
-            // Fullscreen widget for map
+            // Native ArcGIS fullscreen widget
             const fullscreen = new Fullscreen({
               view: view
             });
