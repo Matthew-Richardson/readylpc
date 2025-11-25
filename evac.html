@@ -113,37 +113,6 @@
   </div>
 
   <script>
-
-    // Scroll hint: hide when user reaches bottom of page
-    (function() {
-      function updateScrollHint() {
-        var scrollTop = window.pageYOffset ||
-          document.documentElement.scrollTop ||
-          document.body.scrollTop || 0;
-
-        var docHeight = Math.max(
-          document.body.scrollHeight, document.documentElement.scrollHeight,
-          document.body.offsetHeight, document.documentElement.offsetHeight,
-          document.body.clientHeight, document.documentElement.clientHeight
-        );
-        var windowHeight = window.innerHeight ||
-          document.documentElement.clientHeight ||
-          document.body.clientHeight;
-
-        var atBottom = scrollTop + windowHeight >= docHeight - 4;
-        if (atBottom) {
-          document.body.classList.add('scrolled');
-        } else {
-          document.body.classList.remove('scrolled');
-        }
-      }
-
-      window.addEventListener('scroll', updateScrollHint);
-      window.addEventListener('resize', updateScrollHint);
-      document.addEventListener('DOMContentLoaded', updateScrollHint);
-    })();
-
-
     const webmapId = "58a8bb313db64271a55e7960cb839f64";
     const incidentLayerUrl =
       "https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0";
@@ -379,6 +348,35 @@
 
     loadEvacuationZones();
     loadIncidentStatus(INCIDENT);
+
+    // Scroll hint: hide after user scrolls a bit or reaches bottom (one-time)
+    (function() {
+      function handleScrollHint() {
+        var scrollTop = window.pageYOffset ||
+          document.documentElement.scrollTop ||
+          document.body.scrollTop || 0;
+
+        var docHeight = Math.max(
+          document.body.scrollHeight, document.documentElement.scrollHeight,
+          document.body.offsetHeight, document.documentElement.offsetHeight,
+          document.body.clientHeight, document.documentElement.clientHeight
+        );
+        var windowHeight = window.innerHeight ||
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+
+        var atBottom = scrollTop + windowHeight >= docHeight - 4;
+
+        if (scrollTop > 10 || atBottom) {
+          document.body.classList.add('scrolled');
+          window.removeEventListener('scroll', handleScrollHint);
+          window.removeEventListener('resize', handleScrollHint);
+        }
+      }
+
+      window.addEventListener('scroll', handleScrollHint, { passive: true });
+      window.addEventListener('resize', handleScrollHint);
+    })();
 
     /* ---------- MAP & INCIDENT CHIPS LOGIC ---------- */
     require(
