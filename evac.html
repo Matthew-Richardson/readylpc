@@ -408,6 +408,7 @@
               outFields: [incidentFieldName],
               returnDistinctValues: true,
               orderByFields: [incidentFieldName],
+              returnGeometry: false,
             });
           })
           .then((fs) => {
