@@ -104,7 +104,7 @@
     </main>
   </div>
 
-  <!-- Simple scroll hint (visual only) -->
+  <!-- Scroll hint pill -->
   <div class="scroll-hint" id="scrollHint">
     <div class="scroll-hint-button">
       <span class="scroll-hint-text">Scroll</span>
@@ -349,7 +349,7 @@
     loadEvacuationZones();
     loadIncidentStatus(INCIDENT);
 
-    // Scroll hint: visible on load, disappears once the user scrolls a bit
+    // Scroll hint: visible on load, disappears once the user scrolls a bit (one-time)
     function handleScrollHint() {
       const scrollTop =
         window.scrollY ||
