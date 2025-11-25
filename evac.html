@@ -13,43 +13,6 @@
   <!-- ArcGIS Maps SDK -->
   <link rel="stylesheet" href="https://js.arcgis.com/4.31/esri/themes/light/main.css" />
   <script src="https://js.arcgis.com/4.31/"></script>
-
-  <!-- Scroll indicator styles (Option A) -->
-  <style>
-    .scroll-indicator {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 9999;
-      pointer-events: none; /* don't block map clicks */
-      transition: opacity 0.4s ease;
-    }
-
-    .scroll-arrow {
-      font-size: 28px;
-      color: #333;
-      opacity: 0.8;
-      animation: scrollBounce 1.6s infinite;
-      user-select: none;
-    }
-
-    @keyframes scrollBounce {
-      0%, 100% { transform: translateY(0); opacity: 0.5; }
-      50%      { transform: translateY(7px); opacity: 1; }
-    }
-
-    /* Hide indicator once user scrolls down a bit */
-    body.scrolled .scroll-indicator {
-      opacity: 0;
-    }
-
-    @media (max-width: 600px) {
-      .scroll-arrow {
-        font-size: 24px;
-      }
-    }
-  </style>
 </head>
 
 <body>
@@ -141,9 +104,12 @@
     </main>
   </div>
 
-  <!-- Floating scroll-hint arrow -->
-  <div class="scroll-indicator">
-    <span class="scroll-arrow">▼</span>
+  <!-- New scroll hint pill -->
+  <div class="scroll-hint" id="scrollHint">
+    <button class="scroll-hint-button" type="button">
+      <span class="scroll-hint-text">Scroll</span>
+      <span class="scroll-hint-arrow">▾</span>
+    </button>
   </div>
 
   <script>
@@ -411,7 +377,7 @@
           map: webmap,
         });
 
-        // Scroll listener to hide scroll arrow when user scrolls
+        // Toggle body.scrolled (used to fade out scroll-hint in CSS)
         window.addEventListener("scroll", () => {
           if (window.scrollY > 50) {
             document.body.classList.add("scrolled");
@@ -540,6 +506,17 @@
           });
       }
     );
+
+    // Click handler for scroll hint: scroll to main content
+    document.addEventListener("DOMContentLoaded", () => {
+      const scrollHint = document.getElementById("scrollHint");
+      if (!scrollHint) return;
+
+      scrollHint.addEventListener("click", () => {
+        const mainEl = document.querySelector("main") || document.body;
+        mainEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
   </script>
 </body>
 </html>
