@@ -188,7 +188,7 @@
     .info-link {
       font-size: 15px;
       padding: 6px 12px;
-      border-radius: 14px;
+      border-radius: 8px; /* match call center */
       border: 1px solid #0b4da2;
       background: #ffffff;
       color: #0b4da2;
@@ -242,7 +242,7 @@
     }
 
     .incident-chip {
-      border-radius: 999px;
+      border-radius: 8px; /* match call center */
       padding: 6px 12px;
       border: 1px solid #d0d0d0;
       background: #ffffff;
@@ -476,9 +476,9 @@
       color: #000000;
     }
 
-    /* ===== Status HTML from Google Sheet – now matches SET/GO body size ===== */
+    /* ===== Status HTML from Google Sheet – match SET/GO body size ===== */
     .status-html {
-      font-size: 15px !important;   /* match evac-body */
+      font-size: 15px !important;
       line-height: 1.6 !important;
       color: #000000;
     }
@@ -487,6 +487,18 @@
       font-size: inherit !important;
       line-height: inherit !important;
       color: inherit !important;
+    }
+
+    /* Restore clear link styling inside status panels */
+    .status-html a {
+      color: #0b4da2 !important;
+      font-weight: 700 !important;
+      text-decoration: underline !important;
+    }
+
+    .status-html a:hover {
+      color: #083b7c !important;
+      text-decoration: underline !important;
     }
 
     .status-html h1,
@@ -499,7 +511,7 @@
       padding: 10px 16px !important;
       margin: 8px 0 4px 0 !important;
       font-weight: 700 !important;
-      font-size: 18px !important;  /* smaller, closer to evac-title */
+      font-size: 18px !important;
       border-radius: 999px !important;
       display: inline-block !important;
       box-sizing: border-box !important;
@@ -547,7 +559,6 @@
       .evac-box {
         min-width: 0;
       }
-      /* no extra font bump for status-html on mobile */
     }
   </style>
 </head>
