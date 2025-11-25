@@ -349,35 +349,6 @@
     loadEvacuationZones();
     loadIncidentStatus(INCIDENT);
 
-    // Scroll hint: hide after user scrolls a bit or reaches bottom (one-time)
-    (function() {
-      function handleScrollHint() {
-        var scrollTop = window.pageYOffset ||
-          document.documentElement.scrollTop ||
-          document.body.scrollTop || 0;
-
-        var docHeight = Math.max(
-          document.body.scrollHeight, document.documentElement.scrollHeight,
-          document.body.offsetHeight, document.documentElement.offsetHeight,
-          document.body.clientHeight, document.documentElement.clientHeight
-        );
-        var windowHeight = window.innerHeight ||
-          document.documentElement.clientHeight ||
-          document.body.clientHeight;
-
-        var atBottom = scrollTop + windowHeight >= docHeight - 4;
-
-        if (scrollTop > 10 || atBottom) {
-          document.body.classList.add('scrolled');
-          window.removeEventListener('scroll', handleScrollHint);
-          window.removeEventListener('resize', handleScrollHint);
-        }
-      }
-
-      window.addEventListener('scroll', handleScrollHint, { passive: true });
-      window.addEventListener('resize', handleScrollHint);
-    })();
-
     /* ---------- MAP & INCIDENT CHIPS LOGIC ---------- */
     require(
       [
