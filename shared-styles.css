@@ -664,9 +664,11 @@ main {
 }
 
 .incident-tip {
-  font-size: 13px;
-  color: #6b6b6b;
-  margin: 2px 0 6px 0;
-  opacity: 0.75;
+  font-size: 12px !important;
+  color: #777 !important;
+  opacity: 0.6 !important;
+  margin: 2px 0 6px 2px;
+  font-weight: 400 !important;
 }
+
 
