@@ -20,7 +20,7 @@
       font-family: Arial, sans-serif;
       background: #f5f5f7;
       font-size: 18px;
-      overflow-x: hidden; /* prevent horizontal scroll / cutoff on iPhone */
+      overflow-x: hidden;
       color: #000000;
     }
 
@@ -61,7 +61,6 @@
     .card-brand {
       padding: 18px 18px 10px 18px;
       box-sizing: border-box;
-      /* border-bottom removed so we can use a shared inset divider */
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -138,7 +137,7 @@
 
     /* Shared inset divider line (used below header + below menu) */
     .card-divider {
-      margin: 8px 14px 0 14px; /* in from card edges */
+      margin: 8px 14px 0 14px;
       border-top: 1px solid rgba(0,0,0,0.08);
     }
 
@@ -165,7 +164,6 @@
       flex-wrap: nowrap;
     }
 
-    /* "Active incidents" label + red badge */
     .incident-label {
       font-size: 16px;
       font-weight: 700;
@@ -187,7 +185,6 @@
       line-height: 1.4;
     }
 
-    /* Homepage button – match rounding to chips */
     .info-link {
       font-size: 15px;
       padding: 6px 12px;
@@ -231,7 +228,6 @@
       }
     }
 
-    /* Chip row */
     .incident-chips {
       display: flex;
       flex-wrap: wrap;
@@ -250,7 +246,7 @@
       padding: 6px 12px;
       border: 1px solid #d0d0d0;
       background: #ffffff;
-      font-size: 17px; /* bumped up */
+      font-size: 17px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -281,7 +277,7 @@
       border-color: #0b4da2;
       color: #ffffff;
       box-shadow: 0 0 0 1px rgba(11,77,162,0.3);
-      font-weight: 700; /* active bold */
+      font-weight: 700;
     }
 
     .incident-chip.active .incident-chip-dot {
@@ -294,20 +290,18 @@
       margin-top: 4px;
     }
 
-    /* Map: full card width */
     #viewDiv {
       width: 100%;
       height: 460px;
       box-sizing: border-box;
     }
 
-    /* Map Key inside map card */
     .map-key-merged {
       padding: 16px 18px 18px 18px;
       border-top: 1px solid rgba(0,0,0,0.08);
       background: #fafafa;
       text-align: center;
-      color: #000000; /* ensure legend text is dark */
+      color: #000000;
     }
 
     .map-key-merged .legend-title {
@@ -329,10 +323,6 @@
       gap: 8px;
       font-size: 16px;
       white-space: nowrap;
-      color: #000000;
-    }
-
-    .map-key-merged .legend-item span {
       color: #000000;
     }
 
@@ -391,7 +381,6 @@
       line-height: 1;
     }
 
-    /* ----- STATUS CARDS BELOW MAP ----- */
     main {
       display: block;
       width: 100%;
@@ -410,13 +399,14 @@
       color: #000000;
     }
 
+    /* ===== Smaller status boxes (~20% smaller) ===== */
     .evac-box {
-      padding: 18px;
-      border-radius: 10px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.3);
+      padding: 14px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.25);
       box-sizing: border-box;
       flex: 1;
-      min-width: 280px;
+      min-width: 260px;
       border: 1px solid rgba(0,0,0,0.2);
       background: #ffffff;
       color: #000000;
@@ -424,29 +414,29 @@
 
     .evac-box-set {
       border: 3px solid rgba(180, 150, 0, 0.9);
-      box-shadow: 0 0 12px rgba(180,150,0,0.5);
+      box-shadow: 0 0 10px rgba(180,150,0,0.45);
     }
 
     .evac-box-go {
       border: 3px solid rgba(0,120,0,0.9);
-      box-shadow: 0 0 16px rgba(0,120,0,0.6);
+      box-shadow: 0 0 12px rgba(0,120,0,0.55);
       animation: goPulse 2.5s ease-in-out infinite alternate;
     }
 
     @keyframes goPulse {
-      from { box-shadow: 0 0 10px rgba(0,120,0,0.4); }
-      to   { box-shadow: 0 0 22px rgba(0,160,0,0.8); }
+      from { box-shadow: 0 0 8px rgba(0,120,0,0.4); }
+      to   { box-shadow: 0 0 18px rgba(0,160,0,0.8); }
     }
 
     .evac-title {
       font-weight: 700;
-      font-size: 22px;
-      margin-bottom: 10px;
+      font-size: 18px; /* was 22px */
+      margin-bottom: 8px;
     }
 
     .evac-body {
-      font-size: 18px;
-      line-height: 1.6;
+      font-size: 15px; /* was 18px */
+      line-height: 1.5;
       display: flex;
       flex-direction: column;
       color: #000000;
@@ -455,22 +445,22 @@
     .evac-zones {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 12px;
+      gap: 6px;
+      margin-top: 10px;
     }
 
     .zone-chip,
     .no-zones-chip {
       font-weight: 700;
       background: rgba(0,0,0,0.08);
-      padding: 6px 12px;
+      padding: 4px 10px;
       border-radius: 8px;
-      font-size: 18px;
+      font-size: 15px; /* was 18px */
     }
 
     .evac-note {
-      margin-top: 14px;
-      font-size: 18px;
+      margin-top: 10px;
+      font-size: 15px; /* was 18px */
       font-style: italic;
       font-weight: 700;
     }
@@ -566,11 +556,9 @@
 <body>
   <div class="page-shell">
 
-    <!-- MAP + BRAND + INCIDENT MENU -->
     <div class="map-wrapper">
       <div class="map-card">
 
-        <!-- Brand block inside the card -->
         <div class="card-brand">
           <img
             src="https://cms9files.revize.com/laplata/_assets_/images/logo.png"
@@ -586,10 +574,8 @@
           </div>
         </div>
 
-        <!-- Inset divider below header -->
         <div class="card-divider"></div>
 
-        <!-- Compact incident bar + chips -->
         <div class="incident-strip">
           <div class="incident-strip-top">
             <div class="incident-bar-left">
@@ -615,12 +601,10 @@
           </div>
         </div>
 
-        <!-- Inset divider below menu -->
         <div class="card-divider"></div>
 
         <div id="viewDiv"></div>
 
-        <!-- Map Key merged into card -->
         <div class="map-key-merged">
           <div class="legend-title">Map Key</div>
           <div class="legend-items">
@@ -642,7 +626,6 @@
       </div>
     </div>
 
-    <!-- SET/GO + STATUS SECTION -->
     <main>
       <div id="evacRow" class="evac-row">
         Loading evacuation information…
@@ -655,7 +638,6 @@
   </div>
 
   <script>
-    /* ---------- SHARED CONFIG ---------- */
     const webmapId = "58a8bb313db64271a55e7960cb839f64";
     const incidentLayerUrl =
       "https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0";
@@ -675,7 +657,6 @@
       return inc && inc.trim() ? inc.trim() : null;
     })();
 
-    /* ---------- STATUS / ZONE LOGIC ---------- */
     const STATUS_LABELS = {
       SET: "SET - Pre-Evacuation",
       GO: "GO - Evacuate Now",
@@ -890,7 +871,6 @@
         });
     }
 
-    // Kick off SET/GO + status
     loadEvacuationZones();
     loadIncidentStatus(INCIDENT);
 
@@ -910,7 +890,6 @@
         const noIncidentsMsg = document.getElementById("noIncidentsMsg");
 
         infoButton.addEventListener("click", () => {
-          // Link to your info homepage
           window.location.href = "info.html";
         });
 
@@ -989,7 +968,6 @@
               if (noIncidentsMsg) noIncidentsMsg.style.display = "none";
             }
 
-            // Sort with selected incident first (if any), then alphabetically
             if (INCIDENT) {
               const target = INCIDENT.toLowerCase();
               incidentNames.sort((a, b) => {
@@ -1005,7 +983,6 @@
               );
             }
 
-            // Build chip buttons
             incidentNames.forEach((name) => {
               const chip = document.createElement("button");
               chip.className = "incident-chip";
@@ -1024,7 +1001,6 @@
               chipsEl.appendChild(chip);
             });
 
-            // Mark active incident, zoom to it
             if (INCIDENT) {
               const chips = Array.from(
                 chipsEl.querySelectorAll(".incident-chip")
