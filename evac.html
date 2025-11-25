@@ -349,6 +349,43 @@
     loadEvacuationZones();
     loadIncidentStatus(INCIDENT);
 
+    // Shared scroll-hint logic: hide near bottom of page
+    function updateScrollHint() {
+      const scrollPos =
+        window.scrollY ||
+        document.documentElement.scrollTop ||
+        document.body.scrollTop ||
+        0;
+      const windowHeight =
+        window.innerHeight ||
+        document.documentElement.clientHeight ||
+        document.body.clientHeight;
+      const docHeight =
+        document.documentElement.scrollHeight ||
+        document.body.scrollHeight;
+
+      const maxScroll = docHeight - windowHeight;
+
+      // If not scrollable, hide the hint
+      if (maxScroll <= 0) {
+        document.body.classList.add("scrolled");
+        return;
+      }
+
+      // Consider "at bottom" if we're within 8px of the max
+      const atBottom = scrollPos >= maxScroll - 8;
+
+      if (atBottom) {
+        document.body.classList.add("scrolled");
+      } else {
+        document.body.classList.remove("scrolled");
+      }
+    }
+
+    window.addEventListener("scroll", updateScrollHint);
+    window.addEventListener("resize", updateScrollHint);
+    document.addEventListener("DOMContentLoaded", updateScrollHint);
+
     /* ---------- MAP & INCIDENT CHIPS LOGIC ---------- */
     require(
       [
@@ -387,30 +424,6 @@
             view.navigation.touchZoomEnabled = true; // keep pinch zoom
           }
         }
-
-        // Compute bottom-of-page and hide scroll hint there
-        window.addEventListener("scroll", () => {
-          const scrollPos =
-            window.scrollY ||
-            document.documentElement.scrollTop ||
-            document.body.scrollTop ||
-            0;
-          const windowHeight =
-            window.innerHeight ||
-            document.documentElement.clientHeight ||
-            document.body.clientHeight;
-          const docHeight =
-            document.documentElement.scrollHeight ||
-            document.body.scrollHeight;
-
-          const atBottom = scrollPos + windowHeight >= docHeight - 8;
-
-          if (atBottom) {
-            document.body.classList.add("scrolled");
-          } else {
-            document.body.classList.remove("scrolled");
-          }
-        });
 
         const incidentLayer = new FeatureLayer({
           url: incidentLayerUrl,
