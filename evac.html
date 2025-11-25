@@ -507,16 +507,27 @@
       }
     );
 
-    // Click handler for scroll hint: scroll to main content
-    document.addEventListener("DOMContentLoaded", () => {
-      const scrollHint = document.getElementById("scrollHint");
-      if (!scrollHint) return;
+    // Make the scroll hint scroll down by ~one screen height each click
+document.addEventListener("DOMContentLoaded", () => {
+  const hintButton = document.querySelector(".scroll-hint-button");
+  if (!hintButton) return;
 
-      scrollHint.addEventListener("click", () => {
-        const mainEl = document.querySelector("main") || document.body;
-        mainEl.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
+  hintButton.addEventListener("click", () => {
+    const currentY =
+      window.scrollY ||
+      document.documentElement.scrollTop ||
+      document.body.scrollTop ||
+      0;
+
+    const delta = window.innerHeight * 0.8; // ~80% of the viewport height
+
+    window.scrollTo({
+      top: currentY + delta,
+      behavior: "smooth"
     });
+  });
+});
+
   </script>
 </body>
 </html>
