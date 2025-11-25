@@ -7,6 +7,43 @@
 
   <!-- Shared styles -->
   <link rel="stylesheet" href="shared-styles.css" />
+
+  <!-- Scroll indicator styles (Option A) -->
+  <style>
+    .scroll-indicator {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      pointer-events: none; /* don't block taps/clicks */
+      transition: opacity 0.4s ease;
+    }
+
+    .scroll-arrow {
+      font-size: 28px;
+      color: #333;
+      opacity: 0.8;
+      animation: scrollBounce 1.6s infinite;
+      user-select: none;
+    }
+
+    @keyframes scrollBounce {
+      0%, 100% { transform: translateY(0); opacity: 0.5; }
+      50%      { transform: translateY(7px); opacity: 1; }
+    }
+
+    /* Hide indicator once user scrolls down a bit */
+    body.scrolled .scroll-indicator {
+      opacity: 0;
+    }
+
+    @media (max-width: 600px) {
+      .scroll-arrow {
+        font-size: 24px;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -136,6 +173,11 @@
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- Floating scroll-hint arrow -->
+  <div class="scroll-indicator">
+    <span class="scroll-arrow">▼</span>
   </div>
 
   <script>
