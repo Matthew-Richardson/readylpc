@@ -658,6 +658,15 @@ main {
 }
 
 .primary-pill:hover,
+
 .secondary-pill:hover {
   box-shadow: 0 0 0 1px rgba(11,77,162,0.3);
 }
+
+.incident-tip {
+  font-size: 13px;
+  color: #6b6b6b;
+  margin: 2px 0 6px 0;
+  opacity: 0.75;
+}
+
