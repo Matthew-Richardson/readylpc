@@ -104,7 +104,7 @@
     </main>
   </div>
 
-  <!-- Scroll hint pill -->
+  <!-- Simple scroll hint pill -->
   <div class="scroll-hint" id="scrollHint">
     <div class="scroll-hint-button">
       <span class="scroll-hint-text">Scroll</span>
@@ -113,6 +113,37 @@
   </div>
 
   <script>
+
+    // Scroll hint: hide when user reaches bottom of page
+    (function() {
+      function updateScrollHint() {
+        var scrollTop = window.pageYOffset ||
+          document.documentElement.scrollTop ||
+          document.body.scrollTop || 0;
+
+        var docHeight = Math.max(
+          document.body.scrollHeight, document.documentElement.scrollHeight,
+          document.body.offsetHeight, document.documentElement.offsetHeight,
+          document.body.clientHeight, document.documentElement.clientHeight
+        );
+        var windowHeight = window.innerHeight ||
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+
+        var atBottom = scrollTop + windowHeight >= docHeight - 4;
+        if (atBottom) {
+          document.body.classList.add('scrolled');
+        } else {
+          document.body.classList.remove('scrolled');
+        }
+      }
+
+      window.addEventListener('scroll', updateScrollHint);
+      window.addEventListener('resize', updateScrollHint);
+      document.addEventListener('DOMContentLoaded', updateScrollHint);
+    })();
+
+
     const webmapId = "58a8bb313db64271a55e7960cb839f64";
     const incidentLayerUrl =
       "https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0";
@@ -348,22 +379,6 @@
 
     loadEvacuationZones();
     loadIncidentStatus(INCIDENT);
-
-    // Scroll hint: visible on load, disappears once the user scrolls a bit (one-time)
-    function handleScrollHint() {
-      const scrollTop =
-        window.scrollY ||
-        document.documentElement.scrollTop ||
-        document.body.scrollTop ||
-        0;
-
-      if (scrollTop > 5) {
-        document.body.classList.add("scrolled");
-        window.removeEventListener("scroll", handleScrollHint);
-      }
-    }
-
-    window.addEventListener("scroll", handleScrollHint);
 
     /* ---------- MAP & INCIDENT CHIPS LOGIC ---------- */
     require(
