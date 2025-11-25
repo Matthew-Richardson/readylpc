@@ -105,6 +105,10 @@
     </main>
   </div>
 
+  <div class="scroll-indicator">
+    <span class="scroll-arrow">▼</span>
+  </div>
+
   <script>
     const webmapId = "58a8bb313db64271a55e7960cb839f64";
     const incidentLayerUrl =
@@ -368,6 +372,14 @@
         const view = new MapView({
           container: "viewDiv",
           map: webmap,
+        });
+
+        window.addEventListener("scroll", () => {
+          if (window.scrollY > 50) {
+            document.body.classList.add("scrolled");
+          } else {
+            document.body.classList.remove("scrolled");
+          }
         });
 
         const incidentLayer = new FeatureLayer({
