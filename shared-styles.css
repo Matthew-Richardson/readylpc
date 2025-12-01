@@ -146,7 +146,8 @@ html, body {
 .incident-bar-left {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .incident-label {
@@ -231,6 +232,15 @@ html, body {
   font-size: 14px;
 }
 
+.alert-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.alert-label {
+  font-size: 14px;
+}
+
 @media (max-width: 600px) {
   .info-link { padding: 4px 10px; }
   .info-label { display: none; }
@@ -239,6 +249,13 @@ html, body {
   .alert-link {
     padding: 4px 10px;
     font-size: 14px;
+  }
+  .alert-icon {
+    font-size: 18px;
+  }
+  .alert-label {
+    font-size: 13px;
+    display: inline;
   }
 }
 
@@ -722,7 +739,6 @@ main {
 
 /* ========== TIMELINE STYLES (INFO PAGE) ========== */
 
-/* Match width & alignment under home-wrapper */
 .preview-container {
   max-width: 100%;
   width: 100%;
@@ -762,7 +778,7 @@ main {
   color: #0b4da2;
 }
 
-/* original centered subheader style */
+/* subheader */
 .stage-subhead {
   font-size: 14px;
   font-weight: 700;
@@ -780,7 +796,7 @@ main {
   color: #111827;
 }
 
-/* Timeline (original look) */
+/* Timeline */
 
 .stage-timeline {
   position: relative;
