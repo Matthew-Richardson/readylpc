@@ -35,15 +35,6 @@
       display:flex;
       flex-direction:column;
     }
-    .home-wrapper{max-width:900px;margin:16px auto 0;padding:0 4px}
-    .home-card{
-      border-radius:14px;
-      border:1px solid #222;
-      margin-bottom:14px;
-      padding:14px 18px;
-      background:#fff;
-      box-shadow:0 1px 4px rgba(0,0,0,0.2);
-    }
   </style>
 
   <!-- Non-critical CSS loaded async -->
@@ -56,6 +47,7 @@
     <div class="map-wrapper">
       <div class="map-card">
 
+        <!-- Header / Brand -->
         <div class="card-brand">
           <img
             src="https://cms9files.revize.com/laplata/_assets_/images/logo.png"
@@ -68,8 +60,7 @@
             decoding="async"
           >
           <div class="site-title">
-            ReadyLaPlata<span class="title-break"> — </span>
-            <span class="title-sub">La Plata County Evacuation Viewer</span>
+            ReadyLaPlata — La Plata County Evacuation Viewer
           </div>
           <div class="call-center">
             <strong>Call Center</strong>
@@ -79,6 +70,7 @@
 
         <div class="card-divider"></div>
 
+        <!-- Incident strip -->
         <div class="incident-strip">
           <div class="incident-strip-top">
             <div class="incident-bar-left">
@@ -102,25 +94,26 @@
       <div class="incident-panel">
         <div class="home-wrapper">
 
-          <!-- LPCOEM Info Card (uses timeline card style now) -->
-          <div class="stage-card stage-card-info">
-            <h2 class="stage-title" style="font-size:16px;">La Plata County Office of Emergency Management (LPCOEM)</h2>
-            <div class="stage-body" style="margin-top:8px;">
-              La Plata County Office of Emergency Management (<strong>LPCOEM</strong>) uses the Ready, Set, Go! system to establish evacuation zones.
-              <strong>Click the incident map above to confirm your zone.</strong>
-              During an incident your zone name and area is subject to change.
-            </div>
-          </div>
-
-          <!-- Timeline-style Evacuation Stages -->
-          <div class="preview-container" style="margin-top:18px;">
-            <div class="preview-label">📱 Timeline View: Evacuation Stages</div>
-            <div class="preview-frame">
+          <!-- TIMELINE BLOCK WITH UPDATED TEXT -->
+          <div class="preview-container" style="max-width:900px;margin:18px auto 0;">
+            <!-- remove label + card look, make it full width -->
+            <div class="preview-frame" style="background:transparent;border:none;border-radius:0;padding:0 4px 20px 4px;">
 
               <div class="evac-stages">
                 <div class="stage-header-main">
                   <div class="stage-tagline">La Plata County</div>
                   <div class="stage-headline">Stay Ready, Year-Round</div>
+                  <div class="stage-body" style="margin-top:8px;max-width:780px;margin-left:auto;margin-right:auto;font-size:15px;line-height:1.5;">
+                    <p>
+                      La Plata County Office of Emergency Management (<strong>LPCOEM</strong>) - uses the Ready, Set, Go! system to establish evacuation zones.
+                      Click the incident map above to confirm your zone. During a incident your zone name and area is subject to change.
+                    </p>
+                    <p style="margin-top:10px;"><strong>Be READY, Stay SAFE</strong></p>
+                    <p><strong>Stay Informed:</strong> CodeRED signup or text 'LPCOEM' to 99411, ensure Gov't Alerts are enabled on your cell phone, and use apps like Watch Duty.</p>
+                    <p><strong>Arrangements:</strong> Make a plan and practice your evacuation; People, Pets, Photos, Papers and Pills.</p>
+                    <p><strong>Fire Ready:</strong> Fire Mitigation and last minute safety measures, “Go Kit” with Protective Clothing and masks.</p>
+                    <p><strong>Evacuate:</strong> Don’t hesitate or ignore evacuation orders. Know multiple ways out.</p>
+                  </div>
                 </div>
 
                 <div class="stage-subhead">The Ready, Set, Go! System</div>
@@ -132,12 +125,12 @@
                     <div class="stage-pin stage-pin-ready"></div>
                     <div class="stage-card stage-card-ready">
                       <h2 class="stage-title">READY</h2>
-                      <div class="stage-subtitle">Be Prepared</div>
+                      <div class="stage-subtitle">Be READY, Stay SAFE</div>
                       <div class="stage-body">
-                        <p><strong>Stay Informed:</strong> Sign up for CodeRED alerts, enable Gov't Alerts on your phone.</p>
-                        <p><strong>Make a Plan:</strong> People, Pets, Photos, Papers and Pills.</p>
-                        <p><strong>Prepare a Go Kit:</strong> Protective clothing, masks, essentials.</p>
-                        <p><strong>Know Your Routes:</strong> Multiple ways out of your area.</p>
+                        <p><strong>Stay Informed:</strong> CodeRED signup or text 'LPCOEM' to 99411, ensure Gov't Alerts are enabled on your cell phone, and use apps like Watch Duty.</p>
+                        <p><strong>Arrangements:</strong> Make a plan and practice your evacuation; People, Pets, Photos, Papers and Pills.</p>
+                        <p><strong>Fire Ready:</strong> Fire Mitigation and last minute safety measures, “Go Kit” with Protective Clothing and masks.</p>
+                        <p><strong>Evacuate:</strong> Don’t hesitate or ignore evacuation orders. Know multiple ways out.</p>
                       </div>
                     </div>
                   </div>
@@ -152,9 +145,9 @@
                       <h2 class="stage-title">SET</h2>
                       <div class="stage-subtitle">Pre-Evacuation</div>
                       <div class="stage-body" style="text-align:center">
-                        <strong>Voluntary Evacuation</strong><br>
-                        Evacuation orders are likely.<br>
-                        Be ready to leave at a moment's notice.
+                        <strong>SET - Pre-Evacuation</strong><br><br>
+                        Voluntary Evacuation;<br>
+                        Evacuation orders are likely
                       </div>
                     </div>
                   </div>
@@ -169,8 +162,8 @@
                       <h2 class="stage-title">GO</h2>
                       <div class="stage-subtitle">Evacuate Now</div>
                       <div class="stage-body" style="text-align:center">
-                        <strong>LEAVE IMMEDIATELY.</strong><br>
-                        Immediate threat to life.<br>
+                        <strong>GO - Evacuate Now</strong><br><br>
+                        LEAVE NOW. Immediate threat to life.<br><br>
                         This area is closed to public access.
                       </div>
                     </div>
@@ -203,14 +196,12 @@
       incidentField: 'incident'
     };
 
-    // Cache DOM elements
     const DOM = {
       chipsEl: document.getElementById('incidentChips'),
       countBadge: document.getElementById('incidentCountBadge'),
       noIncidentsMsg: document.getElementById('noIncidentsMsg')
     };
 
-    // Get incident from URL
     const INCIDENT = (() => {
       try {
         const params = new URLSearchParams(location.search);
@@ -243,7 +234,6 @@
             return true;
           });
 
-        // Sort: current incident first, then alphabetical
         const target = INCIDENT?.toLowerCase();
         names.sort((a, b) => {
           const al = a.toLowerCase(), bl = b.toLowerCase();
@@ -261,7 +251,6 @@
           return;
         }
 
-        // Build chips with document fragment for single reflow
         const frag = document.createDocumentFragment();
         names.forEach(name => {
           const chip = document.createElement('button');
@@ -283,7 +272,6 @@
       }
     }
 
-    // Start when DOM is ready
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', loadIncidentMenu);
     } else {
