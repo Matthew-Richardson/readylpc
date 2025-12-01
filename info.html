@@ -13,12 +13,37 @@
   <!-- Critical CSS inline for fastest first paint -->
   <style>
     *,*::before,*::after{box-sizing:border-box}
-    html,body{margin:0;padding:0;height:100%;font-family:Arial,sans-serif;background:#f5f5f7;font-size:18px;overflow-x:hidden;color:#000}
+    html,body{
+      margin:0;
+      padding:0;
+      height:100%;
+      font-family:Arial,sans-serif;
+      background:#f5f5f7;
+      font-size:18px;
+      overflow-x:hidden;
+      color:#000;
+    }
     .page-shell{min-height:100vh;display:flex;flex-direction:column}
     .map-wrapper{max-width:900px;width:100%;margin:16px auto 0;padding:12px}
-    .map-card{width:100%;border-radius:14px;border:1px solid rgba(0,0,0,0.2);box-shadow:0 2px 10px rgba(0,0,0,0.25);overflow:hidden;background:#fff;display:flex;flex-direction:column}
+    .map-card{
+      width:100%;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,0.2);
+      box-shadow:0 2px 10px rgba(0,0,0,0.25);
+      overflow:hidden;
+      background:#fff;
+      display:flex;
+      flex-direction:column;
+    }
     .home-wrapper{max-width:900px;margin:16px auto 0;padding:0 4px}
-    .home-card{border-radius:14px;border:1px solid #222;margin-bottom:14px;padding:14px 18px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.2)}
+    .home-card{
+      border-radius:14px;
+      border:1px solid #222;
+      margin-bottom:14px;
+      padding:14px 18px;
+      background:#fff;
+      box-shadow:0 1px 4px rgba(0,0,0,0.2);
+    }
   </style>
 
   <!-- Non-critical CSS loaded async -->
@@ -42,7 +67,10 @@
             fetchpriority="high"
             decoding="async"
           >
-          <div class="site-title">ReadyLaPlata<span class="title-break"> — </span><span class="title-sub">La Plata County Evacuation Viewer</span></div>
+          <div class="site-title">
+            ReadyLaPlata<span class="title-break"> — </span>
+            <span class="title-sub">La Plata County Evacuation Viewer</span>
+          </div>
           <div class="call-center">
             <strong>Call Center</strong>
             <a href="tel:9703858700">970-385-8700</a>
@@ -74,60 +102,83 @@
       <div class="incident-panel">
         <div class="home-wrapper">
 
-          <div class="home-card home-card-info">
-            <h2 class="home-card-title">La Plata County Office of Emergency Management (LPCOEM)</h2>
-            <div class="home-small">
+          <!-- LPCOEM Info Card (uses timeline card style now) -->
+          <div class="stage-card stage-card-info">
+            <h2 class="stage-title" style="font-size:16px;">La Plata County Office of Emergency Management (LPCOEM)</h2>
+            <div class="stage-body" style="margin-top:8px;">
               La Plata County Office of Emergency Management (<strong>LPCOEM</strong>) uses the Ready, Set, Go! system to establish evacuation zones.
               <strong>Click the incident map above to confirm your zone.</strong>
               During an incident your zone name and area is subject to change.
             </div>
           </div>
 
-          <!-- Evacuation Stages Flow -->
-          <div class="evac-stages">
-            <div class="stage-header">Evacuation Stages</div>
-            
-            <div class="stage-flow">
-              <!-- Stage 1: READY -->
-              <div class="home-card home-card-ready stage-card">
-                <div class="stage-badge">1</div>
-                <h2 class="home-card-title">READY</h2>
-                <div class="stage-subtitle">Be Prepared</div>
-                <div class="home-small">
-                  <p><strong>Stay Informed:</strong> Sign up for CodeRED alerts, enable Gov't Alerts on your phone, and use apps like Watch Duty.</p>
-                  <p><strong>Make a Plan:</strong> People, Pets, Photos, Papers and Pills.</p>
-                  <p><strong>Prepare a Go Kit:</strong> Protective clothing, masks, essentials.</p>
-                  <p><strong>Know Your Routes:</strong> Multiple ways out of your area.</p>
+          <!-- Timeline-style Evacuation Stages -->
+          <div class="preview-container" style="margin-top:18px;">
+            <div class="preview-label">📱 Timeline View: Evacuation Stages</div>
+            <div class="preview-frame">
+
+              <div class="evac-stages">
+                <div class="stage-header-main">
+                  <div class="stage-tagline">La Plata County</div>
+                  <div class="stage-headline">Stay Ready, Year-Round</div>
+                </div>
+
+                <div class="stage-subhead">The Ready, Set, Go! System</div>
+
+                <div class="stage-timeline">
+
+                  <!-- Stage 1: READY -->
+                  <div class="stage-item">
+                    <div class="stage-pin stage-pin-ready"></div>
+                    <div class="stage-card stage-card-ready">
+                      <h2 class="stage-title">READY</h2>
+                      <div class="stage-subtitle">Be Prepared</div>
+                      <div class="stage-body">
+                        <p><strong>Stay Informed:</strong> Sign up for CodeRED alerts, enable Gov't Alerts on your phone.</p>
+                        <p><strong>Make a Plan:</strong> People, Pets, Photos, Papers and Pills.</p>
+                        <p><strong>Prepare a Go Kit:</strong> Protective clothing, masks, essentials.</p>
+                        <p><strong>Know Your Routes:</strong> Multiple ways out of your area.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Connector -->
+                  <div class="stage-connector stage-connector-ready-set"></div>
+
+                  <!-- Stage 2: SET -->
+                  <div class="stage-item">
+                    <div class="stage-pin stage-pin-set"></div>
+                    <div class="stage-card stage-card-set">
+                      <h2 class="stage-title">SET</h2>
+                      <div class="stage-subtitle">Pre-Evacuation</div>
+                      <div class="stage-body" style="text-align:center">
+                        <strong>Voluntary Evacuation</strong><br>
+                        Evacuation orders are likely.<br>
+                        Be ready to leave at a moment's notice.
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Connector -->
+                  <div class="stage-connector stage-connector-set-go"></div>
+
+                  <!-- Stage 3: GO -->
+                  <div class="stage-item">
+                    <div class="stage-pin stage-pin-go"></div>
+                    <div class="stage-card stage-card-go">
+                      <h2 class="stage-title">GO</h2>
+                      <div class="stage-subtitle">Evacuate Now</div>
+                      <div class="stage-body" style="text-align:center">
+                        <strong>LEAVE IMMEDIATELY.</strong><br>
+                        Immediate threat to life.<br>
+                        This area is closed to public access.
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
 
-              <div class="stage-arrow">▼</div>
-
-              <!-- Stage 2: SET -->
-              <div class="home-card home-card-set stage-card">
-                <div class="stage-badge">2</div>
-                <h2 class="home-card-title">SET</h2>
-                <div class="stage-subtitle">Pre-Evacuation</div>
-                <div class="home-small" style="text-align:center">
-                  <strong>Voluntary Evacuation</strong><br>
-                  Evacuation orders are likely.<br>
-                  Be ready to leave at a moment's notice.
-                </div>
-              </div>
-
-              <div class="stage-arrow">▼</div>
-
-              <!-- Stage 3: GO -->
-              <div class="home-card home-card-go stage-card">
-                <div class="stage-badge">3</div>
-                <h2 class="home-card-title">GO</h2>
-                <div class="stage-subtitle">Evacuate Now</div>
-                <div class="home-small" style="text-align:center">
-                  <strong>LEAVE IMMEDIATELY.</strong><br>
-                  Immediate threat to life.<br>
-                  This area is closed to public access.
-                </div>
-              </div>
             </div>
           </div>
 
