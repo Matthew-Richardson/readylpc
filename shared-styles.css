@@ -599,6 +599,49 @@ main {
   box-shadow: 0 0 0 2px rgba(11,77,162,0.3);
 }
 
+/* ========== FLOATING CODERED BUTTON ========== */
+
+.codered-fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(185,28,28,0.4), 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 1000;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.codered-fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(185,28,28,0.5), 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.codered-fab-icon {
+  font-size: 16px;
+}
+
+.codered-fab-text {
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .codered-fab {
+    bottom: 14px;
+    right: 14px;
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+}
+
 /* ========== TIMELINE STYLES (INFO PAGE) ========== */
 
 .preview-container {
@@ -607,12 +650,13 @@ main {
   padding: 0 8px;
 }
 
+/* Make the timeline card visually match the header card */
 .preview-frame {
-  background: #f9fafb;
-  border: none;
-  border-radius: 16px;
-  padding: 18px 18px 22px;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.2);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  padding: 16px 18px 20px;
 }
 
 .evac-stages {
@@ -639,7 +683,7 @@ main {
   color: #0b4da2;
 }
 
-/* subheader separator */
+/* Pill-style subheader */
 .stage-subhead {
   display: inline-flex;
   align-items: center;
@@ -661,20 +705,21 @@ main {
   color: #111827;
 }
 
+/* Timeline back to the original simpler layout */
+
 .stage-timeline {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  row-gap: 16px;
-  padding-top: 4px;
 }
 
+/* Vertical gradient line */
 .stage-timeline::before {
   content: '';
   position: absolute;
-  top: 28px;
-  bottom: 28px;
+  top: 24px;
+  bottom: 24px;
   left: 50%;
   width: 3px;
   background: linear-gradient(
@@ -694,20 +739,19 @@ main {
 .stage-item {
   position: relative;
   width: 100%;
-  max-width: 620px;
   display: flex;
   flex-direction: column;
   align-items: center;
   z-index: 1;
 }
 
-/* Timeline Pin */
+/* Timeline pin */
 .stage-pin {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: 3px solid #f9fafb;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
   margin-bottom: 8px;
   position: relative;
   z-index: 2;
@@ -717,6 +761,7 @@ main {
 .stage-pin-set { background: #a68f00; }
 .stage-pin-go { background: #0a7c25; }
 
+/* Stage connector segments */
 .stage-connector {
   width: 3px;
   height: 20px;
@@ -733,32 +778,31 @@ main {
   background: linear-gradient(to bottom, #a68f00, #0a7c25);
 }
 
-/* Cards */
+/* Stage cards (match original with your R/S/G backgrounds) */
 
 .stage-card {
   width: 100%;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 14px;
   margin-bottom: 0;
-  box-shadow: 0 1px 6px rgba(15, 23, 42, 0.22);
-  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 0 5px rgba(0,0,0,0.25);
 }
 
 .stage-card-ready {
   background: #ffd6d6;
-  border-color: rgba(180,50,50,0.7);
+  border: 3px solid rgba(180,50,50,0.7);
   box-shadow: 0 0 10px rgba(180,50,50,0.35);
 }
 
 .stage-card-set {
   background: #fff36a;
-  border-color: rgba(180,150,0,0.9);
+  border: 3px solid rgba(180,150,0,0.9);
   box-shadow: 0 0 10px rgba(180,150,0,0.45);
 }
 
 .stage-card-go {
   background: #41f56e;
-  border-color: rgba(0,120,0,0.9);
+  border: 3px solid rgba(0,120,0,0.9);
   box-shadow: 0 0 12px rgba(0,120,0,0.55);
   animation: goPulse 2.5s ease-in-out infinite alternate;
 }
@@ -794,23 +838,13 @@ main {
   margin-bottom: 0;
 }
 
-/* Mobile Tweaks */
+/* Mobile tweaks */
 @media (max-width: 600px) {
   .preview-frame {
     padding: 14px 12px 18px;
-    border-radius: 12px;
   }
 
   .stage-headline {
     font-size: 20px;
-  }
-
-  .stage-timeline::before {
-    top: 30px;
-    bottom: 30px;
-  }
-
-  .stage-item {
-    max-width: 100%;
   }
 }
