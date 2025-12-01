@@ -65,11 +65,10 @@
                 Active incidents
                 <span id="incidentCountBadge" class="incident-count-badge">0</span>
               </span>
-            </div>
-            <div class="incident-actions">
-              <!-- Info page only shows CodeRED button (no home icon) -->
+              <!-- CodeRED button now sits immediately to the right of "Active incidents" -->
               <button id="coderedButton" class="alert-link" type="button" aria-label="CodeRED Alerts">
-                🔔 CodeRED Alerts
+                <span class="alert-icon">🔔</span>
+                <span class="alert-label">CodeRED Alerts</span>
               </button>
             </div>
           </div>
@@ -179,7 +178,6 @@
         <p>Choose one of the options below to enroll or confirm your subscription:</p>
       </div>
       <div class="codered-actions">
-        <!-- Replace href with LPCOEM-specific CodeRED signup link if different -->
         <a
           href="https://public.coderedweb.com/CNE/en-US/"
           class="primary-pill"
