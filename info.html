@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Evacuation Information — ReadyLaPlata</title>
 
-  <!-- Critical inline CSS -->
+  <!-- Critical inline CSS to avoid FOUC -->
   <style>
     *,*::before,*::after{box-sizing:border-box}
     html,body{
@@ -81,7 +81,7 @@
       <div class="incident-panel">
         <div class="home-wrapper">
 
-          <!-- TIMELINE BLOCK -->
+          <!-- TIMELINE BLOCK CARD -->
           <div class="preview-container">
             <div class="preview-frame">
 
@@ -97,7 +97,8 @@
                   </div>
                 </div>
 
-                <div class="stage-subhead">The Ready, Set, Go! System</div>
+                <!-- Sub header text as requested -->
+                <div class="stage-subhead">Ready, Set, Go! System</div>
 
                 <div class="stage-timeline">
 
@@ -116,6 +117,7 @@
                     </div>
                   </div>
 
+                  <!-- connector -->
                   <div class="stage-connector stage-connector-ready-set"></div>
 
                   <!-- SET -->
@@ -132,6 +134,7 @@
                     </div>
                   </div>
 
+                  <!-- connector -->
                   <div class="stage-connector stage-connector-set-go"></div>
 
                   <!-- GO -->
@@ -159,6 +162,7 @@
     </main>
   </div>
 
+  <!-- Floating CodeRED Button -->
   <a href="sms:99411?&body=LPCOEM" class="codered-fab">
     <span class="codered-fab-icon">🔔</span>
     <span class="codered-fab-text">CodeRED Alerts</span>
