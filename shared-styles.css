@@ -170,6 +170,13 @@ html, body {
   line-height: 1.4;
 }
 
+.incident-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Info (home) button */
 .info-link {
   font-size: 15px;
   padding: 6px 12px;
@@ -178,7 +185,7 @@ html, body {
   background: #fff;
   color: #0b4da2;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
@@ -189,6 +196,30 @@ html, body {
 .info-link:hover {
   background: #0b4da2;
   color: #fff;
+  box-shadow: 0 0 0 2px rgba(11,77,162,0.25);
+}
+
+/* CodeRED button (red variant) */
+.alert-link {
+  font-size: 15px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #b3261e;
+  background: #fff;
+  color: #b3261e;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.alert-link:hover {
+  background: #b3261e;
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(179,38,30,0.25);
 }
 
 .info-icon-home {
@@ -204,6 +235,11 @@ html, body {
   .info-link { padding: 4px 10px; }
   .info-label { display: none; }
   .info-icon-home { font-size: 20px; }
+
+  .alert-link {
+    padding: 4px 10px;
+    font-size: 14px;
+  }
 }
 
 .incident-tip {
@@ -515,7 +551,7 @@ main {
 .home-wrapper {
   max-width: 900px;
   margin: 16px auto 0;
-  padding: 0; /* remove side padding so cards align with header card */
+  padding: 0;
 }
 
 .home-card {
@@ -599,65 +635,106 @@ main {
   box-shadow: 0 0 0 2px rgba(11,77,162,0.3);
 }
 
-/* ========== FLOATING CODERED BUTTON ========== */
+/* ========== CODERED OVERLAY MODAL ========== */
 
-.codered-fab {
+.codered-overlay {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  inset: 0;
+  background: rgba(15,23,42,0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1400;
+}
+
+.codered-overlay.is-open {
+  display: flex;
+}
+
+.codered-dialog {
+  max-width: 480px;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 18px 45px rgba(15,23,42,0.5);
+  padding: 20px 20px 18px;
+  position: relative;
+}
+
+.codered-title {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.codered-subtitle {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.codered-body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #111827;
+}
+
+.codered-body p {
+  margin: 0 0 8px 0;
+}
+
+.codered-body p:last-child {
+  margin-bottom: 0;
+}
+
+.codered-actions {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.codered-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: none;
+  background: rgba(148,163,184,0.16);
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  color: #fff;
-  padding: 12px 18px;
-  border-radius: 999px;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 700;
-  box-shadow: 0 4px 12px rgba(185,28,28,0.4), 0 2px 4px rgba(0,0,0,0.1);
-  z-index: 1000;
-  transition: transform 0.2s, box-shadow 0.2s;
+  justify-content: center;
+  color: #111827;
+  transition: background 0.2s, transform 0.1s;
 }
 
-.codered-fab:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(185,28,28,0.5), 0 3px 6px rgba(0,0,0,0.15);
-}
-
-.codered-fab-icon {
-  font-size: 16px;
-}
-
-.codered-fab-text {
-  white-space: nowrap;
-}
-
-@media (max-width: 600px) {
-  .codered-fab {
-    bottom: 14px;
-    right: 14px;
-    font-size: 13px;
-    padding: 10px 14px;
-  }
+.codered-close:hover {
+  background: rgba(148,163,184,0.3);
+  transform: translateY(-1px);
 }
 
 /* ========== TIMELINE STYLES (INFO PAGE) ========== */
 
-/* Match width & alignment of the main header card */
+/* Match width & alignment under home-wrapper */
 .preview-container {
-  max-width: 100%;       /* use home-wrapper's 900px and centering */
+  max-width: 100%;
   width: 100%;
   margin: 16px 0 24px;
-  padding: 0;            /* no extra side padding */
+  padding: 0;
 }
 
-/* Card that visually matches the header card */
 .preview-frame {
   background: #fff;
-  border-radius: 14px;                       /* same radius as .map-card */
+  border-radius: 14px;
   border: 1px solid rgba(0,0,0,0.2);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.25);   /* same family of shadow */
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
   padding: 18px 18px 26px;
 }
 
