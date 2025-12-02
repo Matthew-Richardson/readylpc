@@ -94,95 +94,94 @@
 
           <!-- TIMELINE BLOCK CARD -->
           <div class="preview-container">
-            <div class="triangle-card">
+            <div class="preview-frame">
 
-              <!-- Header -->
-              <div class="triangle-header">
-                <div class="triangle-eyebrow">La Plata County</div>
-                <div class="triangle-title">Stay Ready, Year-Round</div>
-                <p class="triangle-intro">
-                  La Plata County Office of Emergency Management (<strong>LPCOEM</strong>) uses the Ready, Set, Go! system to establish evacuation zones.
-                  Click the incident map above to confirm your zone. During an incident your zone name and area is subject to change.
-                </p>
-              </div>
-
-              <!-- Subheader -->
-              <div class="triangle-subhead">Ready, Set, Go! System</div>
-
-              <!-- Triangle Container with SVG background -->
-              <div class="triangle-diagram">
-
-                <!-- Background SVG with triangle lines -->
-                <svg class="triangle-lines" aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-                  <defs>
-                    <linearGradient id="lineReadySet" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stop-color="#b33a3a"/>
-                      <stop offset="100%" stop-color="#a68f00"/>
-                    </linearGradient>
-                    <linearGradient id="lineReadyGo" x1="100%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stop-color="#b33a3a"/>
-                      <stop offset="100%" stop-color="#0a7c25"/>
-                    </linearGradient>
-                    <linearGradient id="lineSetGo" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stop-color="#a68f00"/>
-                      <stop offset="100%" stop-color="#0a7c25"/>
-                    </linearGradient>
-                  </defs>
-
-                  <!-- Triangle lines connecting the three points -->
-                  <line x1="50" y1="10" x2="18" y2="80" stroke="url(#lineReadySet)" stroke-width="4" stroke-linecap="round"/>
-                  <line x1="50" y1="10" x2="82" y2="80" stroke="url(#lineReadyGo)" stroke-width="4" stroke-linecap="round"/>
-                  <line x1="18" y1="80" x2="82" y2="80" stroke="url(#lineSetGo)" stroke-width="4" stroke-linecap="round"/>
-                </svg>
-
-                <!-- READY - Top Center -->
-                <div class="triangle-stage triangle-ready">
-                  <div class="triangle-node triangle-node-ready" aria-label="Ready stage"></div>
-                  <div class="triangle-panel triangle-panel-ready">
-                    <h2 class="triangle-panel-title">READY</h2>
-                    <div class="triangle-panel-subtitle">Be READY, Stay SAFE</div>
-                    <div class="triangle-panel-body">
-                      <p><strong>Stay Informed:</strong> CodeRED signup or text 'LPCOEM' to 99411, ensure Gov't Alerts are enabled on your cell phone, and use apps like Watch Duty.</p>
-                      <p><strong>Arrangements:</strong> Make a plan and practice your evacuation; People, Pets, Photos, Papers and Pills.</p>
-                      <p><strong>Fire Ready:</strong> Fire Mitigation and last minute safety measures, "Go Kit" with Protective Clothing and masks.</p>
-                      <p><strong>Evacuate:</strong> Don't hesitate or ignore evacuation orders. Know multiple ways out.</p>
-                    </div>
+              <div class="evac-stages">
+                <div class="stage-header-main">
+                  <div class="stage-tagline">La Plata County</div>
+                  <div class="stage-headline">Stay Ready, Year-Round</div>
+                  <div class="stage-body" style="margin-top:8px;max-width:780px;margin-left:auto;margin-right:auto;font-size:15px;line-height:1.5;">
+                    <p>
+                      La Plata County Office of Emergency Management (<strong>LPCOEM</strong>) — uses the Ready, Set, Go! system to establish evacuation zones.
+                      Click the incident map above to confirm your zone. During an incident your zone name and area is subject to change.
+                    </p>
                   </div>
                 </div>
 
-                <!-- Bottom Row: SET and GO -->
-                <div class="triangle-row">
+                <!-- Centered subheader -->
+                <div class="stage-subhead">Ready, Set, Go! System</div>
 
-                  <!-- SET - Bottom Left -->
-                  <div class="triangle-stage">
-                    <div class="triangle-node triangle-node-set" aria-label="Set stage"></div>
-                    <div class="triangle-panel triangle-panel-set">
-                      <h2 class="triangle-panel-title">SET</h2>
-                      <div class="triangle-panel-subtitle">Pre-Evacuation</div>
-                      <div class="triangle-panel-body triangle-panel-body-center">
-                        <p class="triangle-panel-strong">SET - Pre-Evacuation</p>
-                        <p class="triangle-panel-spacing">Voluntary Evacuation; Evacuation orders are likely.</p>
+                <div id="stageTimeline" class="stage-timeline">
+
+                  <!-- SVG Triangle Connectors - Dynamically drawn -->
+                  <svg id="triangleLines" class="triangle-lines" aria-hidden="true">
+                    <defs>
+                      <linearGradient id="grad-ready-set" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#b33a3a"/>
+                        <stop offset="100%" stop-color="#a68f00"/>
+                      </linearGradient>
+                      <linearGradient id="grad-ready-go" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#b33a3a"/>
+                        <stop offset="100%" stop-color="#0a7c25"/>
+                      </linearGradient>
+                      <linearGradient id="grad-set-go" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#a68f00"/>
+                        <stop offset="100%" stop-color="#0a7c25"/>
+                      </linearGradient>
+                    </defs>
+                    <line id="line-ready-set" stroke="url(#grad-ready-set)" stroke-width="4" stroke-linecap="round"/>
+                    <line id="line-ready-go" stroke="url(#grad-ready-go)" stroke-width="4" stroke-linecap="round"/>
+                    <line id="line-set-go" stroke="url(#grad-set-go)" stroke-width="4" stroke-linecap="round"/>
+                  </svg>
+
+                  <!-- READY (top center) -->
+                  <div class="stage-item stage-item-ready">
+                    <div id="pinReady" class="stage-pin stage-pin-ready"></div>
+                    <div class="stage-card stage-card-ready">
+                      <h2 class="stage-title">READY</h2>
+                      <div class="stage-subtitle">Be READY, Stay SAFE</div>
+                      <div class="stage-body">
+                        <p><strong>Stay Informed:</strong> CodeRED signup or text 'LPCOEM' to 99411, ensure Gov't Alerts are enabled on your cell phone, and use apps like Watch Duty.</p>
+                        <p><strong>Arrangements:</strong> Make a plan and practice your evacuation; People, Pets, Photos, Papers and Pills.</p>
+                        <p><strong>Fire Ready:</strong> Fire Mitigation and last minute safety measures, "Go Kit" with Protective Clothing and masks.</p>
+                        <p><strong>Evacuate:</strong> Don't hesitate or ignore evacuation orders. Know multiple ways out.</p>
                       </div>
                     </div>
                   </div>
 
-                  <!-- GO - Bottom Right -->
-                  <div class="triangle-stage">
-                    <div class="triangle-node triangle-node-go" aria-label="Go stage"></div>
-                    <div class="triangle-panel triangle-panel-go">
-                      <h2 class="triangle-panel-title">GO</h2>
-                      <div class="triangle-panel-subtitle">Evacuate Now</div>
-                      <div class="triangle-panel-body triangle-panel-body-center">
-                        <p class="triangle-panel-strong">GO - Evacuate Now</p>
-                        <p class="triangle-panel-spacing">LEAVE NOW. Immediate threat to life.</p>
-                        <p>This area is closed to public access.</p>
+                  <!-- Bottom row container for SET and GO -->
+                  <div class="stage-bottom-row">
+                    <!-- SET (bottom left) -->
+                    <div class="stage-item stage-item-set">
+                      <div id="pinSet" class="stage-pin stage-pin-set"></div>
+                      <div class="stage-card stage-card-set">
+                        <h2 class="stage-title">SET</h2>
+                        <div class="stage-subtitle">Pre-Evacuation</div>
+                        <div class="stage-body stage-body-center">
+                          <p><strong>SET - Pre-Evacuation</strong></p>
+                          <p>Voluntary Evacuation; Evacuation orders are likely.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- GO (bottom right) -->
+                    <div class="stage-item stage-item-go">
+                      <div id="pinGo" class="stage-pin stage-pin-go"></div>
+                      <div class="stage-card stage-card-go">
+                        <h2 class="stage-title">GO</h2>
+                        <div class="stage-subtitle">Evacuate Now</div>
+                        <div class="stage-body stage-body-center">
+                          <p><strong>GO - Evacuate Now</strong></p>
+                          <p>LEAVE NOW. Immediate threat to life.</p>
+                          <p>This area is closed to public access.</p>
+                        </div>
                       </div>
                     </div>
                   </div>
 
                 </div>
-
               </div>
+
             </div>
           </div>
 
@@ -348,10 +347,88 @@
         });
       }
 
+      function initTriangleLines() {
+        const container = document.getElementById('stageTimeline');
+        const svg = document.getElementById('triangleLines');
+        const pinReady = document.getElementById('pinReady');
+        const pinSet = document.getElementById('pinSet');
+        const pinGo = document.getElementById('pinGo');
+        
+        if (!container || !svg || !pinReady || !pinSet || !pinGo) return;
+
+        const lineReadySet = document.getElementById('line-ready-set');
+        const lineReadyGo = document.getElementById('line-ready-go');
+        const lineSetGo = document.getElementById('line-set-go');
+        const gradReadySet = document.getElementById('grad-ready-set');
+        const gradReadyGo = document.getElementById('grad-ready-go');
+        const gradSetGo = document.getElementById('grad-set-go');
+
+        function updateLines() {
+          const containerRect = container.getBoundingClientRect();
+          const readyRect = pinReady.getBoundingClientRect();
+          const setRect = pinSet.getBoundingClientRect();
+          const goRect = pinGo.getBoundingClientRect();
+
+          // Calculate center points relative to container
+          const ready = {
+            x: readyRect.left + readyRect.width / 2 - containerRect.left,
+            y: readyRect.top + readyRect.height / 2 - containerRect.top
+          };
+          const set = {
+            x: setRect.left + setRect.width / 2 - containerRect.left,
+            y: setRect.top + setRect.height / 2 - containerRect.top
+          };
+          const go = {
+            x: goRect.left + goRect.width / 2 - containerRect.left,
+            y: goRect.top + goRect.height / 2 - containerRect.top
+          };
+
+          // Update line positions
+          lineReadySet.setAttribute('x1', ready.x);
+          lineReadySet.setAttribute('y1', ready.y);
+          lineReadySet.setAttribute('x2', set.x);
+          lineReadySet.setAttribute('y2', set.y);
+
+          lineReadyGo.setAttribute('x1', ready.x);
+          lineReadyGo.setAttribute('y1', ready.y);
+          lineReadyGo.setAttribute('x2', go.x);
+          lineReadyGo.setAttribute('y2', go.y);
+
+          lineSetGo.setAttribute('x1', set.x);
+          lineSetGo.setAttribute('y1', set.y);
+          lineSetGo.setAttribute('x2', go.x);
+          lineSetGo.setAttribute('y2', go.y);
+
+          // Update gradient directions
+          gradReadySet.setAttribute('x1', ready.x);
+          gradReadySet.setAttribute('y1', ready.y);
+          gradReadySet.setAttribute('x2', set.x);
+          gradReadySet.setAttribute('y2', set.y);
+
+          gradReadyGo.setAttribute('x1', ready.x);
+          gradReadyGo.setAttribute('y1', ready.y);
+          gradReadyGo.setAttribute('x2', go.x);
+          gradReadyGo.setAttribute('y2', go.y);
+
+          gradSetGo.setAttribute('x1', set.x);
+          gradSetGo.setAttribute('y1', set.y);
+          gradSetGo.setAttribute('x2', go.x);
+          gradSetGo.setAttribute('y2', go.y);
+        }
+
+        // Initial draw
+        updateLines();
+        // Redraw after short delay to ensure layout is complete
+        setTimeout(updateLines, 100);
+        // Redraw on resize
+        window.addEventListener('resize', updateLines);
+      }
+
       function init() {
         loadIncidents();
         initInfoButton();
         initCoderedOverlay();
+        initTriangleLines();
       }
 
       if (document.readyState === 'loading') {
