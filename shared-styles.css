@@ -522,10 +522,11 @@ main {
 .status-html a {
   color: #0b4da2;
   font-weight: 700;
+  text-decoration: underline;
 }
 
-.status-html strong {
-  font-weight: 700;
+.status-html a:hover {
+  color: #083b7c;
 }
 
 .status-html h1,
@@ -641,41 +642,33 @@ main {
 }
 
 .primary-pill {
-  background: linear-gradient(135deg, #0f172a, #0b4da2);
+  background: #0b4da2;
+  border: 1px solid #0b4da2;
   color: #fff;
-  border: 1px solid rgba(59,130,246,0.35);
-  box-shadow: 0 10px 22px rgba(15,23,42,0.4);
-  transition: transform 0.1s ease, box-shadow 0.2s ease;
-}
-
-.primary-pill:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 26px rgba(15,23,42,0.45);
 }
 
 .secondary-pill {
-  background: #f8fafc;
-  color: #111827;
-  border: 1px solid rgba(148,163,184,0.5);
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.secondary-pill:hover {
   background: #fff;
-  border-color: rgba(148,163,184,0.8);
+  border: 1px solid #0b4da2;
+  color: #0b4da2;
 }
 
-/* ========== CODE RED OVERLAY ========== */
+.primary-pill:hover,
+.secondary-pill:hover {
+  box-shadow: 0 0 0 2px rgba(11,77,162,0.3);
+}
+
+/* ========== CODERED OVERLAY MODAL ========== */
 
 .codered-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15,23,42,0.6);
+  background: rgba(15,23,42,0.55);
   display: none;
   align-items: center;
   justify-content: center;
-  padding: 20px;
-  z-index: 999;
+  padding: 16px;
+  z-index: 1400;
 }
 
 .codered-overlay.is-open {
@@ -759,305 +752,241 @@ main {
   padding: 0;
 }
 
-.triangle-card {
-  position: relative;
+.preview-frame {
   background: #fff;
-  border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
-  padding: 20px 18px 26px;
-  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.2);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  padding: 18px 18px 26px;
 }
 
-.triangle-header {
+.evac-stages {
+  margin-top: 4px;
+}
+
+.stage-header-main {
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
-.triangle-eyebrow {
+.stage-tagline {
   font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.stage-headline {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0b4da2;
+}
+
+/* subheader */
+.stage-subhead {
+  font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: #6b7280;
-  margin-bottom: 6px;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  text-align: center;
+  margin: 20px 0 16px 0;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0,0,0,0.1);
 }
 
-.triangle-title {
-  font-size: 26px;
-  font-weight: 800;
-  color: #1d4ed8;
-}
-
-.triangle-intro {
-  max-width: 840px;
-  margin: 10px auto 0;
-  font-size: 15px;
-  line-height: 1.55;
+.stage-header-main .stage-body {
+  font-size: 14px;
   color: #111827;
 }
 
-.triangle-subhead {
-  font-size: 13px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #64748b;
-  text-align: center;
-  margin: 20px 0 18px 0;
-  padding-top: 14px;
-  border-top: 1px solid rgba(148, 163, 184, 0.35);
-}
-
-.triangle-diagram {
+/* Triangle Timeline Container */
+.stage-timeline {
   position: relative;
-  min-height: 460px;
-  padding: 6px 6px 4px;
-}
-
-.triangle-lines {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0.85;
-}
-
-.triangle-stage {
-  position: relative;
-  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-top: 8px;
 }
 
-.triangle-ready {
-  padding-top: 6px;
-  margin-bottom: 26px;
+/* Triangle SVG connector lines */
+.triangle-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: visible;
 }
 
-.triangle-row {
+/* Stage items */
+.stage-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+}
+
+/* READY at top center */
+.stage-item-ready {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 40px;
+}
+
+/* Bottom row for SET and GO */
+.stage-bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.stage-item-set,
+.stage-item-go {
+  width: 100%;
+}
+
+/* Timeline pins */
+.stage-pin {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+  margin-bottom: 12px;
   position: relative;
   z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-  padding-top: 4px;
+  flex-shrink: 0;
 }
 
-.triangle-row::before {
-  content: "";
-  position: absolute;
-  left: 8%;
-  right: 8%;
-  top: 26px;
-  height: 4px;
-  background: linear-gradient(90deg, #a68f00, #0a7c25);
-  border-radius: 999px;
-  z-index: 0;
-  opacity: 0.9;
+.stage-pin-ready { 
+  background: #b33a3a; 
+  box-shadow: 0 3px 10px rgba(179,58,58,0.5);
+}
+.stage-pin-set { 
+  background: #a68f00; 
+  box-shadow: 0 3px 10px rgba(166,143,0,0.5);
+}
+.stage-pin-go { 
+  background: #0a7c25; 
+  box-shadow: 0 3px 10px rgba(10,124,37,0.5);
 }
 
-.triangle-node {
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  border: 4px solid #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
-  position: relative;
-}
-
-.triangle-node::after {
-  content: "";
-  width: 12px;
-  height: 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.28);
-  display: block;
-}
-
-.triangle-node-ready {
-  background: #b33a3a;
-  box-shadow: 0 6px 18px rgba(179,58,58,0.5);
-}
-
-.triangle-node-set {
-  background: #a68f00;
-  box-shadow: 0 6px 18px rgba(166,143,0,0.55);
-}
-
-.triangle-node-go {
-  background: #0a7c25;
-  box-shadow: 0 6px 18px rgba(10,124,37,0.5);
-}
-
-.triangle-panel {
+/* Stage cards */
+.stage-card {
   width: 100%;
-  border-radius: 14px;
-  padding: 16px 15px;
-  border: 3px solid transparent;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-  max-width: 520px;
-}
-
-.triangle-panel-ready {
-  background: #ffd6d6;
-  border-color: #b33a3a;
-  box-shadow: 0 6px 22px rgba(180,50,50,0.3);
-}
-
-.triangle-panel-set {
-  background: #fff36a;
-  border-color: #a68f00;
-  box-shadow: 0 6px 22px rgba(180,150,0,0.3);
-}
-
-.triangle-panel-go {
-  background: #41f56e;
-  border-color: #0a7c25;
-  box-shadow: 0 6px 24px rgba(0,120,0,0.35);
-}
-
-.triangle-panel-title {
-  margin: 0;
-  text-align: center;
-  font-size: 20px;
-  font-weight: 800;
-  color: #0f172a;
-}
-
-.triangle-panel-subtitle {
-  text-align: center;
-  font-size: 12px;
-  font-weight: 700;
-  color: rgba(0, 0, 0, 0.65);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  margin-top: 6px;
-  margin-bottom: 10px;
-}
-
-.triangle-panel-body {
-  font-size: 14px;
-  line-height: 1.55;
-  color: #111827;
-}
-
-.triangle-panel-body p {
-  margin: 0 0 8px 0;
-}
-
-.triangle-panel-body p:last-child {
+  border-radius: 12px;
+  padding: 16px;
   margin-bottom: 0;
 }
 
-.triangle-panel-body-center {
+.stage-card-ready {
+  background: #ffd6d6;
+  border: 3px solid #b33a3a;
+  box-shadow: 0 4px 20px rgba(180,50,50,0.25);
+}
+
+.stage-card-set {
+  background: #fff36a;
+  border: 3px solid #a68f00;
+  box-shadow: 0 4px 20px rgba(180,150,0,0.3);
+}
+
+.stage-card-go {
+  background: #41f56e;
+  border: 3px solid #0a7c25;
+  box-shadow: 0 4px 20px rgba(0,120,0,0.35);
+}
+
+.stage-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
   text-align: center;
 }
 
-.triangle-panel-strong {
-  margin: 0;
-  font-weight: 800;
+.stage-card-ready .stage-title { color: #7f1d1d; }
+.stage-card-set .stage-title { color: #713f12; }
+.stage-card-go .stage-title { color: #14532d; }
+
+.stage-subtitle {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+  margin-bottom: 10px;
 }
 
-.triangle-panel-spacing {
-  margin-top: 6px;
-  margin-bottom: 8px;
+.stage-body {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #1f2937;
 }
 
-@media (max-width: 700px) {
-  .triangle-card {
-    padding: 18px 12px 22px;
+.stage-body p {
+  margin: 0 0 8px 0;
+}
+
+.stage-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* helper for centered paragraphs in SET / GO */
+.stage-body-center {
+  text-align: center;
+}
+
+/* Mobile tweaks */
+@media (max-width: 600px) {
+  .preview-frame {
+    padding: 14px 12px 20px;
   }
 
-  .triangle-title {
-    font-size: 23px;
+  .stage-headline {
+    font-size: 20px;
   }
 
-  .triangle-intro {
-    font-size: 14px;
+  .stage-item-ready {
+    margin-bottom: 32px;
   }
 
-  .triangle-diagram {
-    min-height: 420px;
-    padding: 4px 2px 0;
+  .stage-bottom-row {
+    gap: 16px;
   }
 
-  .triangle-lines {
-    opacity: 0.75;
+  .stage-pin {
+    width: 28px;
+    height: 28px;
+    margin-bottom: 10px;
   }
 
-  .triangle-row {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
+  .stage-card {
+    padding: 12px;
+    border-radius: 10px;
   }
 
-  .triangle-row::before {
-    left: 6%;
-    right: 6%;
-    top: 22px;
+  .stage-title {
+    font-size: 17px;
   }
 
-  .triangle-node {
-    width: 38px;
-    height: 38px;
+  .stage-subtitle {
+    font-size: 11px;
     margin-bottom: 8px;
   }
-}
 
-@media (max-width: 640px) {
-  .triangle-diagram {
-    min-height: 0;
-    padding: 0;
-  }
-
-  .triangle-lines {
-    display: none;
-  }
-
-  .triangle-ready {
-    margin-bottom: 18px;
-  }
-
-  .triangle-row {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    padding-top: 10px;
-  }
-
-  .triangle-row::before {
-    display: none;
-  }
-
-  .triangle-stage {
-    align-items: center;
-  }
-
-  .triangle-panel {
-    max-width: 560px;
-  }
-
-  .triangle-ready::after,
-  .triangle-stage:not(:last-child)::after {
-    content: "";
-    width: 78px;
-    height: 12px;
-    margin: 10px auto 0;
-    border-radius: 999px;
-    display: block;
-  }
-
-  .triangle-ready::after {
-    background: linear-gradient(180deg, #b33a3a, #a68f00);
-  }
-
-  .triangle-stage:not(:last-child)::after {
-    background: linear-gradient(90deg, #a68f00, #0a7c25);
+  .stage-body {
+    font-size: 13px;
+    line-height: 1.5;
   }
 }
