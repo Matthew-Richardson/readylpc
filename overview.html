@@ -135,8 +135,8 @@
     const CONFIG = {
       incidentLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0',
       incidentField: 'incident',
-      mapCenter: [-107.8800, 37.2750], // La Plata County center
-      mapZoom: 10
+      mapCenter: [-107.8801, 37.2753], // Durango, Colorado
+      mapScale: 577791 // Scale: 1:577,791
     };
 
     // ========== CACHED DOM ELEMENTS ==========
@@ -223,7 +223,7 @@
           container: 'viewDiv',
           map: map,
           center: CONFIG.mapCenter,
-          zoom: CONFIG.mapZoom,
+          scale: CONFIG.mapScale,
           popup: {
             dockEnabled: true,
             dockOptions: {
@@ -232,6 +232,12 @@
             }
           }
         });
+
+        // Disable scroll zoom on mobile for better UX (same as evac.html)
+        if (window.innerWidth < 700 && view.navigation) {
+          view.navigation.mouseWheelZoomEnabled = false;
+          if ('browserTouchPanEnabled' in view.navigation) view.navigation.browserTouchPanEnabled = false;
+        }
 
         // Load incident layer
         const incidentLayer = new FeatureLayer({
@@ -299,17 +305,6 @@
                   
                   console.log(`Creating pin for ${incidentName} at:`, center.longitude, center.latitude);
 
-                  // Create marker symbol
-                  const markerSymbol = {
-                    type: 'simple-marker',
-                    color: [11, 77, 162],
-                    size: 24,
-                    outline: {
-                      color: [255, 255, 255],
-                      width: 3
-                    }
-                  };
-
                   // Create point geometry
                   const point = new Point({
                     longitude: center.longitude,
@@ -317,21 +312,59 @@
                     spatialReference: center.spatialReference
                   });
 
-                  // Create graphic
-                  const graphic = new Graphic({
+                  // Create marker symbol - larger and more visible
+                  const markerSymbol = {
+                    type: 'simple-marker',
+                    color: [11, 77, 162],
+                    size: 20,
+                    outline: {
+                      color: [255, 255, 255],
+                      width: 3
+                    }
+                  };
+
+                  // Create text symbol for label
+                  const textSymbol = {
+                    type: 'text',
+                    color: [0, 0, 0],
+                    text: incidentName,
+                    font: {
+                      size: 13,
+                      weight: 'bold',
+                      family: 'Arial, sans-serif'
+                    },
+                    haloColor: [255, 255, 255],
+                    haloSize: 2,
+                    yoffset: -18
+                  };
+
+                  // Create marker graphic
+                  const markerGraphic = new Graphic({
                     geometry: point,
                     symbol: markerSymbol,
                     attributes: {
-                      incident: incidentName
+                      incident: incidentName,
+                      type: 'marker'
                     },
                     popupTemplate: {
-                      title: '{incident}',
+                      title: incidentName,
                       content: `<div style="padding:8px;"><a href="evac-3.html?incident=${encodeURIComponent(incidentName)}" style="color:#0b4da2;font-weight:700;text-decoration:underline;font-size:15px;">View Evacuation Details →</a></div>`
                     }
                   });
 
-                  pinsLayer.add(graphic);
-                  console.log(`Pin added for ${incidentName}`);
+                  // Create text graphic
+                  const textGraphic = new Graphic({
+                    geometry: point,
+                    symbol: textSymbol,
+                    attributes: {
+                      incident: incidentName,
+                      type: 'label'
+                    }
+                  });
+
+                  pinsLayer.add(markerGraphic);
+                  pinsLayer.add(textGraphic);
+                  console.log(`Pin and label added for ${incidentName}`);
                 } else {
                   console.warn(`No extent found for incident: ${incidentName}`);
                 }
@@ -352,9 +385,17 @@
         view.on('click', (event) => {
           view.hitTest(event).then((response) => {
             if (response.results.length > 0) {
-              const result = response.results.find(r => r.graphic.layer === pinsLayer);
-              if (result && result.graphic.attributes && result.graphic.attributes.incident) {
+              // Find a result from our pins layer
+              const result = response.results.find(r => 
+                r.graphic && 
+                r.graphic.layer === pinsLayer && 
+                r.graphic.attributes && 
+                r.graphic.attributes.incident
+              );
+              
+              if (result) {
                 const incidentName = result.graphic.attributes.incident;
+                console.log('Navigating to incident:', incidentName);
                 window.location.href = `evac-3.html?incident=${encodeURIComponent(incidentName)}`;
               }
             }
