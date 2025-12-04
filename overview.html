@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Active Incidents Overview — ReadyLaPlata</title>
+
+  <!-- DNS prefetch & preconnect for external resources -->
+  <link rel="dns-prefetch" href="//js.arcgis.com">
+  <link rel="dns-prefetch" href="//services2.arcgis.com">
+  <link rel="dns-prefetch" href="//cms9files.revize.com">
+  <link rel="preconnect" href="https://js.arcgis.com" crossorigin>
+  <link rel="preconnect" href="https://services2.arcgis.com" crossorigin>
+
+  <!-- Critical CSS inline for fastest first paint -->
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{margin:0;padding:0;height:100%;font-family:Arial,sans-serif;background:#f5f5f7;font-size:18px;overflow-x:hidden;color:#000}
+    .page-shell{min-height:100vh;display:flex;flex-direction:column}
+    .map-wrapper{max-width:900px;width:100%;margin:16px auto 0;padding:12px}
+    .map-card{width:100%;border-radius:14px;border:1px solid rgba(0,0,0,0.2);box-shadow:0 2px 10px rgba(0,0,0,0.25);overflow:hidden;background:#fff;display:flex;flex-direction:column}
+    #viewDiv{width:100%;height:600px;background:#e5e5e5}
+  </style>
+
+  <!-- Non-critical CSS loaded async -->
+  <link rel="stylesheet" href="shared-styles.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="shared-styles.css"></noscript>
+
+  <!-- ArcGIS CSS - loaded async -->
+  <link rel="stylesheet" href="https://js.arcgis.com/4.31/esri/themes/light/main.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://js.arcgis.com/4.31/esri/themes/light/main.css"></noscript>
+</head>
+
+<body>
+  <div class="page-shell">
+    <div class="map-wrapper">
+      <div class="map-card">
+
+        <div class="card-brand">
+          <img
+            src="https://cms9files.revize.com/laplata/_assets_/images/logo.png"
+            alt="La Plata County Logo"
+            class="header-logo"
+            width="260"
+            height="auto"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          >
+          <div class="site-title">ReadyLaPlata<span class="title-break"> — </span><span class="title-sub">Active Incidents Overview</span></div>
+          <div class="call-center">
+            <strong>Call Center</strong>
+            <a href="tel:9703858700">970-385-8700</a>
+          </div>
+        </div>
+
+        <div class="card-divider"></div>
+
+        <div class="incident-strip">
+          <div class="incident-strip-top">
+            <div class="incident-bar-left">
+              <span class="incident-label">
+                Active incidents
+                <span id="incidentCountBadge" class="incident-count-badge">0</span>
+              </span>
+            </div>
+            <div class="incident-actions">
+              <button id="infoButton" class="info-link" type="button" aria-label="Evacuation Information">
+                <span class="info-icon-home">🏠</span>
+                <span class="info-label-full">Evacuation Information</span>
+                <span class="info-label-short">Evac Info</span>
+              </button>
+              <button id="coderedButton" class="alert-link" type="button" aria-label="CodeRED Alerts">
+                <span class="alert-icon">🔔</span>
+                <span class="alert-label">CodeRED Alerts</span>
+                <span class="alert-label-short">CodeRED</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="incident-tip">Click a pin on the map to view detailed evacuation information.</div>
+        </div>
+
+        <div class="card-divider"></div>
+        <div id="viewDiv"></div>
+
+        <div class="map-key-merged">
+          <div class="legend-title">Map Key</div>
+          <div class="legend-items">
+            <div class="legend-item">
+              <span class="legend-icon-info">i</span>
+              <span>Active Incident</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CodeRED Modal -->
+  <div id="coderedOverlay" class="codered-overlay" aria-hidden="true">
+    <div class="codered-dialog" role="dialog" aria-labelledby="codered-title">
+      <button id="coderedClose" class="codered-close" aria-label="Close">&times;</button>
+      <h2 id="codered-title" class="codered-title">CodeRED Emergency Alerts</h2>
+      <div class="codered-subtitle">Get notified about emergencies in La Plata County</div>
+      <div class="codered-body">
+        <p><strong>CodeRED</strong> is an emergency notification system that allows La Plata County to send critical information during emergencies.</p>
+        <p>Sign up to receive alerts via phone, text, and email.</p>
+      </div>
+      <div class="codered-actions">
+        <a
+          href="https://public.coderedweb.com/CNE/en-US/"
+          class="primary-pill"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Sign up on CodeRED website
+        </a>
+        <a href="sms:99411?&body=LPCOEM" class="secondary-pill">
+          Text "LPCOEM" to 99411
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ArcGIS SDK loaded with defer -->
+  <script src="https://js.arcgis.com/4.31/" defer></script>
+
+  <script>
+  (function() {
+    'use strict';
+
+    // ========== CONFIGURATION ==========
+    const CONFIG = {
+      incidentLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0',
+      incidentField: 'incident',
+      mapCenter: [-107.8800, 37.2750], // La Plata County center
+      mapZoom: 10
+    };
+
+    // ========== CACHED DOM ELEMENTS ==========
+    const DOM = {};
+    function cacheDOM() {
+      DOM.countBadge = document.getElementById('incidentCountBadge');
+      DOM.infoButton = document.getElementById('infoButton');
+      DOM.coderedButton = document.getElementById('coderedButton');
+      DOM.coderedOverlay = document.getElementById('coderedOverlay');
+      DOM.coderedClose = document.getElementById('coderedClose');
+    }
+
+    // ========== NAVIGATION ==========
+    function setupNavigation() {
+      if (DOM.infoButton) {
+        DOM.infoButton.addEventListener('click', () => {
+          location.href = 'info.html';
+        });
+      }
+    }
+
+    // ========== CODERED OVERLAY ==========
+    function initCoderedOverlay() {
+      if (!DOM.coderedButton || !DOM.coderedOverlay) return;
+
+      const open = () => {
+        DOM.coderedOverlay.classList.add('is-open');
+        DOM.coderedOverlay.setAttribute('aria-hidden', 'false');
+      };
+
+      const close = () => {
+        DOM.coderedOverlay.classList.remove('is-open');
+        DOM.coderedOverlay.setAttribute('aria-hidden', 'true');
+      };
+
+      DOM.coderedButton.addEventListener('click', open);
+      if (DOM.coderedClose) DOM.coderedClose.addEventListener('click', close);
+
+      DOM.coderedOverlay.addEventListener('click', (e) => {
+        if (e.target === DOM.coderedOverlay) {
+          close();
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && DOM.coderedOverlay.classList.contains('is-open')) {
+          close();
+        }
+      });
+    }
+
+    // ========== MAP INITIALIZATION ==========
+    function initMap() {
+      if (typeof require === 'undefined') {
+        setTimeout(initMap, 100);
+        return;
+      }
+
+      require([
+        'esri/Map',
+        'esri/views/MapView',
+        'esri/layers/FeatureLayer',
+        'esri/Graphic',
+        'esri/widgets/Search',
+        'esri/widgets/Fullscreen',
+        'esri/geometry/support/webMercatorUtils'
+      ], (Map, MapView, FeatureLayer, Graphic, Search, Fullscreen, webMercatorUtils) => {
+
+        // Create map
+        const map = new Map({
+          basemap: 'streets-navigation-vector'
+        });
+
+        // Create view
+        const view = new MapView({
+          container: 'viewDiv',
+          map: map,
+          center: CONFIG.mapCenter,
+          zoom: CONFIG.mapZoom,
+          popup: {
+            dockEnabled: true,
+            dockOptions: {
+              buttonEnabled: false,
+              breakpoint: false
+            }
+          }
+        });
+
+        // Load incident layer
+        const incidentLayer = new FeatureLayer({
+          url: CONFIG.incidentLayerUrl
+        });
+
+        // Add widgets
+        view.when()
+          .then(() => {
+            view.ui.add(new Search({ view, includeDefaultSources: true }), 'top-right');
+            view.ui.add(new Fullscreen({ view }), 'top-right');
+            return incidentLayer.when();
+          })
+          .then(() => {
+            // Query for all unique incidents
+            return incidentLayer.queryFeatures({
+              where: '1=1',
+              outFields: [CONFIG.incidentField],
+              returnDistinctValues: true,
+              orderByFields: [CONFIG.incidentField]
+            });
+          })
+          .then(featureSet => {
+            const incidentNames = (featureSet.features || [])
+              .map(f => f.attributes[CONFIG.incidentField])
+              .filter(Boolean);
+
+            DOM.countBadge.textContent = incidentNames.length;
+
+            if (!incidentNames.length) {
+              console.log('No incidents found');
+              return;
+            }
+
+            // For each incident, get its extent and create a pin
+            return Promise.all(incidentNames.map(incidentName => {
+              return incidentLayer.queryFeatures({
+                where: `${CONFIG.incidentField}='${incidentName.replace(/'/g, "''")}'`,
+                returnGeometry: true,
+                outFields: [CONFIG.incidentField]
+              }).then(fs => {
+                if (fs.features && fs.features.length > 0) {
+                  // Calculate center of all features for this incident
+                  const geometries = fs.features.map(f => f.geometry);
+                  let sumX = 0, sumY = 0, count = 0;
+
+                  geometries.forEach(geom => {
+                    if (geom && geom.extent) {
+                      const center = geom.extent.center;
+                      sumX += center.x;
+                      sumY += center.y;
+                      count++;
+                    }
+                  });
+
+                  if (count > 0) {
+                    const centerX = sumX / count;
+                    const centerY = sumY / count;
+
+                    // Create marker symbol
+                    const markerSymbol = {
+                      type: 'simple-marker',
+                      color: [11, 77, 162], // Brand blue
+                      size: '16px',
+                      outline: {
+                        color: [255, 255, 255],
+                        width: 2
+                      }
+                    };
+
+                    // Create graphic
+                    const point = {
+                      type: 'point',
+                      x: centerX,
+                      y: centerY,
+                      spatialReference: { wkid: 102100 }
+                    };
+
+                    const graphic = new Graphic({
+                      geometry: point,
+                      symbol: markerSymbol,
+                      attributes: {
+                        incident: incidentName
+                      },
+                      popupTemplate: {
+                        title: '{incident}',
+                        content: '<a href="evac-3.html?incident={incident}" style="color:#0b4da2;font-weight:700;text-decoration:underline;">View Evacuation Details →</a>'
+                      }
+                    });
+
+                    view.graphics.add(graphic);
+                  }
+                }
+              });
+            }));
+          })
+          .catch(err => {
+            console.error('Error loading incidents:', err);
+            DOM.countBadge.textContent = '0';
+          });
+
+        // Handle click on graphics
+        view.on('click', (event) => {
+          view.hitTest(event).then((response) => {
+            if (response.results.length > 0) {
+              const graphic = response.results[0].graphic;
+              if (graphic && graphic.attributes && graphic.attributes.incident) {
+                // Navigate to incident page
+                const incidentName = graphic.attributes.incident;
+                window.location.href = `evac-3.html?incident=${encodeURIComponent(incidentName)}`;
+              }
+            }
+          });
+        });
+      });
+    }
+
+    // ========== INIT ==========
+    function init() {
+      cacheDOM();
+      setupNavigation();
+      initCoderedOverlay();
+      initMap();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+  </script>
+</body>
+</html>
