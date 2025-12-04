@@ -64,22 +64,23 @@
                 <span id="incidentCountBadge" class="incident-count-badge">0</span>
               </span>
             </div>
-            <div class="incident-actions">
-              <button id="infoButton" class="info-link" type="button" aria-label="Home">
-                <span class="info-icon-home">🏠</span>
-                <span class="info-label-full">Home</span>
-                <span class="info-label-short">Home</span>
-              </button>
-              <button id="coderedButton" class="alert-link" type="button" aria-label="CodeRED Alerts">
-                <span class="alert-icon">🔔</span>
-                <span class="alert-label">CodeRED Alerts</span>
-                <span class="alert-label-short">CodeRED</span>
-              </button>
-            </div>
           </div>
 
           <div class="incident-tip">Click a pin on the map or tap an incident below to view details.</div>
           <div id="incidentChips" class="incident-chips"></div>
+        </div>
+
+        <div class="incident-nav-centered">
+          <button id="infoButton" class="info-link" type="button" aria-label="Home">
+            <span class="info-icon-home">🏠</span>
+            <span class="info-label-full">Home</span>
+            <span class="info-label-short">Home</span>
+          </button>
+          <button id="coderedButton" class="alert-link" type="button" aria-label="CodeRED Alerts">
+            <span class="alert-icon">🔔</span>
+            <span class="alert-label">CodeRED Alerts</span>
+            <span class="alert-label-short">CodeRED</span>
+          </button>
         </div>
 
         <div class="card-divider"></div>
@@ -138,7 +139,7 @@
       incidentLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0',
       incidentField: 'incident',
       mapCenter: [-107.8801, 37.2753], // Durango, Colorado
-      mapScale: 577791 // Scale: 1:577,791
+      mapScale: 800000 // Scale: 1:800,000 - zoomed out to show full county
     };
 
     // ========== CACHED DOM ELEMENTS ==========
@@ -241,6 +242,22 @@
           if ('browserTouchPanEnabled' in view.navigation) view.navigation.browserTouchPanEnabled = false;
         }
 
+        // Add cursor pointer on hover over pins
+        view.when(() => {
+          view.on('pointer-move', (event) => {
+            view.hitTest(event).then((response) => {
+              if (response.results.length > 0) {
+                const result = response.results.find(r => 
+                  r.graphic && r.graphic.layer === pinsLayer
+                );
+                view.container.style.cursor = result ? 'pointer' : 'default';
+              } else {
+                view.container.style.cursor = 'default';
+              }
+            });
+          });
+        });
+
         // Load incident layer
         const incidentLayer = new FeatureLayer({
           url: CONFIG.incidentLayerUrl,
@@ -314,17 +331,17 @@
                     spatialReference: center.spatialReference
                   });
 
-                  // Create pin marker symbol - teardrop style
+                  // Create pin marker symbol - larger and more clickable
                   const markerSymbol = {
                     type: 'simple-marker',
                     style: 'diamond',
                     color: [11, 77, 162],
-                    size: 24,
+                    size: 28,
                     outline: {
                       color: [255, 255, 255],
-                      width: 3
+                      width: 4
                     },
-                    yoffset: 12
+                    yoffset: 14
                   };
 
                   // Create text symbol for label
@@ -333,13 +350,13 @@
                     color: [0, 0, 0],
                     text: incidentName,
                     font: {
-                      size: 13,
+                      size: 14,
                       weight: 'bold',
                       family: 'Arial, sans-serif'
                     },
                     haloColor: [255, 255, 255],
-                    haloSize: 2,
-                    yoffset: -24
+                    haloSize: 2.5,
+                    yoffset: -26
                   };
 
                   // Create marker graphic
