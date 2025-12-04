@@ -198,16 +198,23 @@
         'esri/Map',
         'esri/views/MapView',
         'esri/layers/FeatureLayer',
+        'esri/layers/GraphicsLayer',
         'esri/Graphic',
         'esri/widgets/Search',
         'esri/widgets/Fullscreen',
-        'esri/geometry/support/webMercatorUtils'
-      ], (Map, MapView, FeatureLayer, Graphic, Search, Fullscreen, webMercatorUtils) => {
+        'esri/geometry/Point'
+      ], (Map, MapView, FeatureLayer, GraphicsLayer, Graphic, Search, Fullscreen, Point) => {
 
         // Create map
         const map = new Map({
           basemap: 'streets-navigation-vector'
         });
+
+        // Create graphics layer for incident pins
+        const pinsLayer = new GraphicsLayer({
+          title: 'Incident Locations'
+        });
+        map.add(pinsLayer);
 
         // Create view
         const view = new MapView({
@@ -257,67 +264,61 @@
               return;
             }
 
-            // For each incident, get its extent and create a pin
-            return Promise.all(incidentNames.map(incidentName => {
-              return incidentLayer.queryFeatures({
-                where: `${CONFIG.incidentField}='${incidentName.replace(/'/g, "''")}'`,
-                returnGeometry: true,
-                outFields: [CONFIG.incidentField]
-              }).then(fs => {
-                if (fs.features && fs.features.length > 0) {
-                  // Calculate center of all features for this incident
-                  const geometries = fs.features.map(f => f.geometry);
-                  let sumX = 0, sumY = 0, count = 0;
+            console.log('Found incidents:', incidentNames);
 
-                  geometries.forEach(geom => {
-                    if (geom && geom.extent) {
-                      const center = geom.extent.center;
-                      sumX += center.x;
-                      sumY += center.y;
-                      count++;
+            // For each incident, query its extent and create a pin
+            return Promise.all(incidentNames.map(incidentName => {
+              return incidentLayer.queryExtent({
+                where: `${CONFIG.incidentField}='${incidentName.replace(/'/g, "''")}'`
+              }).then(result => {
+                if (result.extent) {
+                  const center = result.extent.center;
+                  
+                  console.log(`Creating pin for ${incidentName} at:`, center.longitude, center.latitude);
+
+                  // Create marker symbol
+                  const markerSymbol = {
+                    type: 'simple-marker',
+                    color: [11, 77, 162],
+                    size: 18,
+                    outline: {
+                      color: [255, 255, 255],
+                      width: 3
+                    }
+                  };
+
+                  // Create point geometry
+                  const point = new Point({
+                    longitude: center.longitude,
+                    latitude: center.latitude,
+                    spatialReference: center.spatialReference
+                  });
+
+                  // Create graphic
+                  const graphic = new Graphic({
+                    geometry: point,
+                    symbol: markerSymbol,
+                    attributes: {
+                      incident: incidentName
+                    },
+                    popupTemplate: {
+                      title: '{incident}',
+                      content: `<a href="evac-3.html?incident=${encodeURIComponent(incidentName)}" style="color:#0b4da2;font-weight:700;text-decoration:underline;">View Evacuation Details →</a>`
                     }
                   });
 
-                  if (count > 0) {
-                    const centerX = sumX / count;
-                    const centerY = sumY / count;
-
-                    // Create marker symbol
-                    const markerSymbol = {
-                      type: 'simple-marker',
-                      color: [11, 77, 162], // Brand blue
-                      size: '16px',
-                      outline: {
-                        color: [255, 255, 255],
-                        width: 2
-                      }
-                    };
-
-                    // Create graphic
-                    const point = {
-                      type: 'point',
-                      x: centerX,
-                      y: centerY,
-                      spatialReference: { wkid: 102100 }
-                    };
-
-                    const graphic = new Graphic({
-                      geometry: point,
-                      symbol: markerSymbol,
-                      attributes: {
-                        incident: incidentName
-                      },
-                      popupTemplate: {
-                        title: '{incident}',
-                        content: '<a href="evac-3.html?incident={incident}" style="color:#0b4da2;font-weight:700;text-decoration:underline;">View Evacuation Details →</a>'
-                      }
-                    });
-
-                    view.graphics.add(graphic);
-                  }
+                  pinsLayer.add(graphic);
+                  console.log(`Pin added for ${incidentName}`);
+                } else {
+                  console.warn(`No extent found for incident: ${incidentName}`);
                 }
+              }).catch(err => {
+                console.error(`Error creating pin for ${incidentName}:`, err);
               });
             }));
+          })
+          .then(() => {
+            console.log('All pins added. Total graphics:', pinsLayer.graphics.length);
           })
           .catch(err => {
             console.error('Error loading incidents:', err);
@@ -328,10 +329,9 @@
         view.on('click', (event) => {
           view.hitTest(event).then((response) => {
             if (response.results.length > 0) {
-              const graphic = response.results[0].graphic;
-              if (graphic && graphic.attributes && graphic.attributes.incident) {
-                // Navigate to incident page
-                const incidentName = graphic.attributes.incident;
+              const result = response.results.find(r => r.graphic.layer === pinsLayer);
+              if (result && result.graphic.attributes && result.graphic.attributes.incident) {
+                const incidentName = result.graphic.attributes.incident;
                 window.location.href = `evac-3.html?incident=${encodeURIComponent(incidentName)}`;
               }
             }
