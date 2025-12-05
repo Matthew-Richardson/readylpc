@@ -3,7 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Evacuation Information — ReadyLaPlata</title>
+  <title>ReadyLaPlata — La Plata County Evacuation Viewer</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  
+  <!-- Meta Tags -->
+  <meta name="description" content="Official evacuation information and interactive maps for La Plata County, Colorado. View active incidents, evacuation zones, and sign up for emergency alerts.">
+  <meta name="theme-color" content="#0b4da2">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="ReadyLaPlata — La Plata County Evacuation Viewer">
+  <meta property="og:description" content="Official evacuation information and interactive maps for La Plata County, Colorado. View active incidents and evacuation zones.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ReadyLaPlata — La Plata County Evacuation Viewer">
+  <meta name="twitter:description" content="Official evacuation information for La Plata County, Colorado.">
 
   <!-- Critical inline CSS to avoid FOUC -->
   <style>
@@ -79,7 +97,9 @@
 
           <div class="incident-tip">Tap an incident below to view the evacuation map.</div>
           <div id="incidentChips" class="incident-chips"></div>
-          <div id="noIncidentsMsg" class="incident-none" style="display:none">No active incidents are listed.</div>
+          <div id="noIncidentsMsg" class="incident-none" style="display:none">
+            ✓ No active incidents. Stay prepared by <a href="#" id="noIncidentCodered" style="color:#0b4da2;font-weight:700;">signing up for CodeRED alerts</a>.
+          </div>
         </div>
 
         <div class="card-divider"></div>
@@ -236,6 +256,7 @@
         chipsEl: document.getElementById('incidentChips'),
         countBadge: document.getElementById('incidentCountBadge'),
         noIncidentsMsg: document.getElementById('noIncidentsMsg'),
+        noIncidentCodered: document.getElementById('noIncidentCodered'),
         overviewButton: document.getElementById('overviewButton'),
         coderedButton: document.getElementById('coderedButton'),
         coderedOverlay: document.getElementById('coderedOverlay'),
@@ -340,6 +361,12 @@
 
         DOM.coderedButton.addEventListener('click', open);
         DOM.coderedClose?.addEventListener('click', close);
+        
+        // Link in "no incidents" message
+        DOM.noIncidentCodered?.addEventListener('click', (e) => {
+          e.preventDefault();
+          open();
+        });
 
         DOM.coderedOverlay.addEventListener('click', (e) => {
           if (e.target === DOM.coderedOverlay) close();
