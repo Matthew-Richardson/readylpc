@@ -3,7 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Active Incidents Overview — ReadyLaPlata</title>
+  <title>ReadyLaPlata — La Plata County Evacuation Viewer</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  
+  <!-- Meta Tags -->
+  <meta name="description" content="Official evacuation information and interactive maps for La Plata County, Colorado. View active incidents, evacuation zones, and sign up for emergency alerts.">
+  <meta name="theme-color" content="#0b4da2">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="ReadyLaPlata — La Plata County Evacuation Viewer">
+  <meta property="og:description" content="Official evacuation information and interactive maps for La Plata County, Colorado. View active incidents and evacuation zones.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ReadyLaPlata — La Plata County Evacuation Viewer">
+  <meta name="twitter:description" content="Official evacuation information for La Plata County, Colorado.">
 
   <!-- DNS prefetch & preconnect for external resources -->
   <link rel="dns-prefetch" href="//js.arcgis.com">
@@ -79,6 +97,9 @@
 
           <div class="incident-tip">Click a pin on the map or tap an incident below to view details.</div>
           <div id="incidentChips" class="incident-chips"></div>
+          <div id="noIncidentsMsg" class="incident-none" style="display:none">
+            ✓ No active incidents. Stay prepared by <a href="#" id="noIncidentCodered" style="color:#0b4da2;font-weight:700;">signing up for CodeRED alerts</a>.
+          </div>
         </div>
 
         <div class="card-divider"></div>
@@ -158,7 +179,9 @@
       coderedButton: null,
       coderedOverlay: null,
       coderedClose: null,
-      lastLoaded: null
+      lastLoaded: null,
+      noIncidentsMsg: null,
+      noIncidentCodered: null
     };
 
     function cacheDOM() {
@@ -169,6 +192,8 @@
       DOM.coderedOverlay = document.getElementById('coderedOverlay');
       DOM.coderedClose = document.getElementById('coderedClose');
       DOM.lastLoaded = document.getElementById('lastLoaded');
+      DOM.noIncidentsMsg = document.getElementById('noIncidentsMsg');
+      DOM.noIncidentCodered = document.getElementById('noIncidentCodered');
     }
 
     // ========== NAVIGATION ==========
@@ -192,6 +217,12 @@
 
       DOM.coderedButton.addEventListener('click', open);
       DOM.coderedClose?.addEventListener('click', close);
+      
+      // Link in "no incidents" message
+      DOM.noIncidentCodered?.addEventListener('click', (e) => {
+        e.preventDefault();
+        open();
+      });
 
       DOM.coderedOverlay.addEventListener('click', (e) => {
         if (e.target === DOM.coderedOverlay) close();
@@ -306,6 +337,8 @@
             DOM.countBadge.textContent = names.length;
             if (names.length > 0) {
               DOM.countBadge.classList.add('has-incidents');
+            } else {
+              DOM.noIncidentsMsg.style.display = 'block';
             }
             updateTimestamp();
 
