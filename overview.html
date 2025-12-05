@@ -47,7 +47,7 @@
             fetchpriority="high"
             decoding="async"
           >
-          <div class="site-title">ReadyLaPlata<span class="title-break"> — </span><span class="title-sub">Active Incidents Overview</span></div>
+          <div class="site-title">Active Incidents Overview</div>
           <div class="call-center">
             <strong>Call Center</strong>
             <a href="tel:9703858700">970-385-8700</a>
@@ -66,8 +66,6 @@
             <span class="alert-label-short">CodeRED</span>
           </button>
         </div>
-
-        <div class="card-divider"></div>
 
         <div class="incident-strip">
           <div class="incident-strip-top">
@@ -96,6 +94,13 @@
               <span>Incident Location</span>
             </div>
           </div>
+        </div>
+
+        <!-- Source and Timestamp -->
+        <div class="status-timestamp">
+          <span id="lastLoaded">Last loaded: --</span>
+          &nbsp;•&nbsp;
+          <span class="source-label">Source: La Plata County Office of Emergency Management</span>
         </div>
       </div>
     </div>
@@ -138,12 +143,21 @@
     const CONFIG = {
       incidentLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0',
       incidentField: 'incident',
-      mapCenter: [-107.8801, 37.2753], // Durango, Colorado
-      mapScale: 800000 // Scale: 1:800,000 - zoomed out to show full county
+      mapCenter: [-107.8801, 37.2753],
+      mapScale: 800000
     };
 
     // ========== CACHED DOM ELEMENTS ==========
-    const DOM = {};
+    const DOM = {
+      countBadge: null,
+      chipsEl: null,
+      infoButton: null,
+      coderedButton: null,
+      coderedOverlay: null,
+      coderedClose: null,
+      lastLoaded: null
+    };
+
     function cacheDOM() {
       DOM.countBadge = document.getElementById('incidentCountBadge');
       DOM.chipsEl = document.getElementById('incidentChips');
@@ -151,15 +165,12 @@
       DOM.coderedButton = document.getElementById('coderedButton');
       DOM.coderedOverlay = document.getElementById('coderedOverlay');
       DOM.coderedClose = document.getElementById('coderedClose');
+      DOM.lastLoaded = document.getElementById('lastLoaded');
     }
 
     // ========== NAVIGATION ==========
     function setupNavigation() {
-      if (DOM.infoButton) {
-        DOM.infoButton.addEventListener('click', () => {
-          location.href = 'info.html';
-        });
-      }
+      DOM.infoButton?.addEventListener('click', () => location.href = 'info.html');
     }
 
     // ========== CODERED OVERLAY ==========
@@ -177,19 +188,22 @@
       };
 
       DOM.coderedButton.addEventListener('click', open);
-      if (DOM.coderedClose) DOM.coderedClose.addEventListener('click', close);
+      DOM.coderedClose?.addEventListener('click', close);
 
       DOM.coderedOverlay.addEventListener('click', (e) => {
-        if (e.target === DOM.coderedOverlay) {
-          close();
-        }
+        if (e.target === DOM.coderedOverlay) close();
       });
 
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && DOM.coderedOverlay.classList.contains('is-open')) {
-          close();
-        }
+        if (e.key === 'Escape' && DOM.coderedOverlay.classList.contains('is-open')) close();
       });
+    }
+
+    // ========== TIMESTAMP ==========
+    function updateTimestamp() {
+      if (DOM.lastLoaded) {
+        DOM.lastLoaded.textContent = `Last loaded: ${new Date().toLocaleString()}`;
+      }
     }
 
     // ========== MAP INITIALIZATION ==========
@@ -210,9 +224,9 @@
         'esri/geometry/Point'
       ], (Map, MapView, FeatureLayer, GraphicsLayer, Graphic, Search, Fullscreen, Point) => {
 
-        // Create map
+        // Create map with topo basemap
         const map = new Map({
-          basemap: 'streets-navigation-vector'
+          basemap: 'topo-vector'
         });
 
         // Create graphics layer for incident pins
@@ -236,24 +250,22 @@
           }
         });
 
-        // Disable scroll zoom on mobile for better UX (same as evac.html)
+        // Disable scroll zoom on mobile for better UX
         if (window.innerWidth < 700 && view.navigation) {
           view.navigation.mouseWheelZoomEnabled = false;
-          if ('browserTouchPanEnabled' in view.navigation) view.navigation.browserTouchPanEnabled = false;
+          if ('browserTouchPanEnabled' in view.navigation) {
+            view.navigation.browserTouchPanEnabled = false;
+          }
         }
 
         // Add cursor pointer on hover over pins
         view.when(() => {
           view.on('pointer-move', (event) => {
             view.hitTest(event).then((response) => {
-              if (response.results.length > 0) {
-                const result = response.results.find(r => 
-                  r.graphic && r.graphic.layer === pinsLayer
-                );
-                view.container.style.cursor = result ? 'pointer' : 'default';
-              } else {
-                view.container.style.cursor = 'default';
-              }
+              const hasPin = response.results.some(r => 
+                r.graphic?.layer === pinsLayer && r.graphic?.attributes?.type === 'marker'
+              );
+              view.container.style.cursor = hasPin ? 'pointer' : 'default';
             });
           });
         });
@@ -289,15 +301,11 @@
               .filter(Boolean);
 
             DOM.countBadge.textContent = names.length;
+            updateTimestamp();
 
-            if (!names.length) {
-              console.log('No incidents found');
-              return;
-            }
+            if (!names.length) return;
 
-            console.log('Found incidents:', names);
-
-            // Create incident chips
+            // Create incident chips using DocumentFragment for performance
             const frag = document.createDocumentFragment();
             names.forEach(name => {
               const chip = document.createElement('button');
@@ -309,93 +317,68 @@
               });
               frag.appendChild(chip);
             });
-            
-            if (DOM.chipsEl) {
-              DOM.chipsEl.appendChild(frag);
-            }
+            DOM.chipsEl?.appendChild(frag);
 
-            // Create pins for each incident
-            return Promise.all(names.map(incidentName => {
+            // Create pins for each incident with better label positioning
+            return Promise.all(names.map((incidentName, index) => {
               return incidentLayer.queryExtent({
                 where: `${CONFIG.incidentField}='${incidentName.replace(/'/g, "''")}'`
               }).then(result => {
-                if (result.extent) {
-                  const center = result.extent.center;
-                  
-                  console.log(`Creating pin for ${incidentName} at:`, center.longitude, center.latitude);
+                if (!result.extent) return;
+                
+                const center = result.extent.center;
+                const point = new Point({
+                  longitude: center.longitude,
+                  latitude: center.latitude,
+                  spatialReference: center.spatialReference
+                });
 
-                  // Create point geometry
-                  const point = new Point({
-                    longitude: center.longitude,
-                    latitude: center.latitude,
-                    spatialReference: center.spatialReference
-                  });
-
-                  // Create pin marker symbol - larger and more clickable
-                  const markerSymbol = {
+                // Create pin marker symbol
+                const markerGraphic = new Graphic({
+                  geometry: point,
+                  symbol: {
                     type: 'simple-marker',
                     style: 'diamond',
                     color: [11, 77, 162],
                     size: 28,
-                    outline: {
-                      color: [255, 255, 255],
-                      width: 4
-                    },
+                    outline: { color: [255, 255, 255], width: 4 },
                     yoffset: 14
-                  };
+                  },
+                  attributes: { incident: incidentName, type: 'marker' },
+                  popupTemplate: {
+                    title: incidentName,
+                    content: `<div style="padding:8px;"><a href="evac.html?incident=${encodeURIComponent(incidentName)}" style="color:#0b4da2;font-weight:700;text-decoration:underline;font-size:15px;">View Evacuation Details →</a></div>`
+                  }
+                });
 
-                  // Create text symbol for label
-                  const textSymbol = {
+                // Create text label with alternating positions to avoid overlap
+                // Alternate label placement: left, right, above, below
+                const positions = [
+                  { xoffset: 0, yoffset: -30 },    // below
+                  { xoffset: 45, yoffset: 8 },     // right
+                  { xoffset: -45, yoffset: 8 },    // left
+                  { xoffset: 0, yoffset: 42 }      // above
+                ];
+                const pos = positions[index % positions.length];
+
+                const textGraphic = new Graphic({
+                  geometry: point,
+                  symbol: {
                     type: 'text',
                     color: [0, 0, 0],
                     text: incidentName,
-                    font: {
-                      size: 14,
-                      weight: 'bold',
-                      family: 'Arial, sans-serif'
-                    },
+                    font: { size: 13, weight: 'bold', family: 'Arial, sans-serif' },
                     haloColor: [255, 255, 255],
-                    haloSize: 2.5,
-                    yoffset: -26
-                  };
+                    haloSize: 2,
+                    xoffset: pos.xoffset,
+                    yoffset: pos.yoffset
+                  },
+                  attributes: { incident: incidentName, type: 'label' }
+                });
 
-                  // Create marker graphic
-                  const markerGraphic = new Graphic({
-                    geometry: point,
-                    symbol: markerSymbol,
-                    attributes: {
-                      incident: incidentName,
-                      type: 'marker'
-                    },
-                    popupTemplate: {
-                      title: incidentName,
-                      content: `<div style="padding:8px;"><a href="evac.html?incident=${encodeURIComponent(incidentName)}" style="color:#0b4da2;font-weight:700;text-decoration:underline;font-size:15px;">View Evacuation Details →</a></div>`
-                    }
-                  });
-
-                  // Create text graphic
-                  const textGraphic = new Graphic({
-                    geometry: point,
-                    symbol: textSymbol,
-                    attributes: {
-                      incident: incidentName,
-                      type: 'label'
-                    }
-                  });
-
-                  pinsLayer.add(markerGraphic);
-                  pinsLayer.add(textGraphic);
-                  console.log(`Pin and label added for ${incidentName}`);
-                } else {
-                  console.warn(`No extent found for incident: ${incidentName}`);
-                }
-              }).catch(err => {
-                console.error(`Error creating pin for ${incidentName}:`, err);
-              });
+                pinsLayer.addMany([markerGraphic, textGraphic]);
+              }).catch(console.error);
             }));
-          })
-          .then(() => {
-            console.log('All pins added. Total graphics:', pinsLayer.graphics.length);
           })
           .catch(err => {
             console.error('Error loading incidents:', err);
@@ -405,20 +388,13 @@
         // Handle click on graphics (direct navigation)
         view.on('click', (event) => {
           view.hitTest(event).then((response) => {
-            if (response.results.length > 0) {
-              // Find a result from our pins layer
-              const result = response.results.find(r => 
-                r.graphic && 
-                r.graphic.layer === pinsLayer && 
-                r.graphic.attributes && 
-                r.graphic.attributes.incident
-              );
-              
-              if (result) {
-                const incidentName = result.graphic.attributes.incident;
-                console.log('Navigating to incident:', incidentName);
-                window.location.href = `evac.html?incident=${encodeURIComponent(incidentName)}`;
-              }
+            const result = response.results.find(r => 
+              r.graphic?.layer === pinsLayer && r.graphic?.attributes?.incident
+            );
+            
+            if (result) {
+              const incidentName = result.graphic.attributes.incident;
+              location.href = `evac.html?incident=${encodeURIComponent(incidentName)}`;
             }
           });
         });
