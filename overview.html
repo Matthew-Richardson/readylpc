@@ -47,7 +47,7 @@
             fetchpriority="high"
             decoding="async"
           >
-          <div class="site-title">Active Incidents Overview</div>
+          <div class="site-title">ReadyLaPlata — La Plata County Evacuation Viewer</div>
           <div class="call-center">
             <strong>Call Center</strong>
             <a href="tel:9703858700">970-385-8700</a>
@@ -95,13 +95,16 @@
             </div>
           </div>
         </div>
-
-        <!-- Source and Timestamp -->
-        <div class="status-timestamp">
-          <span id="lastLoaded">Last loaded: --</span>
-          &nbsp;•&nbsp;
-          <span class="source-label">Source: La Plata County Office of Emergency Management</span>
         </div>
+      </div>
+    </div>
+
+    <!-- Source and Timestamp -->
+    <div class="incident-panel">
+      <div class="status-timestamp">
+        <span id="lastLoaded">Last loaded: --</span>
+        &nbsp;•&nbsp;
+        <span class="source-label">Source: La Plata County Office of Emergency Management</span>
       </div>
     </div>
   </div>
@@ -319,8 +322,8 @@
             });
             DOM.chipsEl?.appendChild(frag);
 
-            // Create pins for each incident with better label positioning
-            return Promise.all(names.map((incidentName, index) => {
+            // Create pins for each incident
+            return Promise.all(names.map(incidentName => {
               return incidentLayer.queryExtent({
                 where: `${CONFIG.incidentField}='${incidentName.replace(/'/g, "''")}'`
               }).then(result => {
@@ -351,27 +354,17 @@
                   }
                 });
 
-                // Create text label with alternating positions to avoid overlap
-                // Alternate label placement: left, right, above, below
-                const positions = [
-                  { xoffset: 0, yoffset: -30 },    // below
-                  { xoffset: 45, yoffset: 8 },     // right
-                  { xoffset: -45, yoffset: 8 },    // left
-                  { xoffset: 0, yoffset: 42 }      // above
-                ];
-                const pos = positions[index % positions.length];
-
+                // Create text label
                 const textGraphic = new Graphic({
                   geometry: point,
                   symbol: {
                     type: 'text',
                     color: [0, 0, 0],
                     text: incidentName,
-                    font: { size: 13, weight: 'bold', family: 'Arial, sans-serif' },
+                    font: { size: 14, weight: 'bold', family: 'Arial, sans-serif' },
                     haloColor: [255, 255, 255],
-                    haloSize: 2,
-                    xoffset: pos.xoffset,
-                    yoffset: pos.yoffset
+                    haloSize: 2.5,
+                    yoffset: -26
                   },
                   attributes: { incident: incidentName, type: 'label' }
                 });
