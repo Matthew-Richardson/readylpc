@@ -47,9 +47,7 @@
             class="header-logo"
             width="260"
           >
-          <div class="site-title">
-            ReadyLaPlata — La Plata County Evacuation Viewer
-          </div>
+          <div class="site-title">La Plata County Evacuation Viewer</div>
           <div class="call-center">
             <strong>Call Center</strong>
             <a href="tel:9703858700">970-385-8700</a>
@@ -68,8 +66,6 @@
             <span class="alert-label-short">CodeRED</span>
           </button>
         </div>
-
-        <div class="card-divider"></div>
 
         <div class="incident-strip">
           <div class="incident-strip-top">
@@ -115,7 +111,7 @@
 
                 <div id="stageTimeline" class="stage-timeline">
 
-                  <!-- SVG Triangle Connectors - Dynamically drawn -->
+                  <!-- SVG Triangle Connectors -->
                   <svg id="triangleLines" class="triangle-lines" aria-hidden="true">
                     <defs>
                       <linearGradient id="grad-ready-set" gradientUnits="userSpaceOnUse">
@@ -151,7 +147,7 @@
                     </div>
                   </div>
 
-                  <!-- Bottom row container for SET and GO -->
+                  <!-- Bottom row for SET and GO -->
                   <div class="stage-bottom-row">
                     <!-- SET (bottom left) -->
                     <div class="stage-item stage-item-set">
@@ -187,12 +183,19 @@
             </div>
           </div>
 
+          <!-- Source and Timestamp -->
+          <div class="status-timestamp">
+            <span id="lastLoaded">Last loaded: --</span>
+            &nbsp;•&nbsp;
+            <span class="source-label">Source: La Plata County Office of Emergency Management</span>
+          </div>
+
         </div>
       </div>
     </main>
   </div>
 
-  <!-- CodeRED Overlay (same as evac.html) -->
+  <!-- CodeRED Overlay -->
   <div id="coderedOverlay" class="codered-overlay" aria-hidden="true">
     <div class="codered-dialog" role="dialog" aria-modal="true" aria-labelledby="coderedTitle">
       <button id="coderedClose" class="codered-close" type="button" aria-label="Close CodeRED info">×</button>
@@ -213,7 +216,7 @@
           Sign up on CodeRED website
         </a>
         <a href="sms:99411?&body=LPCOEM" class="secondary-pill">
-          Text “LPCOEM” to 99411
+          Text "LPCOEM" to 99411
         </a>
       </div>
     </div>
@@ -236,7 +239,8 @@
         overviewButton: document.getElementById('overviewButton'),
         coderedButton: document.getElementById('coderedButton'),
         coderedOverlay: document.getElementById('coderedOverlay'),
-        coderedClose: document.getElementById('coderedClose')
+        coderedClose: document.getElementById('coderedClose'),
+        lastLoaded: document.getElementById('lastLoaded')
       };
 
       const INCIDENT = (() => {
@@ -246,6 +250,12 @@
           return inc || null;
         } catch { return null; }
       })();
+
+      function updateTimestamp() {
+        if (DOM.lastLoaded) {
+          DOM.lastLoaded.textContent = `Last loaded: ${new Date().toLocaleString()}`;
+        }
+      }
 
       async function loadIncidents() {
         const params = new URLSearchParams({
@@ -283,6 +293,7 @@
           });
 
           DOM.countBadge.textContent = names.length;
+          updateTimestamp();
 
           if (!names.length) {
             DOM.noIncidentsMsg.style.display = 'block';
@@ -325,27 +336,19 @@
         };
 
         DOM.coderedButton.addEventListener('click', open);
-        if (DOM.coderedClose) DOM.coderedClose.addEventListener('click', close);
+        DOM.coderedClose?.addEventListener('click', close);
 
         DOM.coderedOverlay.addEventListener('click', (e) => {
-          if (e.target === DOM.coderedOverlay) {
-            close();
-          }
+          if (e.target === DOM.coderedOverlay) close();
         });
 
         document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && DOM.coderedOverlay.classList.contains('is-open')) {
-            close();
-          }
+          if (e.key === 'Escape' && DOM.coderedOverlay.classList.contains('is-open')) close();
         });
       }
 
       function initOverviewButton() {
-        if (!DOM.overviewButton) return;
-        
-        DOM.overviewButton.addEventListener('click', () => {
-          location.href = 'overview.html';
-        });
+        DOM.overviewButton?.addEventListener('click', () => location.href = 'overview.html');
       }
 
       function initTriangleLines() {
@@ -357,72 +360,68 @@
         
         if (!container || !svg || !pinReady || !pinSet || !pinGo) return;
 
-        const lineReadySet = document.getElementById('line-ready-set');
-        const lineReadyGo = document.getElementById('line-ready-go');
-        const lineSetGo = document.getElementById('line-set-go');
-        const gradReadySet = document.getElementById('grad-ready-set');
-        const gradReadyGo = document.getElementById('grad-ready-go');
-        const gradSetGo = document.getElementById('grad-set-go');
+        const lines = {
+          readySet: document.getElementById('line-ready-set'),
+          readyGo: document.getElementById('line-ready-go'),
+          setGo: document.getElementById('line-set-go')
+        };
+
+        const grads = {
+          readySet: document.getElementById('grad-ready-set'),
+          readyGo: document.getElementById('grad-ready-go'),
+          setGo: document.getElementById('grad-set-go')
+        };
 
         function updateLines() {
           const containerRect = container.getBoundingClientRect();
-          const readyRect = pinReady.getBoundingClientRect();
-          const setRect = pinSet.getBoundingClientRect();
-          const goRect = pinGo.getBoundingClientRect();
+          
+          const getCenter = (el) => {
+            const rect = el.getBoundingClientRect();
+            return {
+              x: rect.left + rect.width / 2 - containerRect.left,
+              y: rect.top + rect.height / 2 - containerRect.top
+            };
+          };
 
-          // Calculate center points relative to container
-          const ready = {
-            x: readyRect.left + readyRect.width / 2 - containerRect.left,
-            y: readyRect.top + readyRect.height / 2 - containerRect.top
-          };
-          const set = {
-            x: setRect.left + setRect.width / 2 - containerRect.left,
-            y: setRect.top + setRect.height / 2 - containerRect.top
-          };
-          const go = {
-            x: goRect.left + goRect.width / 2 - containerRect.left,
-            y: goRect.top + goRect.height / 2 - containerRect.top
-          };
+          const ready = getCenter(pinReady);
+          const set = getCenter(pinSet);
+          const go = getCenter(pinGo);
 
           // Update line positions
-          lineReadySet.setAttribute('x1', ready.x);
-          lineReadySet.setAttribute('y1', ready.y);
-          lineReadySet.setAttribute('x2', set.x);
-          lineReadySet.setAttribute('y2', set.y);
+          const setLine = (line, p1, p2) => {
+            line.setAttribute('x1', p1.x);
+            line.setAttribute('y1', p1.y);
+            line.setAttribute('x2', p2.x);
+            line.setAttribute('y2', p2.y);
+          };
 
-          lineReadyGo.setAttribute('x1', ready.x);
-          lineReadyGo.setAttribute('y1', ready.y);
-          lineReadyGo.setAttribute('x2', go.x);
-          lineReadyGo.setAttribute('y2', go.y);
-
-          lineSetGo.setAttribute('x1', set.x);
-          lineSetGo.setAttribute('y1', set.y);
-          lineSetGo.setAttribute('x2', go.x);
-          lineSetGo.setAttribute('y2', go.y);
+          setLine(lines.readySet, ready, set);
+          setLine(lines.readyGo, ready, go);
+          setLine(lines.setGo, set, go);
 
           // Update gradient directions
-          gradReadySet.setAttribute('x1', ready.x);
-          gradReadySet.setAttribute('y1', ready.y);
-          gradReadySet.setAttribute('x2', set.x);
-          gradReadySet.setAttribute('y2', set.y);
+          const setGrad = (grad, p1, p2) => {
+            grad.setAttribute('x1', p1.x);
+            grad.setAttribute('y1', p1.y);
+            grad.setAttribute('x2', p2.x);
+            grad.setAttribute('y2', p2.y);
+          };
 
-          gradReadyGo.setAttribute('x1', ready.x);
-          gradReadyGo.setAttribute('y1', ready.y);
-          gradReadyGo.setAttribute('x2', go.x);
-          gradReadyGo.setAttribute('y2', go.y);
-
-          gradSetGo.setAttribute('x1', set.x);
-          gradSetGo.setAttribute('y1', set.y);
-          gradSetGo.setAttribute('x2', go.x);
-          gradSetGo.setAttribute('y2', go.y);
+          setGrad(grads.readySet, ready, set);
+          setGrad(grads.readyGo, ready, go);
+          setGrad(grads.setGo, set, go);
         }
 
-        // Initial draw
+        // Initial draw and redraw after layout
         updateLines();
-        // Redraw after short delay to ensure layout is complete
         setTimeout(updateLines, 100);
-        // Redraw on resize
-        window.addEventListener('resize', updateLines);
+        
+        // Debounced resize handler
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(updateLines, 50);
+        });
       }
 
       function init() {
