@@ -216,6 +216,134 @@ function initMap() {
 └─────────────────────────────────────────────────────────────┘
 ```
 
+### REST API Calls
+
+The application queries ArcGIS Feature Services directly via REST. All calls use the same base URL:
+
+```
+https://services2.arcgis.com/{org}/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0
+```
+
+#### Get Distinct Incident Names
+
+Returns a unique list of all active incidents. Used to populate incident chips.
+
+```
+GET /query
+  ?where=1=1
+  &outFields=incident
+  &returnDistinctValues=true
+  &returnGeometry=false
+  &orderByFields=incident
+  &f=json
+```
+
+**Response:**
+```json
+{
+  "features": [
+    { "attributes": { "incident": "East Canyon Fire" } },
+    { "attributes": { "incident": "West Fork Fire" } }
+  ]
+}
+```
+
+**Used in:** `info.html`, `overview.html`, `evac.html`
+
+---
+
+#### Get Incident Extent (for map zoom)
+
+Returns the bounding box of all zones for a specific incident.
+
+```
+GET /queryExtent
+  ?where=incident='East Canyon Fire'
+  &f=json
+```
+
+**Response:**
+```json
+{
+  "extent": {
+    "xmin": -107.95,
+    "ymin": 37.20,
+    "xmax": -107.80,
+    "ymax": 37.35,
+    "spatialReference": { "wkid": 4326 }
+  }
+}
+```
+
+**Used in:** `evac.html` (zoom to incident), `overview.html` (zoom to pin)
+
+---
+
+#### Get Zone Features for Incident
+
+Returns all evacuation zone polygons for a specific incident with SET or GO status.
+
+```
+GET /query
+  ?where=incident='East Canyon Fire' AND STATUS IN ('Set','Go')
+  &outFields=*
+  &f=json
+```
+
+**Response:**
+```json
+{
+  "features": [
+    {
+      "attributes": {
+        "OBJECTID": 123,
+        "incident": "East Canyon Fire",
+        "STATUS": "Go",
+        "zonename": "Zone A"
+      },
+      "geometry": { "rings": [...] }
+    }
+  ]
+}
+```
+
+**Used in:** `evac.html` (evacuation boxes display)
+
+---
+
+#### Get Incident Centroid (for overview pins)
+
+Returns a representative point for each incident to place map pins.
+
+```
+GET /query
+  ?where=1=1
+  &outFields=incident
+  &returnDistinctValues=true
+  &returnGeometry=true
+  &returnCentroid=true
+  &f=json
+```
+
+**Used in:** `overview.html` (incident pin placement)
+
+---
+
+### Field Requirements
+
+| Field | Type | Values | Required By |
+|-------|------|--------|-------------|
+| `incident` | String | Incident name | All queries |
+| `STATUS` | String | `Set`, `Go` | Zone filtering |
+| `zonename` | String | Zone identifier | Evacuation boxes |
+
+**Note:** Queries escape single quotes in incident names (`'` → `''`) to prevent SQL injection:
+
+```javascript
+const escapeQuery = s => s.replace(/'/g, "''");
+const where = `incident='${escapeQuery(name)}'`;
+```
+
 ---
 
 ## Caching Strategy
