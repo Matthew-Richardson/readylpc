@@ -5,49 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ReadyLaPlata — La Plata County Evacuation Viewer</title>
   
-  <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  
-  <!-- Meta Tags -->
   <meta name="description" content="Official evacuation information and interactive maps for La Plata County, Colorado. View active incidents, evacuation zones, and sign up for emergency alerts.">
   <meta name="theme-color" content="#0b4da2">
   
-  <!-- Open Graph -->
   <meta property="og:title" content="ReadyLaPlata — La Plata County Evacuation Viewer">
   <meta property="og:description" content="Official evacuation information and interactive maps for La Plata County, Colorado. View active incidents and evacuation zones.">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="en_US">
   
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="ReadyLaPlata — La Plata County Evacuation Viewer">
   <meta name="twitter:description" content="Official evacuation information for La Plata County, Colorado.">
 
-  <!-- Critical inline CSS to avoid FOUC -->
   <style>
     *,*::before,*::after{box-sizing:border-box}
-    html,body{
-      margin:0;
-      padding:0;
-      height:100%;
-      font-family:Arial,sans-serif;
-      background:#f5f5f7;
-      font-size:18px;
-      overflow-x:hidden;
-      color:#000;
-    }
+    html,body{margin:0;padding:0;height:100%;font-family:Arial,sans-serif;background:#f5f5f7;font-size:18px;overflow-x:hidden;color:#000}
     .page-shell{min-height:100vh;display:flex;flex-direction:column}
     .map-wrapper{max-width:900px;width:100%;margin:16px auto 0;padding:12px}
-    .map-card{
-      width:100%;
-      border-radius:14px;
-      border:1px solid rgba(0,0,0,0.15);
-      box-shadow:0 4px 20px rgba(0,0,0,0.12);
-      overflow:hidden;
-      background:#fff;
-      display:flex;
-      flex-direction:column;
-    }
+    .map-card{width:100%;border-radius:14px;border:1px solid rgba(0,0,0,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.12);overflow:hidden;background:#fff;display:flex;flex-direction:column}
   </style>
 
   <link rel="stylesheet" href="shared-styles.css">
@@ -59,12 +35,7 @@
       <div class="map-card">
 
         <div class="card-brand">
-          <img
-            src="https://cms9files.revize.com/laplata/_assets_/images/logo.png"
-            alt="La Plata County Logo"
-            class="header-logo"
-            width="260"
-          >
+          <img src="https://cms9files.revize.com/laplata/_assets_/images/logo.png" alt="La Plata County Logo" class="header-logo" width="260">
           <div class="site-title">ReadyLaPlata — La Plata County Evacuation Viewer</div>
           <div class="call-center">
             <strong>Call Center</strong>
@@ -94,7 +65,6 @@
               </span>
             </div>
           </div>
-
           <div class="incident-tip">Tap an incident below to view the evacuation map.</div>
           <div id="incidentChips" class="incident-chips"></div>
           <div id="noIncidentsMsg" class="incident-none" style="display:none">
@@ -109,42 +79,30 @@
     <main>
       <div class="incident-panel">
         <div class="home-wrapper">
-
-          <!-- TIMELINE BLOCK CARD -->
           <div class="preview-container">
             <div class="preview-frame">
-
               <div class="evac-stages">
                 <div class="stage-header-main">
                   <div class="stage-tagline">La Plata County</div>
                   <div class="stage-headline">Stay Ready, Year-Round</div>
                   <div class="stage-body" style="margin-top:8px;max-width:780px;margin-left:auto;margin-right:auto;font-size:15px;line-height:1.5;">
-                    <p>
-                      La Plata County Office of Emergency Management (<strong>LPCOEM</strong>) — uses the Ready, Set, Go! system to establish evacuation zones.
-                      Click the incident map above to confirm your zone. During an incident your zone name and area is subject to change.
-                    </p>
+                    <p>La Plata County Office of Emergency Management (<strong>LPCOEM</strong>) — uses the Ready, Set, Go! system to establish evacuation zones. Click the incident map above to confirm your zone. During an incident your zone name and area is subject to change.</p>
                   </div>
                 </div>
 
-                <!-- Centered subheader -->
                 <div class="stage-subhead">Ready, Set, Go! System</div>
 
                 <div id="stageTimeline" class="stage-timeline">
-
-                  <!-- SVG Triangle Connectors -->
                   <svg id="triangleLines" class="triangle-lines" aria-hidden="true">
                     <defs>
                       <linearGradient id="grad-ready-set" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stop-color="#b33a3a"/>
-                        <stop offset="100%" stop-color="#a68f00"/>
+                        <stop offset="0%" stop-color="#b33a3a"/><stop offset="100%" stop-color="#a68f00"/>
                       </linearGradient>
                       <linearGradient id="grad-ready-go" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stop-color="#b33a3a"/>
-                        <stop offset="100%" stop-color="#0a7c25"/>
+                        <stop offset="0%" stop-color="#b33a3a"/><stop offset="100%" stop-color="#0a7c25"/>
                       </linearGradient>
                       <linearGradient id="grad-set-go" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stop-color="#a68f00"/>
-                        <stop offset="100%" stop-color="#0a7c25"/>
+                        <stop offset="0%" stop-color="#a68f00"/><stop offset="100%" stop-color="#0a7c25"/>
                       </linearGradient>
                     </defs>
                     <line id="line-ready-set" stroke="url(#grad-ready-set)" stroke-width="4" stroke-linecap="round"/>
@@ -152,7 +110,6 @@
                     <line id="line-set-go" stroke="url(#grad-set-go)" stroke-width="4" stroke-linecap="round"/>
                   </svg>
 
-                  <!-- READY (top center) -->
                   <div class="stage-item stage-item-ready">
                     <div id="pinReady" class="stage-pin stage-pin-ready"></div>
                     <div class="stage-card stage-card-ready">
@@ -167,9 +124,7 @@
                     </div>
                   </div>
 
-                  <!-- Bottom row for SET and GO -->
                   <div class="stage-bottom-row">
-                    <!-- SET (bottom left) -->
                     <div class="stage-item stage-item-set">
                       <div id="pinSet" class="stage-pin stage-pin-set"></div>
                       <div class="stage-card stage-card-set">
@@ -182,7 +137,6 @@
                       </div>
                     </div>
 
-                    <!-- GO (bottom right) -->
                     <div class="stage-item stage-item-go">
                       <div id="pinGo" class="stage-pin stage-pin-go"></div>
                       <div class="stage-card stage-card-go">
@@ -196,26 +150,21 @@
                       </div>
                     </div>
                   </div>
-
                 </div>
               </div>
-
             </div>
           </div>
 
-          <!-- Source and Timestamp -->
           <div class="status-timestamp">
             <span id="lastLoaded">Last loaded: --</span>
             &nbsp;•&nbsp;
             <span class="source-label">Source: La Plata County Office of Emergency Management</span>
           </div>
-
         </div>
       </div>
     </main>
   </div>
 
-  <!-- CodeRED Overlay -->
   <div id="coderedOverlay" class="codered-overlay" aria-hidden="true">
     <div class="codered-dialog" role="dialog" aria-modal="true" aria-labelledby="coderedTitle">
       <button id="coderedClose" class="codered-close" type="button" aria-label="Close CodeRED info">×</button>
@@ -227,246 +176,223 @@
         <p>Choose one of the options below to enroll or confirm your subscription:</p>
       </div>
       <div class="codered-actions">
-        <a
-          href="https://identityservice.onsolve.net/SignIn?ReturnUrl=%2Fconnect%2Fauthorize%2Fcallback%3Fclient_id%3Dself-registration-user%26redirect_uri%3Dhttps%253A%252F%252Faccountportal.onsolve.net%252Fidentity%252Fsignin%252Fcallback%26response_type%3Dcode%26scope%3Dopenid%2520profile%2520onsolve-selfregistration-api%2520openid%2520profile%26state%3D85a9ec83f55a4afea5a0380232f88694_eyJwb3J0YWxVcmwiOiIvbHBjYWxlcnRzIn0%253D%26code_challenge%3DRYhfdUsw4RIs8t0X7Krl-sRnm_aB6kL89QgYzYy_Ea8%26code_challenge_method%3DS256%26response_mode%3Dquery%26branding_descriptor%3DeyJwb3J0YWxJZCI6NTM1MX0%253D%26organization_uuid%3D9f2d09f5-273c-465d-a5d8-993d5e9d88f4%26division_uuid%3D009d9956-000e-3000-80c0-fceb55463ffe%26ui_lang%3Den-US%26origin%3Dhttps%253A%252F%252Faccountportal.onsolve.net%252Flpcalerts"
-          class="primary-pill"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Sign up on CodeRED website
-        </a>
-        <a href="sms:99411?&body=LPCOEM" class="secondary-pill">
-          Text "LPCOEM" to 99411
-        </a>
+        <a href="https://identityservice.onsolve.net/SignIn?ReturnUrl=%2Fconnect%2Fauthorize%2Fcallback%3Fclient_id%3Dself-registration-user%26redirect_uri%3Dhttps%253A%252F%252Faccountportal.onsolve.net%252Fidentity%252Fsignin%252Fcallback%26response_type%3Dcode%26scope%3Dopenid%2520profile%2520onsolve-selfregistration-api%2520openid%2520profile%26state%3D85a9ec83f55a4afea5a0380232f88694_eyJwb3J0YWxVcmwiOiIvbHBjYWxlcnRzIn0%253D%26code_challenge%3DRYhfdUsw4RIs8t0X7Krl-sRnm_aB6kL89QgYzYy_Ea8%26code_challenge_method%3DS256%26response_mode%3Dquery%26branding_descriptor%3DeyJwb3J0YWxJZCI6NTM1MX0%253D%26organization_uuid%3D9f2d09f5-273c-465d-a5d8-993d5e9d88f4%26division_uuid%3D009d9956-000e-3000-80c0-fceb55463ffe%26ui_lang%3Den-US%26origin%3Dhttps%253A%252F%252Faccountportal.onsolve.net%252Flpcalerts" class="primary-pill" target="_blank" rel="noopener noreferrer">Sign up on CodeRED website</a>
+        <a href="sms:99411?&body=LPCOEM" class="secondary-pill">Text "LPCOEM" to 99411</a>
       </div>
     </div>
   </div>
 
   <script>
-    (function() {
-      'use strict';
+  (function() {
+    'use strict';
 
-      const CONFIG = {
-        mapUrl: 'evac.html',
-        incidentLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0/query',
-        incidentField: 'incident'
-      };
+    // ========== CONFIGURATION ==========
+    const CONFIG = {
+      mapUrl: 'evac.html',
+      incidentLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0/query',
+      incidentField: 'incident'
+    };
 
-      const DOM = {
-        chipsEl: document.getElementById('incidentChips'),
-        countBadge: document.getElementById('incidentCountBadge'),
-        noIncidentsMsg: document.getElementById('noIncidentsMsg'),
-        noIncidentCodered: document.getElementById('noIncidentCodered'),
-        overviewButton: document.getElementById('overviewButton'),
-        coderedButton: document.getElementById('coderedButton'),
-        coderedOverlay: document.getElementById('coderedOverlay'),
-        coderedClose: document.getElementById('coderedClose'),
-        lastLoaded: document.getElementById('lastLoaded')
-      };
+    // ========== DOM CACHE ==========
+    const $ = id => document.getElementById(id);
+    const DOM = {};
 
-      const INCIDENT = (() => {
-        try {
-          const p = new URLSearchParams(location.search);
-          const inc = (p.get('incident') || p.get('Incident') || '').trim();
-          return inc || null;
-        } catch { return null; }
-      })();
-
-      function updateTimestamp() {
-        if (DOM.lastLoaded) {
-          DOM.lastLoaded.textContent = `Last loaded: ${new Date().toLocaleString()}`;
-        }
-      }
-
-      async function loadIncidents() {
-        const params = new URLSearchParams({
-          where: '1=1',
-          outFields: CONFIG.incidentField,
-          returnDistinctValues: 'true',
-          f: 'json'
-        });
-
-        try {
-          const res = await fetch(`${CONFIG.incidentLayerUrl}?${params}`);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-          const data = await res.json();
-          const seen = new Set();
-
-          const names = (data.features || [])
-            .map(f => f.attributes?.[CONFIG.incidentField]?.trim())
-            .filter(n => {
-              if (!n) return false;
-              const key = n.toLowerCase();
-              if (seen.has(key)) return false;
-              seen.add(key);
-              return true;
-            });
-
-          const target = INCIDENT?.toLowerCase();
-          names.sort((a, b) => {
-            const al = a.toLowerCase(), bl = b.toLowerCase();
-            if (target) {
-              if (al === target && bl !== target) return -1;
-              if (bl === target && al !== target) return 1;
-            }
-            return al.localeCompare(bl);
-          });
-
-          DOM.countBadge.textContent = names.length;
-          if (names.length > 0) {
-            DOM.countBadge.classList.add('has-incidents');
-          }
-          updateTimestamp();
-
-          if (!names.length) {
-            DOM.noIncidentsMsg.style.display = 'block';
-            return;
-          }
-
-          const frag = document.createDocumentFragment();
-          names.forEach(name => {
-            const chip = document.createElement('button');
-            chip.className = 'incident-chip';
-            chip.innerHTML = `<span class="incident-chip-icon">!</span><span>${name}</span>`;
-            chip.addEventListener('click', () => {
-              const url = new URL(CONFIG.mapUrl, location.href);
-              url.searchParams.set('incident', name);
-              location.href = url;
-            });
-            frag.appendChild(chip);
-          });
-
-          DOM.chipsEl.appendChild(frag);
-
-        } catch (err) {
-          console.error(err);
-          DOM.countBadge.textContent = '0';
-          DOM.noIncidentsMsg.style.display = 'block';
-        }
-      }
-
-      function initCoderedOverlay() {
-        if (!DOM.coderedButton || !DOM.coderedOverlay) return;
-
-        const open = () => {
-          DOM.coderedOverlay.classList.add('is-open');
-          DOM.coderedOverlay.setAttribute('aria-hidden', 'false');
-        };
-
-        const close = () => {
-          DOM.coderedOverlay.classList.remove('is-open');
-          DOM.coderedOverlay.setAttribute('aria-hidden', 'true');
-        };
-
-        DOM.coderedButton.addEventListener('click', open);
-        DOM.coderedClose?.addEventListener('click', close);
-        
-        // Link in "no incidents" message
-        DOM.noIncidentCodered?.addEventListener('click', (e) => {
-          e.preventDefault();
-          open();
-        });
-
-        DOM.coderedOverlay.addEventListener('click', (e) => {
-          if (e.target === DOM.coderedOverlay) close();
-        });
-
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && DOM.coderedOverlay.classList.contains('is-open')) close();
-        });
-      }
-
-      function initOverviewButton() {
-        DOM.overviewButton?.addEventListener('click', () => location.href = 'overview.html');
-      }
-
-      function initTriangleLines() {
-        const container = document.getElementById('stageTimeline');
-        const svg = document.getElementById('triangleLines');
-        const pinReady = document.getElementById('pinReady');
-        const pinSet = document.getElementById('pinSet');
-        const pinGo = document.getElementById('pinGo');
-        
-        if (!container || !svg || !pinReady || !pinSet || !pinGo) return;
-
-        const lines = {
-          readySet: document.getElementById('line-ready-set'),
-          readyGo: document.getElementById('line-ready-go'),
-          setGo: document.getElementById('line-set-go')
-        };
-
-        const grads = {
-          readySet: document.getElementById('grad-ready-set'),
-          readyGo: document.getElementById('grad-ready-go'),
-          setGo: document.getElementById('grad-set-go')
-        };
-
-        function updateLines() {
-          const containerRect = container.getBoundingClientRect();
-          
-          const getCenter = (el) => {
-            const rect = el.getBoundingClientRect();
-            return {
-              x: rect.left + rect.width / 2 - containerRect.left,
-              y: rect.top + rect.height / 2 - containerRect.top
-            };
-          };
-
-          const ready = getCenter(pinReady);
-          const set = getCenter(pinSet);
-          const go = getCenter(pinGo);
-
-          // Update line positions
-          const setLine = (line, p1, p2) => {
-            line.setAttribute('x1', p1.x);
-            line.setAttribute('y1', p1.y);
-            line.setAttribute('x2', p2.x);
-            line.setAttribute('y2', p2.y);
-          };
-
-          setLine(lines.readySet, ready, set);
-          setLine(lines.readyGo, ready, go);
-          setLine(lines.setGo, set, go);
-
-          // Update gradient directions
-          const setGrad = (grad, p1, p2) => {
-            grad.setAttribute('x1', p1.x);
-            grad.setAttribute('y1', p1.y);
-            grad.setAttribute('x2', p2.x);
-            grad.setAttribute('y2', p2.y);
-          };
-
-          setGrad(grads.readySet, ready, set);
-          setGrad(grads.readyGo, ready, go);
-          setGrad(grads.setGo, set, go);
-        }
-
-        // Initial draw and redraw after layout
-        updateLines();
-        setTimeout(updateLines, 100);
-        
-        // Debounced resize handler
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-          clearTimeout(resizeTimeout);
-          resizeTimeout = setTimeout(updateLines, 50);
-        });
-      }
-
-      function init() {
-        loadIncidents();
-        initOverviewButton();
-        initCoderedOverlay();
-        initTriangleLines();
-      }
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-      } else {
-        init();
-      }
+    // ========== URL PARAMETER (computed once) ==========
+    const INCIDENT = (() => {
+      const params = new URLSearchParams(location.search);
+      return (params.get('incident') || params.get('Incident') || '').trim() || null;
     })();
+
+    // ========== UTILITIES ==========
+    const updateTimestamp = () => {
+      if (DOM.lastLoaded) DOM.lastLoaded.textContent = `Last loaded: ${new Date().toLocaleString()}`;
+    };
+
+    const createChip = (name, onClick) => {
+      const chip = document.createElement('button');
+      chip.className = 'incident-chip';
+      chip.innerHTML = `<span class="incident-chip-icon">!</span><span>${name}</span>`;
+      chip.addEventListener('click', onClick);
+      return chip;
+    };
+
+    const sortIncidents = (names, target) => {
+      const targetLower = target?.toLowerCase();
+      return names.sort((a, b) => {
+        const al = a.toLowerCase(), bl = b.toLowerCase();
+        if (targetLower) {
+          if (al === targetLower) return -1;
+          if (bl === targetLower) return 1;
+        }
+        return al.localeCompare(bl);
+      });
+    };
+
+    // ========== DATA FETCHING ==========
+    async function loadIncidents() {
+      const params = new URLSearchParams({
+        where: '1=1',
+        outFields: CONFIG.incidentField,
+        returnDistinctValues: 'true',
+        f: 'json'
+      });
+
+      try {
+        const res = await fetch(`${CONFIG.incidentLayerUrl}?${params}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+        const seen = new Set();
+
+        const names = (data.features || [])
+          .map(f => f.attributes?.[CONFIG.incidentField]?.trim())
+          .filter(n => {
+            if (!n) return false;
+            const key = n.toLowerCase();
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+
+        sortIncidents(names, INCIDENT);
+
+        DOM.countBadge.textContent = names.length;
+        if (names.length) DOM.countBadge.classList.add('has-incidents');
+        updateTimestamp();
+
+        if (!names.length) {
+          DOM.noIncidentsMsg.style.display = 'block';
+          return;
+        }
+
+        const frag = document.createDocumentFragment();
+        for (const name of names) {
+          frag.appendChild(createChip(name, () => {
+            const url = new URL(CONFIG.mapUrl, location.href);
+            url.searchParams.set('incident', name);
+            location.href = url;
+          }));
+        }
+        DOM.chipsEl.appendChild(frag);
+      } catch (err) {
+        console.error('Error loading incidents:', err);
+        DOM.countBadge.textContent = '0';
+        DOM.noIncidentsMsg.style.display = 'block';
+      }
+    }
+
+    // ========== CODERED OVERLAY ==========
+    function initCoderedOverlay() {
+      const overlay = DOM.coderedOverlay;
+      if (!DOM.coderedButton || !overlay) return;
+
+      const toggle = open => {
+        overlay.classList.toggle('is-open', open);
+        overlay.setAttribute('aria-hidden', String(!open));
+      };
+
+      DOM.coderedButton.addEventListener('click', () => toggle(true));
+      DOM.coderedClose?.addEventListener('click', () => toggle(false));
+      DOM.noIncidentCodered?.addEventListener('click', e => { e.preventDefault(); toggle(true); });
+      overlay.addEventListener('click', e => { if (e.target === overlay) toggle(false); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.classList.contains('is-open')) toggle(false); });
+    }
+
+    // ========== TRIANGLE LINES ==========
+    function initTriangleLines() {
+      const container = $('stageTimeline');
+      const svg = $('triangleLines');
+      const pins = { ready: $('pinReady'), set: $('pinSet'), go: $('pinGo') };
+      
+      if (!container || !svg || !pins.ready || !pins.set || !pins.go) return;
+
+      const lines = {
+        readySet: $('line-ready-set'),
+        readyGo: $('line-ready-go'),
+        setGo: $('line-set-go')
+      };
+
+      const grads = {
+        readySet: $('grad-ready-set'),
+        readyGo: $('grad-ready-go'),
+        setGo: $('grad-set-go')
+      };
+
+      const updateLines = () => {
+        const containerRect = container.getBoundingClientRect();
+        
+        const getCenter = el => {
+          const rect = el.getBoundingClientRect();
+          return {
+            x: rect.left + rect.width / 2 - containerRect.left,
+            y: rect.top + rect.height / 2 - containerRect.top
+          };
+        };
+
+        const ready = getCenter(pins.ready);
+        const set = getCenter(pins.set);
+        const go = getCenter(pins.go);
+
+        const setLine = (line, p1, p2) => {
+          line.setAttribute('x1', p1.x);
+          line.setAttribute('y1', p1.y);
+          line.setAttribute('x2', p2.x);
+          line.setAttribute('y2', p2.y);
+        };
+
+        const setGrad = (grad, p1, p2) => {
+          grad.setAttribute('x1', p1.x);
+          grad.setAttribute('y1', p1.y);
+          grad.setAttribute('x2', p2.x);
+          grad.setAttribute('y2', p2.y);
+        };
+
+        setLine(lines.readySet, ready, set);
+        setLine(lines.readyGo, ready, go);
+        setLine(lines.setGo, set, go);
+
+        setGrad(grads.readySet, ready, set);
+        setGrad(grads.readyGo, ready, go);
+        setGrad(grads.setGo, set, go);
+      };
+
+      // Initial draw and delayed redraw after layout
+      updateLines();
+      setTimeout(updateLines, 100);
+      
+      // Debounced resize handler
+      let resizeTimeout;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(updateLines, 50);
+      });
+    }
+
+    // ========== INIT ==========
+    function init() {
+      DOM.chipsEl = $('incidentChips');
+      DOM.countBadge = $('incidentCountBadge');
+      DOM.noIncidentsMsg = $('noIncidentsMsg');
+      DOM.noIncidentCodered = $('noIncidentCodered');
+      DOM.overviewButton = $('overviewButton');
+      DOM.coderedButton = $('coderedButton');
+      DOM.coderedOverlay = $('coderedOverlay');
+      DOM.coderedClose = $('coderedClose');
+      DOM.lastLoaded = $('lastLoaded');
+
+      DOM.overviewButton?.addEventListener('click', () => location.href = 'overview.html');
+      
+      loadIncidents();
+      initCoderedOverlay();
+      initTriangleLines();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
   </script>
 </body>
 </html>
