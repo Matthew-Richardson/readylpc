@@ -334,7 +334,7 @@
           })
           .then(() => incidentLayer.queryFeatures({
             where: '1=1',
-            outFields: [CONFIG.incidentField, CONFIG.zoneField, CONFIG.statusField],
+            outFields: ['*'],
             returnDistinctValues: false
           }))
           .then(fs => {
@@ -342,9 +342,10 @@
             const incidentMap = new Map();
             
             (fs.features || []).forEach(f => {
-              const incidentName = f.attributes?.[CONFIG.incidentField]?.trim();
-              const zoneName = f.attributes?.[CONFIG.zoneField]?.trim() || f.attributes?.zonename?.trim();
-              const status = f.attributes?.[CONFIG.statusField]?.trim();
+              const attrs = f.attributes || {};
+              const incidentName = (attrs.incident || attrs.Incident || '')?.trim();
+              const zoneName = (attrs.zonename || attrs.Zonename || attrs.zone || '')?.trim();
+              const status = (attrs.STATUS || attrs.Status || attrs.status || '')?.trim();
               
               if (!incidentName) return;
               
