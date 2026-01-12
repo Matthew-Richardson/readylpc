@@ -221,8 +221,8 @@
       mapUrl: 'evac.html',
       incidentLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0/query',
       incidentField: 'incident',
-      zoneField: 'zone',
-      statusField: 'status'
+      zoneField: 'zonename',
+      statusField: 'STATUS'
     };
 
     // ========== DOM CACHE ==========
@@ -372,7 +372,7 @@
         (data.features || []).forEach(f => {
           const incidentName = f.attributes?.[CONFIG.incidentField]?.trim();
           const zoneName = f.attributes?.[CONFIG.zoneField]?.trim();
-          const status = f.attributes?.[CONFIG.statusField]?.trim()?.toUpperCase();
+          const status = f.attributes?.[CONFIG.statusField]?.trim();
           
           if (!incidentName) return;
           
@@ -387,9 +387,10 @@
           const incident = incidentMap.get(incidentName);
           
           if (zoneName && status) {
-            if (status === 'SET' && !incident.setZones.includes(zoneName)) {
+            const statusUpper = status.toUpperCase();
+            if (statusUpper === 'SET' && !incident.setZones.includes(zoneName)) {
               incident.setZones.push(zoneName);
-            } else if (status === 'GO' && !incident.goZones.includes(zoneName)) {
+            } else if (statusUpper === 'GO' && !incident.goZones.includes(zoneName)) {
               incident.goZones.push(zoneName);
             }
           }
