@@ -61,35 +61,43 @@
           </div>
         </div>
 
-        <div class="content-overlap"><div class="incident-strip">
-          <div class="incident-strip-top">
-            <div class="incident-bar-left">
-              <span class="incident-label">
-                Active incidents
-                <span id="incidentCountBadge" class="incident-count-badge">0</span>
-              </span>
-            </div>
-          </div>
-          <div class="incident-tip">Tap an incident below to view the evacuation map.</div>
-          <div id="incidentChips" class="incident-chips"></div>
-          <div id="noIncidentsMsg" class="incident-none">
-            <div class="incident-none-content">
-              <div class="incident-none-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <div class="content-overlap">
+          <div class="incident-strip">
+            <div class="incident-strip-top">
+              <div class="incident-bar-left">
+                <span class="incident-label">
+                  Active incidents
+                  <span id="incidentCountBadge" class="incident-count-badge">0</span>
+                </span>
               </div>
-              <div class="incident-none-text">
-                <div class="incident-none-title">No Active Incidents</div>
-                <p class="incident-none-body">No active evacuations in La Plata County.</p>
+              <div class="incident-last-loaded">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span id="lastLoaded">--</span>
               </div>
             </div>
-            <a href="#" id="noIncidentCodered" class="incident-none-cta-link">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              Sign up for CodeRED Alerts
-            </a>
+            
+            <!-- Expandable incident cards container -->
+            <div id="incidentCards" class="expandable-cards"></div>
+            
+            <!-- No incidents message -->
+            <div id="noIncidentsMsg" class="incident-none">
+              <div class="incident-none-content">
+                <div class="incident-none-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="incident-none-text">
+                  <div class="incident-none-title">No Active Incidents</div>
+                  <p class="incident-none-body">No active evacuations in La Plata County.</p>
+                </div>
+              </div>
+              <a href="#" id="noIncidentCodered" class="incident-none-cta-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                Sign up for CodeRED Alerts
+              </a>
+            </div>
           </div>
-        </div>
 
-        <div class="card-divider"></div>
+          <div class="card-divider"></div>
         </div><!-- end content-overlap -->
       </div>
     </div>
@@ -174,8 +182,6 @@
           </div>
 
           <div class="status-timestamp">
-            <span id="lastLoaded">Last loaded: --</span>
-            &nbsp;•&nbsp;
             <span class="source-label">Source: La Plata County Office of Emergency Management</span>
           </div>
         </div>
@@ -214,7 +220,9 @@
     const CONFIG = {
       mapUrl: 'evac.html',
       incidentLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0/query',
-      incidentField: 'incident'
+      incidentField: 'incident',
+      zoneField: 'zone',
+      statusField: 'status'
     };
 
     // ========== DOM CACHE ==========
@@ -229,35 +237,126 @@
 
     // ========== UTILITIES ==========
     const updateTimestamp = () => {
-      if (DOM.lastLoaded) DOM.lastLoaded.textContent = `Last loaded: ${new Date().toLocaleString()}`;
+      if (DOM.lastLoaded) DOM.lastLoaded.textContent = new Date().toLocaleString();
     };
 
-    const createChip = (name, onClick) => {
-      const chip = document.createElement('button');
-      chip.className = 'incident-chip';
-      chip.innerHTML = `<span class="incident-chip-icon">!</span><span>${name}</span>`;
-      chip.addEventListener('click', onClick);
-      return chip;
-    };
-
-    const sortIncidents = (names, target) => {
-      const targetLower = target?.toLowerCase();
-      return names.sort((a, b) => {
-        const al = a.toLowerCase(), bl = b.toLowerCase();
-        if (targetLower) {
-          if (al === targetLower) return -1;
-          if (bl === targetLower) return 1;
-        }
-        return al.localeCompare(bl);
+    // Sort incidents: those with GO zones first, then by name
+    const sortIncidentsByUrgency = (incidents) => {
+      return incidents.sort((a, b) => {
+        // GO zones first
+        if (a.goZones.length > 0 && b.goZones.length === 0) return -1;
+        if (b.goZones.length > 0 && a.goZones.length === 0) return 1;
+        // Then by name
+        return a.name.localeCompare(b.name);
       });
+    };
+
+    // ========== EXPANDABLE CARD CREATION ==========
+    const createExpandableCard = (incident) => {
+      const hasGo = incident.goZones.length > 0;
+      const hasSet = incident.setZones.length > 0;
+      
+      const card = document.createElement('div');
+      card.className = 'expandable-card';
+      card.dataset.incident = incident.name;
+      
+      // Build zone badges HTML
+      let badgesHtml = '';
+      if (hasSet) {
+        badgesHtml += `<span class="zone-badge zone-badge-set">${incident.setZones.length} SET</span>`;
+      }
+      if (hasGo) {
+        badgesHtml += `<span class="zone-badge zone-badge-go">${incident.goZones.length} GO</span>`;
+      }
+      if (!hasSet && !hasGo) {
+        badgesHtml = '<span class="zone-badge-none">No active zones</span>';
+      }
+      
+      // Build expanded content
+      let expandedContent = '';
+      
+      if (hasGo) {
+        expandedContent += `
+          <div class="zone-section">
+            <div class="zone-section-title go">
+              <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+              GO Zones — Evacuate Immediately
+            </div>
+            <div class="zone-list">
+              ${incident.goZones.map(z => `<span class="zone-chip go">${z}</span>`).join('')}
+            </div>
+          </div>
+        `;
+      }
+      
+      if (hasSet) {
+        expandedContent += `
+          <div class="zone-section">
+            <div class="zone-section-title set">
+              <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+              SET Zones — Be Prepared
+            </div>
+            <div class="zone-list">
+              ${incident.setZones.map(z => `<span class="zone-chip set">${z}</span>`).join('')}
+            </div>
+          </div>
+        `;
+      }
+      
+      card.innerHTML = `
+        <div class="expandable-card-header">
+          <div class="expandable-card-top">
+            <div class="expandable-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <div class="expandable-card-name">${incident.name}</div>
+          </div>
+          <div class="expandable-card-bottom">
+            <div class="zone-badges">${badgesHtml}</div>
+            <div class="expand-toggle">
+              <span>Details</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="expandable-card-content">
+          <div class="expandable-card-inner">
+            ${expandedContent}
+            <button class="view-map-btn" data-incident="${incident.name}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+              View Full Map
+            </button>
+          </div>
+        </div>
+      `;
+      
+      // Add click handlers
+      const header = card.querySelector('.expandable-card-header');
+      header.addEventListener('click', () => {
+        card.classList.toggle('expanded');
+      });
+      
+      const mapBtn = card.querySelector('.view-map-btn');
+      mapBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const url = new URL(CONFIG.mapUrl, location.href);
+        url.searchParams.set('incident', incident.name);
+        location.href = url;
+      });
+      
+      return card;
     };
 
     // ========== DATA FETCHING ==========
     async function loadIncidents() {
       const params = new URLSearchParams({
         where: '1=1',
-        outFields: CONFIG.incidentField,
-        returnDistinctValues: 'true',
+        outFields: `${CONFIG.incidentField},${CONFIG.zoneField},${CONFIG.statusField}`,
+        returnDistinctValues: 'false',
         f: 'json'
       });
 
@@ -266,38 +365,56 @@
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const data = await res.json();
-        const seen = new Set();
-
-        const names = (data.features || [])
-          .map(f => f.attributes?.[CONFIG.incidentField]?.trim())
-          .filter(n => {
-            if (!n) return false;
-            const key = n.toLowerCase();
-            if (seen.has(key)) return false;
-            seen.add(key);
-            return true;
-          });
-
-        sortIncidents(names, INCIDENT);
-
-        DOM.countBadge.textContent = names.length;
-        if (names.length) DOM.countBadge.classList.add('has-incidents');
+        
+        // Group zones by incident
+        const incidentMap = new Map();
+        
+        (data.features || []).forEach(f => {
+          const incidentName = f.attributes?.[CONFIG.incidentField]?.trim();
+          const zoneName = f.attributes?.[CONFIG.zoneField]?.trim();
+          const status = f.attributes?.[CONFIG.statusField]?.trim()?.toUpperCase();
+          
+          if (!incidentName) return;
+          
+          if (!incidentMap.has(incidentName)) {
+            incidentMap.set(incidentName, {
+              name: incidentName,
+              setZones: [],
+              goZones: []
+            });
+          }
+          
+          const incident = incidentMap.get(incidentName);
+          
+          if (zoneName && status) {
+            if (status === 'SET' && !incident.setZones.includes(zoneName)) {
+              incident.setZones.push(zoneName);
+            } else if (status === 'GO' && !incident.goZones.includes(zoneName)) {
+              incident.goZones.push(zoneName);
+            }
+          }
+        });
+        
+        // Convert to array and sort by urgency
+        const incidents = sortIncidentsByUrgency(Array.from(incidentMap.values()));
+        
+        // Update UI
+        DOM.countBadge.textContent = incidents.length;
+        if (incidents.length) DOM.countBadge.classList.add('has-incidents');
         updateTimestamp();
 
-        if (!names.length) {
+        if (!incidents.length) {
           DOM.noIncidentsMsg.classList.add('is-visible');
           return;
         }
 
+        // Build cards
         const frag = document.createDocumentFragment();
-        for (const name of names) {
-          frag.appendChild(createChip(name, () => {
-            const url = new URL(CONFIG.mapUrl, location.href);
-            url.searchParams.set('incident', name);
-            location.href = url;
-          }));
+        for (const incident of incidents) {
+          frag.appendChild(createExpandableCard(incident));
         }
-        DOM.chipsEl.appendChild(frag);
+        DOM.cardsEl.appendChild(frag);
+        
       } catch (err) {
         console.error('Error loading incidents:', err);
         DOM.countBadge.textContent = '0';
@@ -394,7 +511,7 @@
 
     // ========== INIT ==========
     function init() {
-      DOM.chipsEl = $('incidentChips');
+      DOM.cardsEl = $('incidentCards');
       DOM.countBadge = $('incidentCountBadge');
       DOM.noIncidentsMsg = $('noIncidentsMsg');
       DOM.noIncidentCodered = $('noIncidentCodered');
