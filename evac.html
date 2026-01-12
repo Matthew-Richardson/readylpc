@@ -76,45 +76,52 @@
           </div>
         </div>
 
-        <div class="content-overlap"><div class="incident-strip">
-          <div class="incident-strip-top">
-            <div class="incident-bar-left">
-              <span class="incident-label">
-                Active incidents
-                <span id="incidentCountBadge" class="incident-count-badge">0</span>
-              </span>
-            </div>
-          </div>
-          <div class="incident-tip">Tap an incident below to view the evacuation map.</div>
-          <div id="incidentChips" class="incident-chips"></div>
-          <div id="noIncidentsMsg" class="incident-none">
-            <div class="incident-none-content">
-              <div class="incident-none-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <div class="content-overlap">
+          <div class="incident-strip">
+            <div class="incident-strip-top">
+              <div class="incident-bar-left">
+                <span class="incident-label">
+                  Active incidents
+                  <span id="incidentCountBadge" class="incident-count-badge">0</span>
+                </span>
               </div>
-              <div class="incident-none-text">
-                <div class="incident-none-title">No Active Incidents</div>
-                <p class="incident-none-body">No active evacuations in La Plata County.</p>
+              <div class="incident-last-loaded">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span id="lastLoaded">--</span>
               </div>
             </div>
-            <a href="#" id="noIncidentCodered" class="incident-none-cta-link">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              Sign up for CodeRED Alerts
-            </a>
+            
+            <!-- Compact incident cards -->
+            <div id="incidentCards" class="compact-cards"></div>
+            
+            <div id="noIncidentsMsg" class="incident-none">
+              <div class="incident-none-content">
+                <div class="incident-none-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="incident-none-text">
+                  <div class="incident-none-title">No Active Incidents</div>
+                  <p class="incident-none-body">No active evacuations in La Plata County.</p>
+                </div>
+              </div>
+              <a href="#" id="noIncidentCodered" class="incident-none-cta-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                Sign up for CodeRED Alerts
+              </a>
+            </div>
           </div>
-        </div>
 
-        <div class="card-divider"></div>
-        <div id="viewDiv"></div>
+          <div class="card-divider"></div>
+          <div id="viewDiv"></div>
 
-        <div class="map-key-merged">
-          <div class="legend-title">Map Key</div>
-          <div class="legend-items">
-            <div class="legend-item"><span class="legend-icon-road"></span><span>Road closure</span></div>
-            <div class="legend-item"><span class="legend-icon-info">i</span><span>Information</span></div>
-            <div class="legend-item"><span class="legend-icon-warning"></span><span>Special warning</span></div>
+          <div class="map-key-merged">
+            <div class="legend-title">Map Key</div>
+            <div class="legend-items">
+              <div class="legend-item"><span class="legend-icon-road"></span><span>Road closure</span></div>
+              <div class="legend-item"><span class="legend-icon-info">i</span><span>Information</span></div>
+              <div class="legend-item"><span class="legend-icon-warning"></span><span>Special warning</span></div>
+            </div>
           </div>
-        </div>
         </div><!-- end content-overlap -->
       </div>
     </div>
@@ -162,6 +169,8 @@
       incidentLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0',
       statusBaseUrl: 'https://script.google.com/macros/s/AKfycbxOFlSc6xXHqERr7n9VQbfnXnPGRqsvbgUs5lx4y6cy9YfnYSGFkLk5nSut66ecoRUwtA/exec',
       incidentField: 'incident',
+      zoneField: 'zonename',
+      statusField: 'STATUS',
       statusValues: { SET: 'Set', GO: 'Go' }
     };
 
@@ -184,26 +193,73 @@
 
     // ========== UTILITIES ==========
     const escapeQuery = s => s.replace(/'/g, "''");
+    
+    const updateTimestamp = () => {
+      if (DOM.lastLoaded) DOM.lastLoaded.textContent = new Date().toLocaleString();
+    };
 
-    const sortIncidents = (names, target) => {
-      const targetLower = target?.toLowerCase();
-      return names.sort((a, b) => {
-        const al = a.toLowerCase(), bl = b.toLowerCase();
-        if (targetLower) {
-          if (al === targetLower) return -1;
-          if (bl === targetLower) return 1;
+    // Sort incidents by urgency (GO first) then alphabetically, with current incident at top
+    const sortIncidentsByUrgency = (incidents, currentIncident) => {
+      return incidents.sort((a, b) => {
+        // Current incident always first
+        if (currentIncident) {
+          if (a.name.toLowerCase() === currentIncident.toLowerCase()) return -1;
+          if (b.name.toLowerCase() === currentIncident.toLowerCase()) return 1;
         }
-        return al.localeCompare(bl);
+        // GO zones first
+        if (a.goZones.length > 0 && b.goZones.length === 0) return -1;
+        if (b.goZones.length > 0 && a.goZones.length === 0) return 1;
+        // Then by name
+        return a.name.localeCompare(b.name);
       });
     };
 
-    const createChip = (name, onClick) => {
-      const chip = document.createElement('button');
-      chip.className = 'incident-chip';
-      chip.dataset.incident = name;
-      chip.innerHTML = `<span class="incident-chip-icon">!</span><span>${name}</span>`;
-      chip.addEventListener('click', onClick);
-      return chip;
+    // ========== COMPACT CARD CREATION ==========
+    const createCompactCard = (incident, isActive) => {
+      const hasGo = incident.goZones.length > 0;
+      const hasSet = incident.setZones.length > 0;
+      
+      const card = document.createElement('div');
+      card.className = 'compact-card' + (isActive ? ' active' : '');
+      card.dataset.incident = incident.name;
+      
+      // Build zone badges HTML
+      let badgesHtml = '';
+      if (hasSet) {
+        badgesHtml += `<span class="zone-badge zone-badge-set">${incident.setZones.length} SET</span>`;
+      }
+      if (hasGo) {
+        badgesHtml += `<span class="zone-badge zone-badge-go">${incident.goZones.length} GO</span>`;
+      }
+      if (!hasSet && !hasGo) {
+        badgesHtml = '<span class="zone-badge-none">No active zones</span>';
+      }
+      
+      card.innerHTML = `
+        <div class="compact-card-top">
+          <div class="compact-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div class="compact-card-name">${incident.name}</div>
+        </div>
+        <div class="compact-card-bottom">
+          <div class="zone-badges">${badgesHtml}</div>
+          <svg class="compact-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      `;
+      
+      // Add click handler
+      card.addEventListener('click', () => {
+        const url = new URL(location.href);
+        url.searchParams.set('incident', incident.name);
+        location.href = url;
+      });
+      
+      return card;
     };
 
     // ========== HTML BUILDERS ==========
@@ -212,7 +268,7 @@
       const hasFeatures = features?.length > 0;
       
       const zonesHTML = hasFeatures
-        ? `<div class="evac-zones">${features.map(f => `<div class="zone-chip">${f.attributes.zonename}</div>`).join('')}</div>`
+        ? `<div class="evac-zones">${features.map(f => `<div class="zone-chip">${f.attributes.zonename || f.attributes.zone || 'Unknown Zone'}</div>`).join('')}</div>`
         : `<div class="evac-zones"><div class="no-zones-chip">No ${statusCode} zones</div></div>`;
 
       const boxClass = statusCode === 'GO' ? ' evac-box-go' : statusCode === 'SET' ? ' evac-box-set' : '';
@@ -355,38 +411,59 @@
           })
           .then(() => incidentLayer.queryFeatures({
             where: '1=1',
-            outFields: [CONFIG.incidentField],
-            returnDistinctValues: true,
-            orderByFields: [CONFIG.incidentField]
+            outFields: [CONFIG.incidentField, CONFIG.zoneField, CONFIG.statusField],
+            returnDistinctValues: false
           }))
           .then(fs => {
-            const names = (fs.features || [])
-              .map(f => f.attributes[CONFIG.incidentField])
-              .filter(Boolean);
+            // Group zones by incident
+            const incidentMap = new Map();
+            
+            (fs.features || []).forEach(f => {
+              const incidentName = f.attributes?.[CONFIG.incidentField]?.trim();
+              const zoneName = f.attributes?.[CONFIG.zoneField]?.trim() || f.attributes?.zonename?.trim();
+              const status = f.attributes?.[CONFIG.statusField]?.trim();
+              
+              if (!incidentName) return;
+              
+              if (!incidentMap.has(incidentName)) {
+                incidentMap.set(incidentName, {
+                  name: incidentName,
+                  setZones: [],
+                  goZones: []
+                });
+              }
+              
+              const incident = incidentMap.get(incidentName);
+              
+              if (zoneName && status) {
+                const statusUpper = status.toUpperCase();
+                if ((statusUpper === 'SET' || status === CONFIG.statusValues.SET) && !incident.setZones.includes(zoneName)) {
+                  incident.setZones.push(zoneName);
+                } else if ((statusUpper === 'GO' || status === CONFIG.statusValues.GO) && !incident.goZones.includes(zoneName)) {
+                  incident.goZones.push(zoneName);
+                }
+              }
+            });
+            
+            // Convert to array and sort
+            const incidents = sortIncidentsByUrgency(Array.from(incidentMap.values()), INCIDENT);
 
-            DOM.countBadge.textContent = names.length;
-            if (names.length) DOM.countBadge.classList.add('has-incidents');
+            DOM.countBadge.textContent = incidents.length;
+            if (incidents.length) DOM.countBadge.classList.add('has-incidents');
             else { DOM.noIncidentsMsg.classList.add('is-visible'); return; }
             DOM.noIncidentsMsg.classList.remove('is-visible');
+            updateTimestamp();
 
-            sortIncidents(names, INCIDENT);
-
+            // Build cards
             const frag = document.createDocumentFragment();
-            for (const name of names) {
-              frag.appendChild(createChip(name, () => {
-                const url = new URL(location.href);
-                url.searchParams.set('incident', name);
-                location.href = url;
-              }));
+            for (const incident of incidents) {
+              const isActive = INCIDENT && incident.name.toLowerCase() === INCIDENT.toLowerCase();
+              frag.appendChild(createCompactCard(incident, isActive));
             }
-            DOM.chipsEl.appendChild(frag);
+            DOM.cardsEl.appendChild(frag);
 
             if (INCIDENT) {
-              const match = DOM.chipsEl.querySelector(`[data-incident="${INCIDENT}"]`);
-              if (match) {
-                match.classList.add('active');
-                zoomToIncident(INCIDENT);
-              }
+              zoomToIncident(INCIDENT);
             }
           })
           .catch(err => {
@@ -417,7 +494,7 @@
     function init() {
       DOM.evacRow = $('evacRow');
       DOM.incidentPanel = $('incidentPanel');
-      DOM.chipsEl = $('incidentChips');
+      DOM.cardsEl = $('incidentCards');
       DOM.countBadge = $('incidentCountBadge');
       DOM.noIncidentsMsg = $('noIncidentsMsg');
       DOM.noIncidentCodered = $('noIncidentCodered');
@@ -426,6 +503,7 @@
       DOM.coderedButton = $('coderedButton');
       DOM.coderedOverlay = $('coderedOverlay');
       DOM.coderedClose = $('coderedClose');
+      DOM.lastLoaded = $('lastLoaded');
 
       initCoderedOverlay();
       loadEvacuationZones();
