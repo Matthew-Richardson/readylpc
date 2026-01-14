@@ -1696,6 +1696,96 @@ main {
   }
 }
 
+/* ========== ANNOUNCEMENT ALERT BUTTON ========== */
+
+.announcement-alert-btn {
+  position: relative;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(11, 77, 162, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: auto;
+}
+
+.announcement-alert-btn.is-active {
+  display: flex;
+}
+
+.announcement-alert-btn svg {
+  width: 20px;
+  height: 20px;
+  color: #64748b;
+  transition: color 0.2s ease;
+}
+
+.announcement-alert-btn:hover {
+  background: rgba(11, 77, 162, 0.12);
+}
+
+.announcement-alert-btn:hover svg {
+  color: #0b4da2;
+}
+
+/* Notification dot */
+.announcement-alert-btn::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 10px;
+  height: 10px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-radius: 50%;
+  border: 2px solid #f1f5f9;
+  animation: announcement-pulse 2s ease-in-out infinite;
+}
+
+@keyframes announcement-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.85;
+  }
+}
+
+/* When announcement has been viewed, softer indicator */
+.announcement-alert-btn.is-viewed::after {
+  animation: none;
+  background: #94a3b8;
+}
+
+.announcement-alert-btn.is-viewed:hover::after {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+@media (max-width: 600px) {
+  .announcement-alert-btn {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .announcement-alert-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .announcement-alert-btn::after {
+    width: 8px;
+    height: 8px;
+    top: 4px;
+    right: 4px;
+  }
+}
+
 /* ========== TRIANGLE TIMELINE STYLES (INFO PAGE) ========== */
 
 .preview-container {
