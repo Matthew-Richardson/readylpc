@@ -228,8 +228,10 @@
     };
 
     // ========== ANNOUNCEMENT TOGGLE ==========
-    // Set to true to show the announcement on page load, false to hide
-    const SHOW_ANNOUNCEMENT = false;
+    // SHOW_ANNOUNCEMENT: shows the bell icon when true
+    // AUTO_OPEN_ANNOUNCEMENT: auto-opens the popup on page load when true
+    const SHOW_ANNOUNCEMENT = true;
+    const AUTO_OPEN_ANNOUNCEMENT = false;
 
     const STATUS_DATA = {
       SET: { label: 'SET - Pre-Evacuation', color: '#fff36a', text: 'Voluntary Evacuation;<br>Evacuation orders are likely' },
@@ -499,8 +501,10 @@
         }
       };
 
-      // Auto-open on page load
-      toggle(true);
+      // Auto-open on page load only if enabled
+      if (AUTO_OPEN_ANNOUNCEMENT) {
+        toggle(true);
+      }
 
       // Close handlers
       DOM.announcementClose?.addEventListener('click', () => toggle(false));
