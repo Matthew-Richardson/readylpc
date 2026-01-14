@@ -1453,6 +1453,7 @@ main {
 .announcement-header {
   background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
   padding: 20px 24px;
+  padding-right: 50px;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -1763,22 +1764,9 @@ main {
   }
 }
 
-/* When announcement has been viewed, softer indicator */
+/* When announcement has been viewed, keep it red but stop pulsing */
 .announcement-alert-btn.is-viewed::after {
   animation: none;
-  background: #94a3b8;
-}
-
-.announcement-alert-btn.is-viewed svg {
-  color: #64748b;
-}
-
-.announcement-alert-btn.is-viewed:hover::after {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-}
-
-.announcement-alert-btn.is-viewed:hover svg {
-  color: #dc2626;
 }
 
 @media (max-width: 600px) {
