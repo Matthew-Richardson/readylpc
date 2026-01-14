@@ -145,7 +145,7 @@
                       <h2 class="stage-title">READY</h2>
                       <div class="stage-subtitle">Be READY, Stay SAFE</div>
                       <div class="stage-body">
-                        <p><strong>Stay Informed:</strong> Signup for CodeRED, ensure Gov't Alerts are enabled on your cell phone, and use apps like Watch Duty.</p>
+                        <p><strong>Stay Informed:</strong> CodeRED signup or text 'LPCOEM' to 99411, ensure Gov't Alerts are enabled on your cell phone, and use apps like Watch Duty.</p>
                         <p><strong>Arrangements:</strong> Make a plan and practice your evacuation; People, Pets, Photos, Papers and Pills.</p>
                         <p><strong>Fire Ready:</strong> Fire Mitigation and last minute safety measures, "Go Kit" with Protective Clothing and masks.</p>
                         <p><strong>Evacuate:</strong> Don't hesitate or ignore evacuation orders. Know multiple ways out.</p>
@@ -280,8 +280,10 @@
     };
 
     // ========== ANNOUNCEMENT TOGGLE ==========
-    // Set to true to show the announcement on page load, false to hide
+    // SHOW_ANNOUNCEMENT: shows the bell icon when true
+    // AUTO_OPEN_ANNOUNCEMENT: auto-opens the popup on page load when true
     const SHOW_ANNOUNCEMENT = true;
+    const AUTO_OPEN_ANNOUNCEMENT = true;
 
     // ========== DOM CACHE ==========
     const $ = id => document.getElementById(id);
@@ -408,8 +410,10 @@
         }
       };
 
-      // Auto-open on page load
-      toggle(true);
+      // Auto-open on page load only if enabled
+      if (AUTO_OPEN_ANNOUNCEMENT) {
+        toggle(true);
+      }
 
       // Close handlers
       DOM.announcementClose?.addEventListener('click', () => toggle(false));
