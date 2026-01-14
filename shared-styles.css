@@ -1699,18 +1699,21 @@ main {
 /* ========== ANNOUNCEMENT ALERT BUTTON ========== */
 
 .announcement-alert-btn {
-  position: relative;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
   display: none;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border: none;
-  border-radius: 8px;
-  background: rgba(11, 77, 162, 0.08);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-left: auto;
 }
 
 .announcement-alert-btn.is-active {
@@ -1718,18 +1721,20 @@ main {
 }
 
 .announcement-alert-btn svg {
-  width: 20px;
-  height: 20px;
-  color: #64748b;
-  transition: color 0.2s ease;
+  width: 22px;
+  height: 22px;
+  color: #dc2626;
+  transition: all 0.2s ease;
 }
 
 .announcement-alert-btn:hover {
-  background: rgba(11, 77, 162, 0.12);
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
 
 .announcement-alert-btn:hover svg {
-  color: #0b4da2;
+  color: #b91c1c;
 }
 
 /* Notification dot */
@@ -1738,11 +1743,11 @@ main {
   position: absolute;
   top: 6px;
   right: 6px;
-  width: 10px;
-  height: 10px;
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
   border-radius: 50%;
-  border: 2px solid #f1f5f9;
+  border: 2px solid #fff;
   animation: announcement-pulse 2s ease-in-out infinite;
 }
 
@@ -1752,7 +1757,7 @@ main {
     opacity: 1;
   }
   50% {
-    transform: scale(1.15);
+    transform: scale(1.2);
     opacity: 0.85;
   }
 }
@@ -1763,24 +1768,34 @@ main {
   background: #94a3b8;
 }
 
+.announcement-alert-btn.is-viewed svg {
+  color: #64748b;
+}
+
 .announcement-alert-btn.is-viewed:hover::after {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.announcement-alert-btn.is-viewed:hover svg {
+  color: #dc2626;
 }
 
 @media (max-width: 600px) {
   .announcement-alert-btn {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
+    top: 10px;
+    right: 10px;
   }
   
   .announcement-alert-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
   }
   
   .announcement-alert-btn::after {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     top: 4px;
     right: 4px;
   }
