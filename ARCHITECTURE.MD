@@ -10,32 +10,32 @@
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                              USER BROWSER                                │
 ├─────────────────────────────────────────────────────────────────────────┤
-│  info.html    │    overview.html    │    evac.html                      │
+│  index.html   │    overview.html    │    evac.html                      │
 │  (Home)       │    (Overview Map)   │    (Evacuation Details)           │
 └───────┬───────┴──────────┬──────────┴───────────┬───────────────────────┘
         │                  │                      │
         ▼                  ▼                      ▼
 ┌───────────────┐  ┌───────────────┐  ┌───────────────────────────────────┐
-│ ArcGIS REST   │  │ ArcGIS REST   │  │        Google Apps Script         │
-│ (Query API)   │  │ + WebMap      │  │         (code.gs)                 │
-└───────┬───────┘  └───────┬───────┘  └───────────────┬───────────────────┘
-        │                  │                          │
-        ▼                  ▼                          ▼
-┌───────────────────────────────────┐  ┌──────────────────────────────────┐
-│     ArcGIS Online                 │  │       Google Sheets              │
-│  ┌─────────────────────────────┐  │  │  ┌────────────────────────────┐  │
-│  │ Feature Service             │  │  │  │ IncidentStatus (tab)       │  │
-│  │ - Evacuation Zones          │  │  │  │ - Support resources        │  │
-│  │ - Incident field            │  │  │  └────────────────────────────┘  │
-│  │ - STATUS field (Set/Go)     │  │  │  ┌────────────────────────────┐  │
-│  │ - zonename field            │  │  │  │ PastIncidents (tab)        │  │
-│  └─────────────────────────────┘  │  │  │ - Historical records       │  │
-│  ┌─────────────────────────────┐  │  │  └────────────────────────────┘  │
-│  │ WebMap                      │  │  └──────────────────────────────────┘
-│  │ - Configured symbology      │  │
-│  │ - Additional layers         │  │
-│  └─────────────────────────────┘  │
-└───────────────────────────────────┘
+│ ArcGIS REST   │  │ ArcGIS REST   │  │         Static JSON Files         │
+│ (Query API)   │  │ + WebMap      │  │  incident.json, pastincident.json │
+└───────┬───────┘  └───────┬───────┘  └───────────────────────────────────┘
+        │                  │                      
+        ▼                  ▼                      
+┌───────────────────────────────────┐  
+│     ArcGIS Online                 │  
+│  ┌─────────────────────────────┐  │  
+│  │ Feature Service             │  │  
+│  │ - Evacuation Zones          │  │  
+│  │ - Incident field            │  │  
+│  │ - STATUS field (Set/Go)     │  │  
+│  │ - zonename field            │  │  
+│  └─────────────────────────────┘  │  
+│  ┌─────────────────────────────┐  │  
+│  │ WebMap                      │  │  
+│  │ - Configured symbology      │  │  
+│  │ - Additional layers         │  │  
+│  └─────────────────────────────┘  │  
+└───────────────────────────────────┘  
 ```
 
 ---
@@ -50,11 +50,12 @@
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │  info.html   │  │overview.html │  │  evac.html   │          │
+│  │  index.html  │  │overview.html │  │  evac.html   │          │
 │  │              │  │              │  │              │          │
 │  │ • RSG Info   │  │ • All pins   │  │ • Zone map   │          │
 │  │ • Incidents  │  │ • Past table │  │ • SET/GO     │          │
 │  │ • Timeline   │  │ • Navigation │  │ • Resources  │          │
+│  │ • Announce   │  │ • Announce   │  │ • Announce   │          │
 │  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘          │
 │         │                 │                 │                   │
 │         └─────────────────┼─────────────────┘                   │
@@ -65,7 +66,15 @@
 │              │ • Layout & typography  │                         │
 │              │ • Component styles     │                         │
 │              │ • Responsive design    │                         │
+│              │ • Announcement styles  │                         │
 │              │ • Animation keyframes  │                         │
+│              └────────────────────────┘                         │
+│                                                                  │
+│              ┌────────────────────────┐                         │
+│              │     JSON Data Files    │                         │
+│              │                        │                         │
+│              │ • incident.json        │                         │
+│              │ • pastincident.json    │                         │
 │              └────────────────────────┘                         │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
@@ -82,21 +91,27 @@ Each HTML page contains an IIFE (Immediately Invoked Function Expression) with c
   // ========== CONFIGURATION ==========
   const CONFIG = { /* URLs, field names, constants */ };
 
+  // ========== ANNOUNCEMENT TOGGLE ==========
+  const SHOW_ANNOUNCEMENT = true;
+  const AUTO_OPEN_ANNOUNCEMENT = true; // Only on index.html
+
   // ========== DOM CACHE ==========
   const DOM = {};
   const $ = id => document.getElementById(id);
 
   // ========== UTILITIES ==========
-  // Shared helper functions
+  const formatTimestamp = () => { /* Returns date with timezone */ };
+  // Other shared helper functions
 
   // ========== DATA FETCHING ==========
-  // Async functions for API calls
+  // Async functions for API/JSON calls
 
   // ========== MAP INITIALIZATION ==========
   // ArcGIS SDK setup (where applicable)
 
-  // ========== EVENT HANDLERS ==========
-  // UI interaction logic
+  // ========== OVERLAY HANDLERS ==========
+  function initCoderedOverlay() { /* ... */ }
+  function initAnnouncement() { /* ... */ }
 
   // ========== INIT ==========
   function init() {
@@ -124,36 +139,61 @@ Each HTML page contains an IIFE (Immediately Invoked Function Expression) with c
 │  (evac.html)│              │   SDK       │                │  Service    │
 └──────┬──────┘              └─────────────┘                └─────────────┘
        │
-       │  Fetch
+       │  Fetch JSON
        ▼
-┌─────────────┐   HTTP GET   ┌─────────────┐    Read       ┌─────────────┐
-│   Browser   │ ──────────▶  │ Apps Script │ ◀──────────▶  │   Google    │
-│  (evac.html)│              │  (code.gs)  │               │   Sheets    │
-└─────────────┘              └──────┬──────┘               └─────────────┘
-                                    │
-                                    │ HTML Response
-                                    ▼
-                             ┌─────────────┐
-                             │  innerHTML  │
-                             │  injection  │
-                             └─────────────┘
+┌─────────────┐   HTTP GET   ┌─────────────┐
+│   Browser   │ ──────────▶  │incident.json│
+│  (evac.html)│              │ (static)    │
+└──────┬──────┘              └─────────────┘
+       │
+       │ Parse & Render
+       ▼
+┌─────────────┐
+│  Status     │
+│  Card HTML  │
+└─────────────┘
 ```
 
 ### Past Incidents Flow
 
 ```
-┌─────────────┐   ?type=past   ┌─────────────┐    Cache     ┌─────────────┐
-│   Browser   │ ────────────▶  │ Apps Script │ ◀──────────▶ │  Script     │
-│(overview.html)               │             │   Check      │  Cache      │
-└─────────────┘                └──────┬──────┘              └─────────────┘
-                                      │
-                                      │ Cache miss
-                                      ▼
-                               ┌─────────────┐
-                               │   Google    │
-                               │   Sheets    │
-                               │ (PastIncidents)
-                               └─────────────┘
+┌─────────────┐   HTTP GET   ┌─────────────────┐
+│   Browser   │ ──────────▶  │pastincident.json│
+│(overview.html)             │    (static)     │
+└──────┬──────┘              └─────────────────┘
+       │
+       │ Parse, Sort, Render
+       ▼
+┌─────────────┐
+│  HTML Table │
+│  (sorted by │
+│  date desc) │
+└─────────────┘
+```
+
+### Announcement System Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     Page Load                                    │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Check: SHOW_ANNOUNCEMENT === true?                             │
+│         │                                                        │
+│         ├─── No ──▶ Bell icon hidden, done                      │
+│         │                                                        │
+│         ▼ Yes                                                    │
+│  Show bell icon (.is-active class)                              │
+│         │                                                        │
+│  Check: AUTO_OPEN_ANNOUNCEMENT === true                         │
+│         AND page is index.html?                                 │
+│         │                                                        │
+│         ├─── No ──▶ Wait for user click                         │
+│         │                                                        │
+│         ▼ Yes                                                    │
+│  Auto-open announcement modal                                   │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -218,15 +258,13 @@ function initMap() {
 
 ### REST API Calls
 
-The application queries ArcGIS Feature Services directly via REST. All calls use the same base URL:
+The application queries ArcGIS Feature Services directly via REST:
 
 ```
 https://services2.arcgis.com/{org}/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0
 ```
 
 #### Get Distinct Incident Names
-
-Returns a unique list of all active incidents. Used to populate incident chips.
 
 ```
 GET /query
@@ -238,110 +276,43 @@ GET /query
   &f=json
 ```
 
-**Response:**
-```json
-{
-  "features": [
-    { "attributes": { "incident": "East Canyon Fire" } },
-    { "attributes": { "incident": "West Fork Fire" } }
-  ]
-}
+#### Get Zones for Specific Incident
+
 ```
-
-**Used in:** `info.html`, `overview.html`, `evac.html`
-
----
+GET /query
+  ?where=incident='East Canyon' AND STATUS IN ('Set','Go')
+  &outFields=*
+  &returnGeometry=false
+  &f=json
+```
 
 #### Get Incident Extent (for map zoom)
 
-Returns the bounding box of all zones for a specific incident.
-
-```
-GET /queryExtent
-  ?where=incident='East Canyon Fire'
-  &f=json
-```
-
-**Response:**
-```json
-{
-  "extent": {
-    "xmin": -107.95,
-    "ymin": 37.20,
-    "xmax": -107.80,
-    "ymax": 37.35,
-    "spatialReference": { "wkid": 4326 }
-  }
-}
-```
-
-**Used in:** `evac.html` (zoom to incident), `overview.html` (zoom to pin)
-
----
-
-#### Get Zone Features for Incident
-
-Returns all evacuation zone polygons for a specific incident with SET or GO status.
-
 ```
 GET /query
-  ?where=incident='East Canyon Fire' AND STATUS IN ('Set','Go')
-  &outFields=*
+  ?where=incident='East Canyon'
+  &returnExtentOnly=true
   &f=json
 ```
 
-**Response:**
-```json
-{
-  "features": [
-    {
-      "attributes": {
-        "OBJECTID": 123,
-        "incident": "East Canyon Fire",
-        "STATUS": "Go",
-        "zonename": "Zone A"
-      },
-      "geometry": { "rings": [...] }
-    }
-  ]
-}
-```
-
-**Used in:** `evac.html` (evacuation boxes display)
-
 ---
 
-#### Get Incident Centroid (for overview pins)
+## Timestamp Display
 
-Returns a representative point for each incident to place map pins.
-
-```
-GET /query
-  ?where=1=1
-  &outFields=incident
-  &returnDistinctValues=true
-  &returnGeometry=true
-  &returnCentroid=true
-  &f=json
-```
-
-**Used in:** `overview.html` (incident pin placement)
-
----
-
-### Field Requirements
-
-| Field | Type | Values | Required By |
-|-------|------|--------|-------------|
-| `incident` | String | Incident name | All queries |
-| `STATUS` | String | `Set`, `Go` | Zone filtering |
-| `zonename` | String | Zone identifier | Evacuation boxes |
-
-**Note:** Queries escape single quotes in incident names (`'` → `''`) to prevent SQL injection:
+All pages display timestamps with timezone identifiers:
 
 ```javascript
-const escapeQuery = s => s.replace(/'/g, "''");
-const where = `incident='${escapeQuery(name)}'`;
+const formatTimestamp = () => {
+  const now = new Date();
+  const options = { 
+    year: 'numeric', month: 'numeric', day: 'numeric',
+    hour: 'numeric', minute: '2-digit', second: '2-digit',
+    timeZoneName: 'short'
+  };
+  return now.toLocaleString('en-US', options);
+};
+
+// Output: "1/15/2026, 3:45:22 PM MST"
 ```
 
 ---
@@ -355,26 +326,11 @@ const where = `incident='${escapeQuery(name)}'`;
 | ArcGIS SDK | HTTP Cache | Long (versioned URL) |
 | shared-styles.css | HTTP Cache | Based on server config |
 | Map tiles | ArcGIS CDN | Automatic |
+| JSON files | HTTP Cache | Based on server config |
 
-### Apps Script Caching
+### No Server-Side Caching
 
-```javascript
-const cache = CacheService.getScriptCache();
-
-// Incident data - short cache (data changes during emergencies)
-cache.put(key, html, 15);  // 15 seconds
-
-// Past incidents - longer cache (historical, rarely changes)
-cache.put(key, html, 300);  // 5 minutes
-```
-
-### Cache Key Generation
-
-```javascript
-// Normalize incident name for consistent cache keys
-const key = 'inc_' + incident.toLowerCase().replace(/\W+/g, '_');
-// "East Canyon Fire" → "inc_east_canyon_fire"
-```
+With static JSON files, caching is handled entirely by the browser and HTTP headers. This simplifies the architecture and reduces dependencies.
 
 ---
 
@@ -440,6 +396,7 @@ const DOM = {};
 function init() {
   DOM.countBadge = document.getElementById('incidentCountBadge');
   DOM.chipsEl = document.getElementById('incidentChips');
+  DOM.announcementOverlay = document.getElementById('announcementOverlay');
   // ...
 }
 
@@ -462,13 +419,6 @@ DOM.chipsEl.appendChild(frag);  // Single reflow
 const ESC_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 function esc(s) {
   return String(s).replace(/[&<>"']/g, c => ESC_MAP[c]);
-}
-
-// URL sanitization
-function normalizeUrl(url) {
-  if (!url) return '';
-  if (/^https?:\/\//i.test(url)) return url;
-  return 'https://' + url;
 }
 ```
 
@@ -506,15 +456,19 @@ try {
 }
 ```
 
-### Backend Errors (Apps Script)
+### JSON Loading Errors
 
 ```javascript
+// Past incidents table fallback
 try {
-  const html = generateIncidentHtml(incident);
-  return htmlResponse(html);
+  const res = await fetch(CONFIG.pastIncidentsJsonUrl);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const incidents = await res.json();
+  // Render table
 } catch (err) {
-  Logger.log(err);  // Server-side logging
-  return htmlResponse(errorCard('An error occurred.'));
+  console.error('Error loading past incidents:', err);
+  DOM.pastIncidentsTable.innerHTML = 
+    '<div class="past-incidents-error">Unable to load past incidents.</div>';
 }
 ```
 
@@ -528,16 +482,11 @@ try {
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  ┌─────────────────┐                                            │
-│  │  Web Server     │  Static files (HTML, CSS)                  │
-│  │  (readylaplata  │  ───────────────────────────▶ Users        │
-│  │   .org)         │                                            │
-│  └─────────────────┘                                            │
-│                                                                  │
-│  ┌─────────────────┐                                            │
-│  │  Google Apps    │  API responses                             │
-│  │  Script         │  ───────────────────────────▶ Users        │
-│  │  (script.google │                                            │
-│  │   .com)         │                                            │
+│  │  Web Server     │  Static files                              │
+│  │  (GitHub Pages, │  ───────────────────────────▶ Users        │
+│  │   Netlify, etc.)│  • HTML, CSS, JS                           │
+│  │                 │  • incident.json                           │
+│  │                 │  • pastincident.json                       │
 │  └─────────────────┘                                            │
 │                                                                  │
 │  ┌─────────────────┐                                            │
@@ -557,11 +506,6 @@ try {
 - `console.error()` for caught exceptions
 - Browser DevTools Network tab for request debugging
 
-### Server-Side (Apps Script)
-
-- `Logger.log()` for error logging
-- View logs: Apps Script Editor → Executions
-
 ### ArcGIS
 
 - ArcGIS Online dashboard for service usage
@@ -576,13 +520,12 @@ try {
 1. **Service Worker** — Offline support for critical information
 2. **Push Notifications** — Real-time zone status updates
 3. **PWA Manifest** — Install as mobile app
-4. **Edge Functions** — Replace Apps Script with faster serverless
-5. **Static Pre-rendering** — Generate incident pages at build time
+4. **CDN Distribution** — Faster global delivery of static files
 
 ### Scalability
 
-Current architecture handles typical emergency traffic. For major incidents:
+Current architecture handles typical emergency traffic:
 
 - ArcGIS Online auto-scales
-- Apps Script has Google infrastructure
 - Static files can be CDN-distributed
+- JSON files are tiny and cacheable
