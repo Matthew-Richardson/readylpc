@@ -19,8 +19,9 @@ ReadyLaPlata is the official evacuation information viewer for La Plata County O
 - **Interactive evacuation maps** powered by ArcGIS WebMaps
 - **Real-time zone status** (SET/GO evacuation levels)
 - **Incident support resources** (shelters, check-in locations, road closures, animal evacuation)
-- **Past incidents archive** with searchable history
+- **Past incidents archive** loaded from static JSON file
 - **CodeRED integration** for emergency alert signup
+- **Announcement system** with bell icon and modal overlay
 - **Mobile-responsive design** optimized for emergency use
 - **Offline-friendly** critical CSS inlined for fast first paint
 
@@ -30,8 +31,8 @@ ReadyLaPlata is the official evacuation information viewer for La Plata County O
 
 | Page | File | Description |
 |------|------|-------------|
-| **Home** | `info.html` | Ready, Set, Go! education and incident list |
-| **Overview Map** | `overview.html` | County-wide map with all active incident pins |
+| **Home** | `index.html` | Ready, Set, Go! education and incident list |
+| **Overview Map** | `overview.html` | County-wide map with all active incident pins and past incidents table |
 | **Evacuation Details** | `evac.html` | Per-incident evacuation zones and support resources |
 
 ---
@@ -40,39 +41,33 @@ ReadyLaPlata is the official evacuation information viewer for La Plata County O
 
 ### Prerequisites
 
-- Web server (Apache, Nginx, or static hosting)
-- Google Apps Script deployment (for incident status API)
+- Web server (Apache, Nginx, or static hosting like GitHub Pages)
 - ArcGIS Online account with configured WebMap and Feature Services
 
 ### Deployment
 
 1. **Upload files** to your web server:
    ```
-   info.html
+   index.html
    overview.html
    evac.html
    shared-styles.css
    favicon.svg
+   incident.json
+   pastincident.json
    ```
 
-2. **Deploy Apps Script** (`code.gs`) as a web app:
-   - Open Google Apps Script
-   - Deploy → New deployment → Web app
-   - Execute as: Me
-   - Who has access: Anyone
-   - Copy the deployment URL
+2. **Configure JSON data files**:
+   - `incident.json` — Active incident support resources
+   - `pastincident.json` — Historical incident records
 
-3. **Update configuration** in each HTML file:
+3. **Update configuration** in each HTML file if needed:
    ```javascript
    const CONFIG = {
-     statusBaseUrl: 'YOUR_APPS_SCRIPT_URL',
+     incidentLayerUrl: 'YOUR_ARCGIS_FEATURE_SERVICE_URL',
      // ...
    };
    ```
-
-4. **Configure Google Sheets** with required tabs:
-   - `IncidentStatus` — Active incident support data
-   - `PastIncidents` — Historical incident records
 
 ---
 
@@ -85,31 +80,63 @@ ReadyLaPlata is the official evacuation information viewer for La Plata County O
 | Feature Layer | `services2.arcgis.com/.../LPC_Evac_Zones_View/FeatureServer/0` | Evacuation zone polygons |
 | WebMap | Portal Item ID `58a8bb313db64271a55e7960cb839f64` | Pre-configured map with symbology |
 
-### Google Sheets Schema
+### JSON Data Files
 
-#### IncidentStatus Sheet
+#### incident.json
 
-| Column | Index | Description |
-|--------|-------|-------------|
-| Incident | 0 | Incident name (must match ArcGIS `incident` field) |
-| Status Link | 1 | URL to official status update |
-| Check-in | 2 | Check-in location name and details |
-| Check-in Address | 3 | Address(es) for directions link |
-| Shelters | 4 | Shelter name and details |
-| Shelters Address | 5 | Shelter address(es) |
-| Road Closures | 6 | List of road closures (newline-separated) |
-| Small Animals | 7 | Small animal evacuation location |
-| Small Animals Address | 8 | Small animal location address |
-| Large Animals | 9 | Large animal evacuation location |
-| Large Animals Address | 10 | Large animal location address |
+Active incident support resources. Array of incident objects:
 
-#### PastIncidents Sheet
+```json
+[
+  {
+    "name": "Mesa Test Fire",
+    "statusLink": "lpcgov.org",
+    "checkIn": "Durango High School\nRapid Tag 8a-4p",
+    "checkInAddr": "Durango High School",
+    "shelters": "La Plata County Fairgrounds",
+    "sheltersAddr": "2500 Main Ave, Durango, CO 81301",
+    "road": "CR 501\nCR 502\nCR 503",
+    "smallAnimals": "La Plata County Humane Society",
+    "smallAnimalsAddr": "1111 S Camino Del Rio, Durango, CO 81303",
+    "largeAnimals": "La Plata County Fairgrounds",
+    "largeAnimalsAddr": "2500 Main Ave, Durango, CO 81301"
+  }
+]
+```
 
-| Column | Index | Description |
-|--------|-------|-------------|
-| Name | 0 | Incident name |
-| Start Date | 1 | Date evacuations began |
-| Lifted Date | 2 | Date evacuations were lifted |
+#### pastincident.json
+
+Historical incident records for the overview page:
+
+```json
+[
+  {
+    "name": "North Vallecito Flooding",
+    "startDate": "2025-10-10",
+    "liftedDate": "2025-10-16"
+  },
+  {
+    "name": "Blue Ridge Fire",
+    "startDate": "2025-08-15",
+    "liftedDate": "2025-08-18"
+  }
+]
+```
+
+### Announcement System
+
+The announcement system displays a bell icon and optional modal overlay across all pages. Configure in each HTML file:
+
+```javascript
+// SHOW_ANNOUNCEMENT: shows the bell icon on all pages when true
+// AUTO_OPEN_ANNOUNCEMENT: auto-opens the popup on HOME PAGE ONLY when true
+const SHOW_ANNOUNCEMENT = true;
+const AUTO_OPEN_ANNOUNCEMENT = true; // Only effective on index.html
+```
+
+- Set `SHOW_ANNOUNCEMENT = false` to hide the bell icon on all pages
+- The modal only auto-opens on `index.html` (home page)
+- Users can click the bell icon to view the announcement on any page
 
 ---
 
@@ -145,7 +172,7 @@ ReadyLaPlata is the official evacuation information viewer for La Plata County O
 - **DNS prefetch/preconnect** — Reduced latency for ArcGIS resources
 - **DOM caching** — Elements cached at init to avoid repeated lookups
 - **DocumentFragment** — Batch DOM insertions for incident chips
-- **Apps Script caching** — 15-second cache for incident data, 5-minute for past incidents
+- **Static JSON files** — Fast loading without server-side processing
 
 ### Bundle Sizes
 
@@ -176,11 +203,10 @@ This application is **public-facing** and **read-only**.
 - **No user accounts or login** — All information is publicly accessible
 - **No personal information collected** — No forms, no user input stored
 - **Public data only** — Evacuation zones and incident resources are public record
-- **Future:** Google Analytics may be added for usage metrics (page views, device types)
 
 ### Security
 
-- **Read-only** — The application only displays data; it cannot modify ArcGIS or Google Sheets
+- **Read-only** — The application only displays data; it cannot modify ArcGIS or JSON files
 - All external links use `rel="noopener noreferrer"`
 - HTML escaping for all user-provided content
 - SQL injection prevention in ArcGIS queries
@@ -192,23 +218,25 @@ This application is **public-facing** and **read-only**.
 
 ```
 readylaplata/
-├── info.html           # Home page with Ready, Set, Go! info
-├── overview.html       # County-wide incident overview map
-├── evac.html           # Per-incident evacuation details
-├── shared-styles.css   # Shared stylesheet
-├── favicon.svg         # Site favicon
-├── code.gs             # Google Apps Script backend
+├── index.html           # Home page with Ready, Set, Go! info
+├── overview.html        # County-wide incident overview map
+├── evac.html            # Per-incident evacuation details
+├── shared-styles.css    # Shared stylesheet
+├── favicon.svg          # Site favicon
+├── incident.json        # Active incident support resources
+├── pastincident.json    # Historical incident records
 └── docs/
-    ├── README.md       # This file
-    ├── API.md          # Apps Script API reference
-    └── ARCHITECTURE.md # Technical architecture
+    ├── README.md        # This file
+    ├── API.md           # Data format reference
+    ├── ARCHITECTURE.md  # Technical architecture
+    └── SETUP.md         # Deployment guide
 ```
 
 ---
 
 ## Contributing
 
-This project is maintained by La Plata County GIS on behalf of La Plata County Office of Emeregency Management. For questions or issues, contact the LPCOEM GIS team.
+This project is maintained by La Plata County GIS on behalf of La Plata County Office of Emergency Management. For questions or issues, contact the LPCOEM GIS team.
 
 ---
 
@@ -221,5 +249,5 @@ This project is maintained by La Plata County GIS on behalf of La Plata County O
 ## Related Links
 
 - [La Plata County OEM](https://www.lpcgov.org/departments/emergency_management/index.php)
-- [CodeRED Signup](https://identityservice.onsolve.net/SignIn?ReturnUrl=%2Fconnect%2Fauthorize%2Fcallback%3Fclient_id%3Dself-registration-user%26redirect_uri%3Dhttps%253A%252F%252Faccountportal.onsolve.net%252Fidentity%252Fsignin%252Fcallback%26response_type%3Dcode%26scope%3Dopenid%2520profile%2520onsolve-selfregistration-api%2520openid%2520profile%26state%3D49411630fb2341248d15e07142c80a35_eyJwb3J0YWxVcmwiOiIvbHBjYWxlcnRzIn0%253D%26code_challenge%3DJ7dvCveZwfzly7cYcG9afqOZqiBpxM4OWUei679ZZnQ%26code_challenge_method%3DS256%26response_mode%3Dquery%26branding_descriptor%3DeyJwb3J0YWxJZCI6NTM1MX0%253D%26organization_uuid%3D9f2d09f5-273c-465d-a5d8-993d5e9d88f4%26division_uuid%3D009d9956-000e-3000-80c0-fceb55463ffe%26ui_lang%3Den-US%26origin%3Dhttps%253A%252F%252Faccountportal.onsolve.net%252Flpcalerts)
+- [CodeRED Signup](https://public.coderedweb.com/CNE/en-US/)
 - [La Plata County GIS/IT](https://www.lpcgov.org/departments/gis___mapping/index.php)
