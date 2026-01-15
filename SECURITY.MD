@@ -4,9 +4,9 @@
 
 Static client-side HTML/JavaScript pages:
 
-- `index-5.html`
-- `overview-5.html`
-- `evac-10.html`
+- `index.html`
+- `overview.html`
+- `evac.html`
 
 These pages load ArcGIS JS 4.31 and consume data from:
 - ArcGIS Feature Services
