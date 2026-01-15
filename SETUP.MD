@@ -8,105 +8,62 @@
 
 Before starting, ensure you have:
 
-- [ ] Access to a web server or static hosting service
-- [ ] Google account with Google Sheets and Apps Script access
+- [ ] Access to a web server or static hosting service (GitHub Pages, Netlify, etc.)
 - [ ] ArcGIS Online organizational account
 - [ ] Access to the La Plata County Feature Services
 
 ---
 
-## Step 1: Google Sheets Setup
+## Step 1: Prepare Data Files
 
-### Create the Spreadsheet
+### incident.json
 
-1. Create a new Google Spreadsheet
-2. Rename the first tab to `IncidentStatus`
-3. Add a second tab named `PastIncidents`
+Create a JSON file for active incident support resources:
 
-### IncidentStatus Tab
+```json
+[
+  {
+    "name": "Example Fire",
+    "statusLink": "https://lpcgov.org/updates",
+    "checkIn": "Durango High School\nRapid Tag 8a-4p",
+    "checkInAddr": "2390 Main Ave, Durango, CO",
+    "shelters": "La Plata County Fairgrounds",
+    "sheltersAddr": "2500 Main Ave, Durango, CO 81301",
+    "road": "CR 240 at mile marker 5\nCR 250 closed entirely",
+    "smallAnimals": "La Plata County Humane Society",
+    "smallAnimalsAddr": "1111 S Camino del Rio, Durango, CO",
+    "largeAnimals": "La Plata County Fairgrounds",
+    "largeAnimalsAddr": "2500 Main Ave, Durango, CO 81301"
+  }
+]
+```
 
-Add these headers in Row 1:
+**Note:** The `name` field must match the `incident` field in your ArcGIS Feature Service (case-insensitive).
 
-| A | B | C | D | E | F | G | H | I | J | K |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Incident | Status Link | Check-in | Check-in Address | Shelters | Shelters Address | Road Closures | Small Animals | Small Animals Address | Large Animals | Large Animals Address |
+### pastincident.json
 
-**Example data row:**
+Create a JSON file for historical incident records:
 
-| Column | Example Value |
-|--------|---------------|
-| Incident | `East Canyon Fire` |
-| Status Link | `https://lpcoem.org/updates/east-canyon` |
-| Check-in | `La Plata County Fairgrounds\nBuilding A` |
-| Check-in Address | `2500 Main Ave, Durango, CO` |
-| Shelters | `Durango High School\nGym and Cafeteria` |
-| Shelters Address | `2390 Main Ave, Durango, CO` |
-| Road Closures | `CR 240 at mile marker 5\nCR 250 closed entirely` |
-| Small Animals | `La Plata County Humane Society` |
-| Small Animals Address | `1111 S Camino del Rio, Durango` |
-| Large Animals | `La Plata County Fairgrounds` |
-| Large Animals Address | `2500 Main Ave, Durango, CO` |
+```json
+[
+  {
+    "name": "North Vallecito Flooding",
+    "startDate": "2025-10-10",
+    "liftedDate": "2025-10-16"
+  },
+  {
+    "name": "Blue Ridge Fire",
+    "startDate": "2025-08-15",
+    "liftedDate": "2025-08-18"
+  }
+]
+```
 
-### PastIncidents Tab
-
-Add these headers in Row 1:
-
-| A | B | C |
-|---|---|---|
-| Name | Start Date | Lifted Date |
-
-**Example data:**
-
-| Name | Start Date | Lifted Date |
-|------|------------|-------------|
-| East Canyon Fire | 6/15/2024 | 6/22/2024 |
-| West Animas Flood | 5/1/2024 | 5/3/2024 |
+**Note:** Use ISO date format (YYYY-MM-DD). The table will display as "Oct 16, 2025".
 
 ---
 
-## Step 2: Google Apps Script Deployment
-
-### Create the Script
-
-1. In your Google Spreadsheet, go to **Extensions → Apps Script**
-2. Delete any default code
-3. Paste the contents of `code.gs`
-4. Save the project (Ctrl+S)
-5. Name the project "ReadyLaPlata API"
-
-### Deploy as Web App
-
-1. Click **Deploy → New deployment**
-2. Click the gear icon next to "Select type" and choose **Web app**
-3. Configure:
-   - **Description:** `ReadyLaPlata Incident API v1`
-   - **Execute as:** `Me`
-   - **Who has access:** `Anyone`
-4. Click **Deploy**
-5. **Copy the Web app URL** — you'll need this for the HTML files
-
-The URL looks like:
-```
-https://script.google.com/macros/s/AKfycb.../exec
-```
-
-### Test the Deployment
-
-Open these URLs in your browser:
-
-```
-# Test incident endpoint (replace with your URL and a real incident name)
-https://script.google.com/.../exec?incident=East%20Canyon%20Fire
-
-# Test past incidents endpoint
-https://script.google.com/.../exec?type=past
-```
-
-You should see formatted HTML output.
-
----
-
-## Step 3: ArcGIS Configuration
+## Step 2: ArcGIS Configuration
 
 ### Required Services
 
@@ -136,7 +93,7 @@ Ensure these services exist and are accessible:
 
 ---
 
-## Step 4: Configure HTML Files
+## Step 3: Configure HTML Files
 
 ### Update evac.html
 
@@ -146,8 +103,8 @@ Find the CONFIG object and update:
 const CONFIG = {
   webmapId: 'YOUR_WEBMAP_ID_HERE',
   incidentLayerUrl: 'YOUR_FEATURE_SERVICE_URL_HERE',
-  statusBaseUrl: 'YOUR_APPS_SCRIPT_URL_HERE',
-  incidentField: 'incident',  // Verify this matches your field name
+  statusJsonUrl: 'incident.json',  // Path to your incident JSON file
+  incidentField: 'incident',       // Verify this matches your field name
   statusValues: { SET: 'Set', GO: 'Go' }  // Verify these match your STATUS values
 };
 ```
@@ -157,14 +114,14 @@ const CONFIG = {
 ```javascript
 const CONFIG = {
   incidentLayerUrl: 'YOUR_FEATURE_SERVICE_URL_HERE',
-  statusBaseUrl: 'YOUR_APPS_SCRIPT_URL_HERE',
+  pastIncidentsJsonUrl: 'pastincident.json',  // Path to your past incidents JSON
   incidentField: 'incident',
   mapCenter: [-107.8801, 37.2753],  // Adjust to your county center
   mapScale: 800000  // Adjust zoom level
 };
 ```
 
-### Update info.html
+### Update index.html
 
 ```javascript
 const CONFIG = {
@@ -174,9 +131,20 @@ const CONFIG = {
 };
 ```
 
+### Configure Announcement System
+
+In each HTML file, set the announcement toggle:
+
+```javascript
+// SHOW_ANNOUNCEMENT: shows the bell icon on all pages when true
+// AUTO_OPEN_ANNOUNCEMENT: auto-opens the popup on HOME PAGE ONLY when true
+const SHOW_ANNOUNCEMENT = true;   // Set to false to hide bell on all pages
+const AUTO_OPEN_ANNOUNCEMENT = true;  // Only applies to index.html
+```
+
 ---
 
-## Step 5: Deploy Static Files
+## Step 4: Deploy Static Files
 
 ### File Checklist
 
@@ -184,11 +152,13 @@ Ensure you have all files:
 
 ```
 readylaplata/
-├── info.html
+├── index.html
 ├── overview.html
 ├── evac.html
 ├── shared-styles.css
-└── favicon.svg
+├── favicon.svg
+├── incident.json
+└── pastincident.json
 ```
 
 ### Upload to Web Server
@@ -200,11 +170,18 @@ readylaplata/
 scp -r readylaplata/* user@yourserver:/var/www/readylaplata/
 ```
 
-**Option B: Static Hosting (Netlify, Vercel, GitHub Pages)**
+**Option B: GitHub Pages**
+
+1. Create a repository with the files
+2. Go to Settings → Pages
+3. Select source branch (usually `main`)
+4. Your site will be at `https://username.github.io/repository/`
+
+**Option C: Netlify/Vercel**
 
 1. Create a repository with the files
 2. Connect to your hosting provider
-3. Deploy
+3. Deploy automatically on push
 
 ### Configure Domain (Optional)
 
@@ -212,38 +189,46 @@ scp -r readylaplata/* user@yourserver:/var/www/readylaplata/
 2. Configure SSL certificate (Let's Encrypt recommended)
 3. Set up redirects if needed:
    ```
-   / → /info.html (or /overview.html)
+   / → /index.html
    ```
 
 ---
 
-## Step 6: Verification
+## Step 5: Verification
 
 ### Test Each Page
 
-1. **info.html**
+1. **index.html**
    - [ ] Page loads without errors
-   - [ ] Incident chips appear (if active incidents exist)
+   - [ ] Incident chips appear (if active incidents exist in ArcGIS)
+   - [ ] Bell icon appears (if SHOW_ANNOUNCEMENT = true)
+   - [ ] Announcement modal opens on load (if AUTO_OPEN_ANNOUNCEMENT = true)
    - [ ] CodeRED modal opens/closes
-   - [ ] Navigation buttons work
+   - [ ] Navigation to overview.html works
+   - [ ] Timestamp shows timezone (e.g., "MST")
 
 2. **overview.html**
    - [ ] Map loads and displays
-   - [ ] Incident pins appear on map
-   - [ ] Past incidents table loads
+   - [ ] Incident pins appear on map (if active incidents exist)
+   - [ ] Past incidents table loads from pastincident.json
+   - [ ] Bell icon appears but modal doesn't auto-open
    - [ ] Clicking pins navigates to evac.html
+   - [ ] Home button navigates to index.html
 
 3. **evac.html?incident=YourIncident**
    - [ ] Map zooms to incident
    - [ ] SET/GO zones display correctly
-   - [ ] Incident status card loads
-   - [ ] Directions links work
+   - [ ] Incident status card loads from incident.json
+   - [ ] Directions links work (Google Maps)
+   - [ ] Bell icon appears but modal doesn't auto-open
+   - [ ] Home button navigates to index.html
 
 ### Test Mobile
 
 - [ ] Test on iOS Safari
 - [ ] Test on Android Chrome
 - [ ] Verify responsive layout at all breakpoints
+- [ ] Verify modals close with tap outside
 
 ---
 
@@ -255,11 +240,18 @@ scp -r readylaplata/* user@yourserver:/var/www/readylaplata/
 - Check that Feature Service is publicly accessible
 - Confirm there are features with the `incident` field populated
 
-### Apps Script returns error
+### Incident status not showing
 
-- Check Executions log in Apps Script editor
-- Verify sheet names match CONFIG (`IncidentStatus`, `PastIncidents`)
-- Ensure sheet has data rows (not just headers)
+- Check browser console for JSON fetch errors
+- Verify `incident.json` is in the same directory as HTML files
+- Confirm incident name in JSON matches ArcGIS exactly (case-insensitive)
+- Check JSON syntax is valid (use a JSON validator)
+
+### Past incidents table empty
+
+- Verify `pastincident.json` exists and is accessible
+- Check JSON syntax is valid
+- Confirm file contains at least one record
 
 ### Map doesn't load
 
@@ -267,33 +259,49 @@ scp -r readylaplata/* user@yourserver:/var/www/readylaplata/
 - Verify ArcGIS URLs are correct and accessible
 - Confirm WebMap is shared publicly (or to your org)
 
-### CORS errors
+### Bell icon not showing
 
-- Apps Script handles CORS automatically
-- ArcGIS services should allow cross-origin requests by default
-- Check if your web server needs CORS headers
+- Verify `SHOW_ANNOUNCEMENT = true` in the HTML file
+- Check that the CSS file (shared-styles.css) is loading
+
+### Announcement modal opens on wrong page
+
+- `AUTO_OPEN_ANNOUNCEMENT` only affects `index.html`
+- On overview.html and evac.html, the modal never auto-opens
+- Users can still click the bell to open it manually
 
 ---
 
 ## Updating Content
 
-### Add New Incident
+### Add New Active Incident
 
-1. Add row to `IncidentStatus` sheet
+1. Add entry to `incident.json` with support resource details
 2. Add corresponding features to ArcGIS Feature Service
-3. Data appears automatically (after cache expires, ~15 seconds)
+3. Upload updated `incident.json` to server
+4. Data appears immediately (no cache)
 
 ### Close Incident
 
-1. Remove row from `IncidentStatus` sheet (or leave for history)
-2. Add row to `PastIncidents` sheet with lifted date
+1. Remove entry from `incident.json`
+2. Add entry to `pastincident.json` with lifted date
 3. Update ArcGIS features (remove or archive)
+4. Upload both updated JSON files
 
-### Update Apps Script
+### Update Announcement Content
 
-1. Edit code in Apps Script editor
-2. Deploy → Manage deployments → Edit → Update version
-3. No changes needed to HTML files (same URL)
+1. Edit the announcement HTML in each file (index.html, overview.html, evac.html)
+2. Update the title, body text, and links as needed
+3. Upload updated HTML files
+
+### Disable Announcement
+
+Set in each HTML file:
+```javascript
+const SHOW_ANNOUNCEMENT = false;
+```
+
+This hides the bell icon on all pages.
 
 ---
 
@@ -302,14 +310,14 @@ scp -r readylaplata/* user@yourserver:/var/www/readylaplata/
 ### Regular Checks
 
 - [ ] Weekly: Verify all pages load correctly
-- [ ] Monthly: Review Apps Script execution logs
+- [ ] Monthly: Review incident.json and pastincident.json for accuracy
 - [ ] Annually: Update ArcGIS SDK version (check for breaking changes)
 
 ### Backup
 
-- Export Google Sheets periodically
-- Keep code.gs in version control
+- Keep JSON files in version control
 - Document any ArcGIS service changes
+- Maintain copy of all HTML/CSS files
 
 ---
 
@@ -317,10 +325,10 @@ scp -r readylaplata/* user@yourserver:/var/www/readylaplata/
 
 For technical issues:
 - Check browser console for JavaScript errors
-- Review Apps Script execution logs
+- Verify JSON file syntax
 - Verify ArcGIS service status
 
 For content updates:
 - Contact La Plata County OEM
-- Update Google Sheets data
+- Update JSON data files
 - Coordinate with GIS team for map changes
