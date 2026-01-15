@@ -1182,6 +1182,176 @@ main {
   opacity: 0.9;
 }
 
+/* ========== STATUS CARD STYLES (JSON-generated) ========== */
+
+.status-card {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.18);
+  border: 1px solid rgba(0,0,0,0.15);
+  margin: 12px 0;
+  padding: 16px 18px;
+  background: #fff;
+}
+
+.status-card-title {
+  margin: 0 0 14px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0b4da2;
+  text-align: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.status-link-row {
+  text-align: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.status-link-row .status-label {
+  font-weight: 600;
+  color: #475569;
+  margin-right: 6px;
+}
+
+.status-section {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.status-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.status-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.status-section-title svg {
+  color: #0b4da2;
+  flex-shrink: 0;
+}
+
+.status-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.status-value {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #1f2937;
+}
+
+.status-value div {
+  margin-bottom: 2px;
+}
+
+.status-value div:last-child {
+  margin-bottom: 0;
+}
+
+.no-data {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.maps-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #f0f6ff;
+  color: #0b4da2;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.maps-link:hover {
+  background: #e0edff;
+  text-decoration: none;
+}
+
+.maps-link svg {
+  color: #0b4da2;
+}
+
+.status-card-empty,
+.status-card-error {
+  text-align: center;
+  padding: 24px 18px;
+}
+
+.status-card-empty p,
+.status-card-error p {
+  margin: 0;
+  color: #475569;
+}
+
+.status-card-error {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.status-card-error .status-card-title {
+  color: #b91c1c;
+}
+
+@media (max-width: 600px) {
+  .status-card {
+    padding: 14px 14px;
+  }
+  
+  .status-card-title {
+    font-size: 18px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+  }
+  
+  .status-section-title {
+    font-size: 13px;
+  }
+  
+  .status-section-title svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .status-value {
+    font-size: 14px;
+  }
+  
+  .status-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .maps-link {
+    align-self: flex-start;
+  }
+}
+
 @media (max-width: 600px) {
   .evac-row { flex-direction: column; }
   .evac-box { min-width: 0; }
