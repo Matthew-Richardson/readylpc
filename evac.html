@@ -45,6 +45,17 @@
     <div class="map-wrapper">
       <div class="map-card">
 
+        <!-- Announcement Alert Button - appears in upper right when active -->
+        <button id="announcementAlertBtn" class="announcement-alert-btn" type="button" aria-label="View announcement">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </button>
+
+        <!-- Site Banner: Leave empty to hide, add text to display -->
+        <div id="siteBanner" class="site-banner"></div>
+
         <div class="brand-banner">
           <div class="brand-center">
             <img src="https://cms9files.revize.com/laplata/_assets_/images/logo.png" alt="La Plata County Logo" class="header-logo" width="180" height="auto" loading="eager" fetchpriority="high" decoding="async">
@@ -150,6 +161,61 @@
     </div>
   </div>
 
+  <!-- ========== ANNOUNCEMENT OVERLAY ========== -->
+  <div id="announcementOverlay" class="announcement-overlay" aria-hidden="true">
+    <div class="announcement-dialog" role="dialog" aria-modal="true" aria-labelledby="announcementTitle">
+      <button id="announcementClose" class="announcement-close" type="button" aria-label="Close">×</button>
+      
+      <div class="announcement-header">
+        <img src="https://cms9files.revize.com/laplata/_assets_/images/logo.png" alt="La Plata County Logo" class="announcement-logo">
+        <div class="announcement-header-text">
+          <h2 id="announcementTitle" class="announcement-title">CodeRED Security Update</h2>
+          <p class="announcement-subtitle">Important information about your alert account</p>
+        </div>
+        <div class="announcement-badge">Official Notice</div>
+      </div>
+      
+      <div class="announcement-body">
+        <div class="announcement-content">
+          <p>We are reaching out to share an important update regarding the security of our alert system <strong>CodeRED</strong>.</p>
+          
+          <p>Out of an abundance of caution, <strong>we recommend that all users who currently have an account change their password</strong>. Updating your password helps ensure your information remains secure and protected.</p>
+          
+          <p>Some individuals receive alerts through CodeRED without having an online account. If you are one of these legacy users, no immediate action is required. However, if you would like to view, update, or manage your information, you can do so by creating an account at any time.</p>
+          
+          <p>Creating an account allows you to:</p>
+          <ul class="announcement-list">
+            <li>Review and update your contact information</li>
+            <li>Manage alert preferences</li>
+            <li>Ensure your information stays current</li>
+          </ul>
+          
+          <div class="announcement-contact">
+            <div class="announcement-contact-title">Questions or Need Assistance?</div>
+            <div class="announcement-contact-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <a href="mailto:oem@co.laplata.co.us">oem@co.laplata.co.us</a>
+            </div>
+            <div class="announcement-contact-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <a href="tel:9703826275">970-382-6275</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="announcement-footer">
+        <a href="https://public.coderedweb.com/CNE/en-US/" class="primary-pill" target="_blank" rel="noopener noreferrer">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Manage My CodeRED Account
+        </a>
+        <button id="announcementDismiss" class="secondary-pill" type="button">
+          I'll do this later
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://js.arcgis.com/4.31/" defer></script>
 
   <script>
@@ -165,6 +231,12 @@
       incidentField: 'incident',
       statusValues: { SET: 'Set', GO: 'Go' }
     };
+
+    // ========== ANNOUNCEMENT TOGGLE ==========
+    // SHOW_ANNOUNCEMENT: shows the bell icon on all pages when true
+    // AUTO_OPEN_ANNOUNCEMENT: auto-opens the popup on HOME PAGE ONLY when true
+    const SHOW_ANNOUNCEMENT = true;
+    const AUTO_OPEN_ANNOUNCEMENT = false; // Only applies to index.html
 
     const STATUS_DATA = {
       SET: { label: 'SET - Pre-Evacuation', color: '#fff36a', text: 'Voluntary Evacuation;<br>Evacuation orders are likely' },
@@ -185,6 +257,17 @@
 
     // ========== UTILITIES ==========
     const escapeQuery = s => s.replace(/'/g, "''");
+
+    // Format timestamp with timezone
+    const formatTimestamp = () => {
+      const now = new Date();
+      const options = { 
+        year: 'numeric', month: 'numeric', day: 'numeric',
+        hour: 'numeric', minute: '2-digit', second: '2-digit',
+        timeZoneName: 'short'
+      };
+      return now.toLocaleString('en-US', options);
+    };
 
     const sortIncidents = (names, target) => {
       const targetLower = target?.toLowerCase();
@@ -489,7 +572,7 @@
               </div>
             </div>
             <div class="status-timestamp">
-              Last loaded: ${new Date().toLocaleString()}
+              Last loaded: ${formatTimestamp()}
               &nbsp;•&nbsp;
               <span class="source-label">Source: La Plata County Office of Emergency Management</span>
             </div>`;
@@ -498,7 +581,7 @@
 
         DOM.incidentPanel.innerHTML = `<div class="status-html">${buildStatusCard(data)}</div>
           <div class="status-timestamp">
-            Last loaded: ${new Date().toLocaleString()}
+            Last loaded: ${formatTimestamp()}
             &nbsp;•&nbsp;
             <span class="source-label">Source: La Plata County Office of Emergency Management</span>
           </div>`;
@@ -520,7 +603,7 @@
         'esri/widgets/Search', 'esri/widgets/Fullscreen'
       ], (WebMap, MapView, FeatureLayer, Search, Fullscreen) => {
 
-        DOM.infoButton?.addEventListener('click', () => location.href = 'info.html');
+        DOM.infoButton?.addEventListener('click', () => location.href = 'index.html');
         DOM.overviewButton?.addEventListener('click', () => location.href = 'overview.html');
 
         const webmap = new WebMap({ portalItem: { id: CONFIG.webmapId } });
@@ -612,6 +695,38 @@
       document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.classList.contains('is-open')) toggle(false); });
     }
 
+    // ========== ANNOUNCEMENT OVERLAY ==========
+    function initAnnouncement() {
+      const overlay = DOM.announcementOverlay;
+      const alertBtn = DOM.announcementAlertBtn;
+      
+      if (!SHOW_ANNOUNCEMENT || !overlay) return;
+      
+      // Show the alert button when announcement is active
+      if (alertBtn) alertBtn.classList.add('is-active');
+
+      const toggle = open => {
+        overlay.classList.toggle('is-open', open);
+        overlay.setAttribute('aria-hidden', String(!open));
+        
+        // Mark as viewed when closed
+        if (!open && alertBtn) {
+          alertBtn.classList.add('is-viewed');
+        }
+      };
+
+      // NOTE: Auto-open only happens on index.html, not here on evac.html
+
+      // Close handlers
+      DOM.announcementClose?.addEventListener('click', () => toggle(false));
+      DOM.announcementDismiss?.addEventListener('click', () => toggle(false));
+      overlay.addEventListener('click', e => { if (e.target === overlay) toggle(false); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.classList.contains('is-open')) toggle(false); });
+      
+      // Alert button opens the announcement
+      alertBtn?.addEventListener('click', () => toggle(true));
+    }
+
     // ========== INIT ==========
     function init() {
       DOM.evacRow = $('evacRow');
@@ -625,8 +740,15 @@
       DOM.coderedButton = $('coderedButton');
       DOM.coderedOverlay = $('coderedOverlay');
       DOM.coderedClose = $('coderedClose');
+      
+      // Announcement elements
+      DOM.announcementOverlay = $('announcementOverlay');
+      DOM.announcementClose = $('announcementClose');
+      DOM.announcementDismiss = $('announcementDismiss');
+      DOM.announcementAlertBtn = $('announcementAlertBtn');
 
       initCoderedOverlay();
+      initAnnouncement();
       loadEvacuationZones();
       loadIncidentStatus();
       initMap();
