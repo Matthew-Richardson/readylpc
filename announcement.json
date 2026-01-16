@@ -1,0 +1,28 @@
+{
+  "enabled": true,
+  "autoOpen": true,
+  "title": "CodeRED Security Update",
+  "subtitle": "Important information about your alert account",
+  "badge": "Official Notice",
+  "paragraphs": [
+    "We are reaching out to share an important update regarding the security of our alert system <strong>CodeRED</strong>.",
+    "Out of an abundance of caution, <strong>we recommend that all users who currently have an account change their password</strong>. Updating your password helps ensure your information remains secure and protected.",
+    "Some individuals receive alerts through CodeRED without having an online account. If you are one of these legacy users, no immediate action is required. However, if you would like to view, update, or manage your information, you can do so by creating an account at any time.",
+    "Creating an account allows you to:"
+  ],
+  "bulletPoints": [
+    "Review and update your contact information",
+    "Manage alert preferences",
+    "Ensure your information stays current"
+  ],
+  "contact": {
+    "title": "Questions or Need Assistance?",
+    "email": "oem@co.laplata.co.us",
+    "phone": "970-382-6275"
+  },
+  "primaryButton": {
+    "text": "Manage My CodeRED Account",
+    "url": "https://public.coderedweb.com/CNE/en-US/"
+  },
+  "dismissButton": "I'll do this later"
+}
