@@ -22,7 +22,7 @@
   },
   "primaryButton": {
     "text": "Manage My CodeRED Account",
-    "url": "https://public.coderedweb.com/CNE/en-US/"
+    "url": "https://accountportal.onsolve.net/lpcalerts"
   },
   "dismissButton": "I'll do this later"
 }
