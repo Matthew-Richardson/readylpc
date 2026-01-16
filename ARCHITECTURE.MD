@@ -1,131 +1,80 @@
 # ReadyLaPlata Architecture
 
-**Technical System Design Documentation**
+**Technical architecture and design decisions**
 
 ---
 
 ## System Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                              USER BROWSER                                │
-├─────────────────────────────────────────────────────────────────────────┤
-│  index.html   │    overview.html    │    evac.html                      │
-│  (Home)       │    (Overview Map)   │    (Evacuation Details)           │
-└───────┬───────┴──────────┬──────────┴───────────┬───────────────────────┘
-        │                  │                      │
-        ▼                  ▼                      ▼
-┌───────────────┐  ┌───────────────┐  ┌───────────────────────────────────┐
-│ ArcGIS REST   │  │ ArcGIS REST   │  │         Static JSON Files         │
-│ (Query API)   │  │ + WebMap      │  │  incident.json, pastincident.json │
-└───────┬───────┘  └───────┬───────┘  └───────────────────────────────────┘
-        │                  │                      
-        ▼                  ▼                      
-┌───────────────────────────────────┐  
-│     ArcGIS Online                 │  
-│  ┌─────────────────────────────┐  │  
-│  │ Feature Service             │  │  
-│  │ - Evacuation Zones          │  │  
-│  │ - Incident field            │  │  
-│  │ - STATUS field (Set/Go)     │  │  
-│  │ - zonename field            │  │  
-│  └─────────────────────────────┘  │  
-│  ┌─────────────────────────────┐  │  
-│  │ WebMap                      │  │  
-│  │ - Configured symbology      │  │  
-│  │ - Additional layers         │  │  
-│  └─────────────────────────────┘  │  
-└───────────────────────────────────┘  
+┌─────────────────────────────────────────────────────────────────┐
+│                        Browser                                   │
+├─────────────────────────────────────────────────────────────────┤
+│  index.html    │    overview.html    │    evac.html             │
+│                │                     │                          │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │                     shared.js                             │   │
+│  │  • DOM utilities    • HTML escaping    • Timestamp fmt   │   │
+│  │  • Chip creation    • Overlay toggles  • URL parsing     │   │
+│  │  • CodeRED init     • Announcement init (JSON loader)    │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                              │                                   │
+│  ┌───────────────────────────┴───────────────────────────────┐  │
+│  │                   shared-styles.css                        │  │
+│  └───────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+                               │
+          ┌────────────────────┼────────────────────┐
+          ▼                    ▼                    ▼
+   ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+   │ ArcGIS REST │     │ JSON Files  │     │  ArcGIS JS  │
+   │   Feature   │     │             │     │    SDK      │
+   │   Service   │     │ incident    │     │   (CDN)     │
+   │             │     │ pastincident│     │             │
+   │             │     │ announcement│     │             │
+   └─────────────┘     └─────────────┘     └─────────────┘
 ```
 
 ---
 
-## Component Architecture
+## Module Architecture
 
-### Frontend (Static HTML/CSS/JS)
+### shared.js
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         HTML Pages                               │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │  index.html  │  │overview.html │  │  evac.html   │          │
-│  │              │  │              │  │              │          │
-│  │ • RSG Info   │  │ • All pins   │  │ • Zone map   │          │
-│  │ • Incidents  │  │ • Past table │  │ • SET/GO     │          │
-│  │ • Timeline   │  │ • Navigation │  │ • Resources  │          │
-│  │ • Announce   │  │ • Announce   │  │ • Announce   │          │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘          │
-│         │                 │                 │                   │
-│         └─────────────────┼─────────────────┘                   │
-│                           ▼                                      │
-│              ┌────────────────────────┐                         │
-│              │   shared-styles.css    │                         │
-│              │                        │                         │
-│              │ • Layout & typography  │                         │
-│              │ • Component styles     │                         │
-│              │ • Responsive design    │                         │
-│              │ • Announcement styles  │                         │
-│              │ • Animation keyframes  │                         │
-│              └────────────────────────┘                         │
-│                                                                  │
-│              ┌────────────────────────┐                         │
-│              │     JSON Data Files    │                         │
-│              │                        │                         │
-│              │ • incident.json        │                         │
-│              │ • pastincident.json    │                         │
-│              └────────────────────────┘                         │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### JavaScript Module Structure
-
-Each HTML page contains an IIFE (Immediately Invoked Function Expression) with consistent structure:
+Centralized JavaScript module containing all shared utilities. Loaded once and cached across pages.
 
 ```javascript
-(function() {
+// Namespace export pattern
+(function(global) {
   'use strict';
-
-  // ========== CONFIGURATION ==========
-  const CONFIG = { /* URLs, field names, constants */ };
-
-  // ========== ANNOUNCEMENT TOGGLE ==========
-  const SHOW_ANNOUNCEMENT = true;
-  const AUTO_OPEN_ANNOUNCEMENT = true; // Only on index.html
-
-  // ========== DOM CACHE ==========
-  const DOM = {};
-  const $ = id => document.getElementById(id);
-
-  // ========== UTILITIES ==========
-  const formatTimestamp = () => { /* Returns date with timezone */ };
-  // Other shared helper functions
-
-  // ========== DATA FETCHING ==========
-  // Async functions for API/JSON calls
-
-  // ========== MAP INITIALIZATION ==========
-  // ArcGIS SDK setup (where applicable)
-
-  // ========== OVERLAY HANDLERS ==========
-  function initCoderedOverlay() { /* ... */ }
-  function initAnnouncement() { /* ... */ }
-
-  // ========== INIT ==========
-  function init() {
-    // Cache DOM, setup handlers, load data
-  }
-
-  // DOMContentLoaded or immediate execution
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-})();
+  
+  // All utilities defined here...
+  
+  global.ReadyLaPlata = {
+    $,                    // DOM selector
+    escHTML,              // XSS prevention
+    escapeQuery,          // SQL injection prevention
+    formatTimestamp,      // Timestamp formatting
+    updateTimestamp,      // DOM timestamp updater
+    createChip,           // Incident chip factory
+    sortIncidents,        // Incident sorting
+    getIncidentParam,     // URL parameter parsing
+    initCoderedOverlay,   // CodeRED modal init
+    initAnnouncement,     // Announcement system init
+    BRAND                 // Color constants
+  };
+})(window);
 ```
+
+### Page-Specific Code
+
+Each HTML file contains only page-specific logic:
+
+| Page | Specific Responsibilities |
+|------|---------------------------|
+| `index.html` | Ready/Set/Go triangle visualization, home page layout |
+| `overview.html` | County-wide map, incident pins, past incidents table |
+| `evac.html` | Per-incident map, zone display, status card builder |
 
 ---
 
@@ -134,398 +83,291 @@ Each HTML page contains an IIFE (Immediately Invoked Function Expression) with c
 ### Incident Data Flow
 
 ```
-┌─────────────┐    Query     ┌─────────────┐    REST API    ┌─────────────┐
-│   Browser   │ ──────────▶  │   ArcGIS    │ ◀────────────▶ │  Feature    │
-│  (evac.html)│              │   SDK       │                │  Service    │
-└──────┬──────┘              └─────────────┘                └─────────────┘
-       │
-       │  Fetch JSON
-       ▼
-┌─────────────┐   HTTP GET   ┌─────────────┐
-│   Browser   │ ──────────▶  │incident.json│
-│  (evac.html)│              │ (static)    │
-└──────┬──────┘              └─────────────┘
-       │
-       │ Parse & Render
-       ▼
-┌─────────────┐
-│  Status     │
-│  Card HTML  │
-└─────────────┘
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  ArcGIS Feature │────▶│   Browser JS    │────▶│    DOM/UI      │
+│     Service     │     │                 │     │                 │
+│                 │     │  • Query zones  │     │  • Chips        │
+│  • incident     │     │  • Filter/sort  │     │  • Map layers   │
+│  • STATUS       │     │  • Escape HTML  │     │  • Zone boxes   │
+│  • zonename     │     │                 │     │                 │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  incident.json  │────▶│   Browser JS    │────▶│  Status Card    │
+│                 │     │                 │     │                 │
+│  • name         │     │  • Fetch JSON   │     │  • Shelters     │
+│  • shelters     │     │  • Match name   │     │  • Road info    │
+│  • road         │     │  • Build HTML   │     │  • Directions   │
+│  • etc.         │     │  • Escape vals  │     │                 │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
 ```
 
-### Past Incidents Flow
+### Announcement Data Flow
 
 ```
-┌─────────────┐   HTTP GET   ┌─────────────────┐
-│   Browser   │ ──────────▶  │pastincident.json│
-│(overview.html)             │    (static)     │
-└──────┬──────┘              └─────────────────┘
-       │
-       │ Parse, Sort, Render
-       ▼
-┌─────────────┐
-│  HTML Table │
-│  (sorted by │
-│  date desc) │
-└─────────────┘
-```
-
-### Announcement System Flow
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     Page Load                                    │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  Check: SHOW_ANNOUNCEMENT === true?                             │
-│         │                                                        │
-│         ├─── No ──▶ Bell icon hidden, done                      │
-│         │                                                        │
-│         ▼ Yes                                                    │
-│  Show bell icon (.is-active class)                              │
-│         │                                                        │
-│  Check: AUTO_OPEN_ANNOUNCEMENT === true                         │
-│         AND page is index.html?                                 │
-│         │                                                        │
-│         ├─── No ──▶ Wait for user click                         │
-│         │                                                        │
-│         ▼ Yes                                                    │
-│  Auto-open announcement modal                                   │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│ announcement.   │────▶│  initAnnounce-  │────▶│  Modal Overlay  │
+│     json        │     │     ment()      │     │                 │
+│                 │     │                 │     │  • Header       │
+│  • enabled      │     │  • Fetch JSON   │     │  • Body text    │
+│  • title        │     │  • Check flags  │     │  • Bullets      │
+│  • paragraphs   │     │  • Build HTML   │     │  • Contact      │
+│  • contact      │     │  • Bind events  │     │  • Buttons      │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
 ```
 
 ---
 
-## ArcGIS Integration
+## Security Architecture
 
-### SDK Loading Strategy
+### Input Validation
+
+```
+URL Parameter (?incident=...)
+        │
+        ▼
+┌───────────────────┐
+│  getIncidentParam │
+│                   │
+│  • Trim           │
+│  • Max 80 chars   │
+│  • Allowlist regex│
+│  • Return or null │
+└───────────────────┘
+        │
+        ▼
+   Valid incident name or null
+```
+
+### Output Escaping
+
+```
+Untrusted Data (JSON, ArcGIS, URL)
+        │
+        ▼
+┌───────────────────┐
+│     escHTML()     │
+│                   │
+│  & → &amp;        │
+│  < → &lt;         │
+│  > → &gt;         │
+│  " → &quot;       │
+│  ' → &#39;        │
+└───────────────────┘
+        │
+        ▼
+   Safe for innerHTML
+```
+
+### Query Escaping
+
+```
+Incident Name
+        │
+        ▼
+┌───────────────────┐
+│   escapeQuery()   │
+│                   │
+│  ' → ''           │
+└───────────────────┘
+        │
+        ▼
+   Safe for ArcGIS WHERE clause
+```
+
+---
+
+## Component Structure
+
+### Incident Chip
 
 ```html
-<!-- Deferred loading - non-blocking -->
-<script src="https://js.arcgis.com/4.31/" defer></script>
+<button class="incident-chip" data-incident="Fire Name">
+  <span class="incident-chip-icon">!</span>
+  <span>Fire Name</span>
+</button>
 ```
 
-```javascript
-// Polling pattern for AMD loader availability
-function initMap() {
-  if (typeof require === 'undefined') {
-    setTimeout(initMap, 100);  // Retry until loaded
-    return;
-  }
-  
-  require(['esri/Map', 'esri/views/MapView', ...], (Map, MapView, ...) => {
-    // Initialize map
-  });
-}
-```
+Built via `createChip()` using DOM methods (not innerHTML) for security.
 
-### Layer Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        MapView                               │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │  WebMap (evac.html only)                               │ │
-│  │  - Pre-configured symbology                            │ │
-│  │  - Road closures, info points, warnings                │ │
-│  └────────────────────────────────────────────────────────┘ │
-│                                                              │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │  GraphicsLayer (overview.html)                         │ │
-│  │  - Dynamic incident pins                               │ │
-│  │  - Text labels                                         │ │
-│  └────────────────────────────────────────────────────────┘ │
-│                                                              │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │  FeatureLayer (hidden, for queries)                    │ │
-│  │  - Evacuation zones                                    │ │
-│  │  - Incident names                                      │ │
-│  │  - Zone extents                                        │ │
-│  └────────────────────────────────────────────────────────┘ │
-│                                                              │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │  Basemap                                               │ │
-│  │  - topo-vector (overview.html)                         │ │
-│  │  - From WebMap (evac.html)                             │ │
-│  └────────────────────────────────────────────────────────┘ │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### REST API Calls
-
-The application queries ArcGIS Feature Services directly via REST:
-
-```
-https://services2.arcgis.com/{org}/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0
-```
-
-#### Get Distinct Incident Names
-
-```
-GET /query
-  ?where=1=1
-  &outFields=incident
-  &returnDistinctValues=true
-  &returnGeometry=false
-  &orderByFields=incident
-  &f=json
-```
-
-#### Get Zones for Specific Incident
-
-```
-GET /query
-  ?where=incident='East Canyon' AND STATUS IN ('Set','Go')
-  &outFields=*
-  &returnGeometry=false
-  &f=json
-```
-
-#### Get Incident Extent (for map zoom)
-
-```
-GET /query
-  ?where=incident='East Canyon'
-  &returnExtentOnly=true
-  &f=json
-```
-
----
-
-## Timestamp Display
-
-All pages display timestamps with timezone identifiers:
-
-```javascript
-const formatTimestamp = () => {
-  const now = new Date();
-  const options = { 
-    year: 'numeric', month: 'numeric', day: 'numeric',
-    hour: 'numeric', minute: '2-digit', second: '2-digit',
-    timeZoneName: 'short'
-  };
-  return now.toLocaleString('en-US', options);
-};
-
-// Output: "1/15/2026, 3:45:22 PM MST"
-```
-
----
-
-## Caching Strategy
-
-### Browser Caching
-
-| Resource | Strategy | Duration |
-|----------|----------|----------|
-| ArcGIS SDK | HTTP Cache | Long (versioned URL) |
-| shared-styles.css | HTTP Cache | Based on server config |
-| Map tiles | ArcGIS CDN | Automatic |
-| JSON files | HTTP Cache | Based on server config |
-
-### No Server-Side Caching
-
-With static JSON files, caching is handled entirely by the browser and HTTP headers. This simplifies the architecture and reduces dependencies.
-
----
-
-## Responsive Design
-
-### Breakpoints
-
-| Breakpoint | Target | Changes |
-|------------|--------|---------|
-| `> 700px` | Desktop | Full labels, scroll zoom enabled |
-| `520-700px` | Tablet | Shortened nav labels |
-| `420-520px` | Mobile | Compact spacing, smaller fonts |
-| `< 420px` | Small mobile | Icon-only navigation |
-| `< 360px` | Very small | Minimal UI |
-
-### Mobile Optimizations
-
-```javascript
-// Disable scroll zoom on mobile (prevents accidental zooms)
-if (window.innerWidth < 700 && view.navigation) {
-  view.navigation.mouseWheelZoomEnabled = false;
-  view.navigation.browserTouchPanEnabled = false;
-}
-```
-
----
-
-## Performance Optimizations
-
-### Critical Rendering Path
+### Evacuation Box
 
 ```html
-<head>
-  <!-- 1. Critical CSS inlined for immediate render -->
-  <style>
-    *,*::before,*::after{box-sizing:border-box}
-    html,body{margin:0;padding:0;...}
-    /* Minimal layout styles */
-  </style>
-
-  <!-- 2. Non-critical CSS loaded async -->
-  <link rel="stylesheet" href="shared-styles.css" 
-        media="print" onload="this.media='all'">
-  
-  <!-- 3. DNS prefetch for external resources -->
-  <link rel="dns-prefetch" href="//js.arcgis.com">
-  <link rel="preconnect" href="https://js.arcgis.com" crossorigin>
-</head>
-
-<body>
-  <!-- Content -->
-  
-  <!-- 4. Scripts deferred to end -->
-  <script src="https://js.arcgis.com/4.31/" defer></script>
-</body>
+<div class="evac-box evac-box-set" style="background:#fff36a">
+  <div class="evac-title">SET - Pre-Evacuation</div>
+  <div class="evac-body">
+    <div>The following zones are under SET status...</div>
+    <div class="evac-zones">
+      <div class="zone-chip">Zone A</div>
+      <div class="zone-chip">Zone B</div>
+    </div>
+    <div class="evac-note">Voluntary Evacuation...</div>
+  </div>
+</div>
 ```
 
-### DOM Performance
+### Announcement Modal
 
-```javascript
-// Cache DOM references at init (avoid repeated lookups)
-const DOM = {};
-function init() {
-  DOM.countBadge = document.getElementById('incidentCountBadge');
-  DOM.chipsEl = document.getElementById('incidentChips');
-  DOM.announcementOverlay = document.getElementById('announcementOverlay');
-  // ...
-}
-
-// Batch DOM insertions with DocumentFragment
-const frag = document.createDocumentFragment();
-for (const name of names) {
-  frag.appendChild(createChip(name, onClick));
-}
-DOM.chipsEl.appendChild(frag);  // Single reflow
+```html
+<div id="announcementOverlay" class="announcement-overlay">
+  <div class="announcement-dialog">
+    <button class="announcement-close">×</button>
+    <!-- Content injected by initAnnouncement() from JSON -->
+    <div class="announcement-header">...</div>
+    <div class="announcement-body">...</div>
+    <div class="announcement-footer">...</div>
+  </div>
+</div>
 ```
 
 ---
 
-## Security Model
+## CSS Architecture
 
-### Content Security
+### Critical CSS (Inlined)
 
-```javascript
-// HTML escaping for all dynamic content
-const ESC_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-function esc(s) {
-  return String(s).replace(/[&<>"']/g, c => ESC_MAP[c]);
-}
+Each page includes minimal critical CSS in `<head>` for fast first paint:
+
+```css
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;font-family:Arial,sans-serif;...}
+.page-shell{min-height:100vh;display:flex;flex-direction:column}
+.map-wrapper{max-width:900px;width:100%;margin:16px auto 0;padding:12px}
+.map-card{width:100%;border-radius:14px;...}
 ```
 
-### External Links
+### Async Loading
+
+Non-critical CSS loaded without blocking:
 
 ```html
-<!-- All external links use security attributes -->
-<a href="..." target="_blank" rel="noopener noreferrer">
+<link rel="stylesheet" href="shared-styles.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="shared-styles.css"></noscript>
 ```
 
-### SQL Injection Prevention (ArcGIS Queries)
+### Responsive Breakpoints
 
-```javascript
-// Escape single quotes in query strings
-const escapeQuery = s => s.replace(/'/g, "''");
-const where = `incident='${escapeQuery(name)}'`;
-```
+| Breakpoint | Target |
+|------------|--------|
+| `max-width: 900px` | Tablet |
+| `max-width: 700px` | Large phone |
+| `max-width: 600px` | Phone |
+| `max-width: 480px` | Small phone |
+
+---
+
+## State Management
+
+### Session Storage
+
+| Key | Purpose | Scope |
+|-----|---------|-------|
+| `announcementDismissed` | Prevents auto-open after dismiss | Session |
+
+### URL State
+
+| Parameter | Page | Purpose |
+|-----------|------|---------|
+| `incident` | evac.html | Filters to specific incident |
+
+### DOM State
+
+| Class | Element | Meaning |
+|-------|---------|---------|
+| `is-open` | Overlay | Modal is visible |
+| `is-active` | Bell button | Announcement available |
+| `is-viewed` | Bell button | User has seen announcement |
+| `is-visible` | No incidents msg | Show empty state |
+| `has-incidents` | Count badge | Style as active |
+| `active` | Chip | Currently selected incident |
 
 ---
 
 ## Error Handling
 
-### Frontend Errors
+### Network Errors
 
 ```javascript
-// Graceful degradation with user feedback
 try {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
-  // Process data
 } catch (err) {
-  console.error('Error loading data:', err);
-  DOM.element.innerHTML = '<div>Error loading data.</div>';
+  console.error('Error:', err);
+  // Show user-friendly fallback
 }
 ```
 
-### JSON Loading Errors
+### Missing Data
 
-```javascript
-// Past incidents table fallback
-try {
-  const res = await fetch(CONFIG.pastIncidentsJsonUrl);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const incidents = await res.json();
-  // Render table
-} catch (err) {
-  console.error('Error loading past incidents:', err);
-  DOM.pastIncidentsTable.innerHTML = 
-    '<div class="past-incidents-error">Unable to load past incidents.</div>';
-}
-```
+| Scenario | Behavior |
+|----------|----------|
+| No incidents in ArcGIS | Show "No Active Incidents" message |
+| Incident not in JSON | Show "No Status Information" card |
+| announcement.json missing | Hide bell icon, log warning |
+| pastincident.json empty | Show "No past incidents" message |
 
 ---
 
-## Deployment Architecture
+## Performance Optimizations
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Production Environment                        │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌─────────────────┐                                            │
-│  │  Web Server     │  Static files                              │
-│  │  (GitHub Pages, │  ───────────────────────────▶ Users        │
-│  │   Netlify, etc.)│  • HTML, CSS, JS                           │
-│  │                 │  • incident.json                           │
-│  │                 │  • pastincident.json                       │
-│  └─────────────────┘                                            │
-│                                                                  │
-│  ┌─────────────────┐                                            │
-│  │  ArcGIS Online  │  Map tiles, feature queries                │
-│  │  (arcgis.com)   │  ───────────────────────────▶ Users        │
-│  └─────────────────┘                                            │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
+### JavaScript
 
----
+- **Module pattern** — Single shared.js loaded once, cached
+- **DOM caching** — Elements stored in DOM object at init
+- **DocumentFragment** — Batch chip insertions
+- **Event delegation** — Where applicable
+- **Deferred loading** — ArcGIS SDK loaded with `defer`
 
-## Monitoring & Logging
+### CSS
 
-### Client-Side
+- **Critical CSS inlined** — No render blocking
+- **Async loading** — media="print" trick
+- **Minimal specificity** — Faster selector matching
+- **will-change hints** — GPU acceleration for animations
 
-- `console.error()` for caught exceptions
-- Browser DevTools Network tab for request debugging
+### Network
 
-### ArcGIS
-
-- ArcGIS Online dashboard for service usage
-- Feature Service request logs
+- **DNS prefetch** — `<link rel="dns-prefetch">`
+- **Preconnect** — `<link rel="preconnect">`
+- **Static JSON** — No server processing
+- **CDN resources** — ArcGIS SDK from Esri CDN
 
 ---
 
-## Future Considerations
+## Browser Compatibility
 
-### Potential Improvements
+### Required Features
 
-1. **Service Worker** — Offline support for critical information
-2. **Push Notifications** — Real-time zone status updates
-3. **PWA Manifest** — Install as mobile app
-4. **CDN Distribution** — Faster global delivery of static files
+| Feature | Fallback |
+|---------|----------|
+| ES6+ (async/await, const, let) | None (required) |
+| Fetch API | None (required) |
+| CSS Grid/Flexbox | Graceful degradation |
+| CSS Custom Properties | Hardcoded fallbacks |
 
-### Scalability
+### Polyfills
 
-Current architecture handles typical emergency traffic:
+None required for supported browsers (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+).
 
-- ArcGIS Online auto-scales
-- Static files can be CDN-distributed
-- JSON files are tiny and cacheable
+---
+
+## Testing Checklist
+
+### Manual Testing
+
+- [ ] All pages load without console errors
+- [ ] Incident chips appear and navigate correctly
+- [ ] Maps load and zoom to incidents
+- [ ] Modals open/close with button, overlay click, Escape key
+- [ ] Announcement loads from JSON
+- [ ] Past incidents table populates
+- [ ] Mobile responsive at all breakpoints
+- [ ] External links open in new tab
+
+### Data Testing
+
+- [ ] Empty incident.json (`[]`) shows no incidents message
+- [ ] Invalid JSON shows error gracefully
+- [ ] Missing JSON file hides related UI
+- [ ] Special characters in incident names escaped properly
