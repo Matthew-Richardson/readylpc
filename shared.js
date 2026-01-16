@@ -92,11 +92,57 @@
   };
 
   // ========== ANNOUNCEMENT OVERLAY INIT ==========
-  const initAnnouncement = (elements, showAnnouncement, autoOpen = false) => {
-    const { announcementOverlay, announcementClose, announcementDismiss, announcementAlertBtn } = elements;
-    if (!showAnnouncement || !announcementOverlay) return;
+  const buildAnnouncementHTML = (data) => {
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, ch => ESC_MAP[ch]);
+    
+    const bullets = data.bulletPoints?.length 
+      ? `<ul class="announcement-list">${data.bulletPoints.map(b => `<li>${esc(b)}</li>`).join('')}</ul>` 
+      : '';
 
-    if (announcementAlertBtn) announcementAlertBtn.classList.add('is-active');
+    const contact = data.contact ? `
+      <div class="announcement-contact">
+        <div class="announcement-contact-title">${esc(data.contact.title)}</div>
+        ${data.contact.email ? `<div class="announcement-contact-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <a href="mailto:${esc(data.contact.email)}">${esc(data.contact.email)}</a>
+        </div>` : ''}
+        ${data.contact.phone ? `<div class="announcement-contact-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <a href="tel:${esc(data.contact.phone.replace(/[^0-9]/g, ''))}">${esc(data.contact.phone)}</a>
+        </div>` : ''}
+      </div>` : '';
+
+    // Note: paragraphs allow HTML (like <strong>) for formatting
+    const paragraphs = (data.paragraphs || []).map(p => `<p>${p}</p>`).join('');
+
+    return `
+      <div class="announcement-header">
+        <img src="https://cms9files.revize.com/laplata/_assets_/images/logo.png" alt="La Plata County Logo" class="announcement-logo">
+        <div class="announcement-header-text">
+          <h2 id="announcementTitle" class="announcement-title">${esc(data.title)}</h2>
+          <p class="announcement-subtitle">${esc(data.subtitle)}</p>
+        </div>
+        ${data.badge ? `<div class="announcement-badge">${esc(data.badge)}</div>` : ''}
+      </div>
+      <div class="announcement-body">
+        <div class="announcement-content">
+          ${paragraphs}
+          ${bullets}
+          ${contact}
+        </div>
+      </div>
+      <div class="announcement-footer">
+        ${data.primaryButton ? `<a href="${esc(data.primaryButton.url)}" class="primary-pill" target="_blank" rel="noopener noreferrer">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          ${esc(data.primaryButton.text)}
+        </a>` : ''}
+        <button id="announcementDismiss" class="secondary-pill" type="button">${esc(data.dismissButton || 'Close')}</button>
+      </div>`;
+  };
+
+  const initAnnouncement = async (elements, jsonUrl = 'announcement.json') => {
+    const { announcementOverlay, announcementClose, announcementAlertBtn } = elements;
+    if (!announcementOverlay) return;
 
     const toggle = (open) => {
       announcementOverlay.classList.toggle('is-open', open);
@@ -104,15 +150,52 @@
       if (!open && announcementAlertBtn) announcementAlertBtn.classList.add('is-viewed');
     };
 
-    if (autoOpen) toggle(true);
+    try {
+      const res = await fetch(jsonUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
 
-    announcementClose?.addEventListener('click', () => toggle(false));
-    announcementDismiss?.addEventListener('click', () => toggle(false));
-    announcementOverlay.addEventListener('click', e => { if (e.target === announcementOverlay) toggle(false); });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && announcementOverlay.classList.contains('is-open')) toggle(false);
-    });
-    announcementAlertBtn?.addEventListener('click', () => toggle(true));
+      // If disabled, hide the button and exit
+      if (!data.enabled) {
+        if (announcementAlertBtn) announcementAlertBtn.style.display = 'none';
+        return;
+      }
+
+      // Show the alert button
+      if (announcementAlertBtn) announcementAlertBtn.classList.add('is-active');
+
+      // Build and inject the content
+      const dialog = announcementOverlay.querySelector('.announcement-dialog');
+      if (dialog) {
+        const closeBtn = dialog.querySelector('.announcement-close');
+        dialog.innerHTML = '';
+        if (closeBtn) dialog.appendChild(closeBtn);
+        dialog.insertAdjacentHTML('beforeend', buildAnnouncementHTML(data));
+        
+        // Bind dismiss button (just created)
+        dialog.querySelector('#announcementDismiss')?.addEventListener('click', () => {
+          toggle(false);
+          sessionStorage.setItem('announcementDismissed', '1');
+        });
+      }
+
+      // Bind events
+      announcementAlertBtn?.addEventListener('click', () => toggle(true));
+      announcementClose?.addEventListener('click', () => toggle(false));
+      announcementOverlay.addEventListener('click', e => { if (e.target === announcementOverlay) toggle(false); });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && announcementOverlay.classList.contains('is-open')) toggle(false);
+      });
+
+      // Auto-open on first visit (session-based)
+      if (data.autoOpen && !sessionStorage.getItem('announcementDismissed')) {
+        toggle(true);
+      }
+
+    } catch (err) {
+      console.warn('Announcement not loaded:', err.message);
+      if (announcementAlertBtn) announcementAlertBtn.style.display = 'none';
+    }
   };
 
   // ========== BRAND COLORS (shared constants) ==========
