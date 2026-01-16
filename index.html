@@ -34,15 +34,12 @@
     <div class="map-wrapper">
       <div class="map-card">
 
-        <!-- Announcement Alert Button - appears in upper right when active -->
         <button id="announcementAlertBtn" class="announcement-alert-btn" type="button" aria-label="View announcement">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
           </svg>
         </button>
 
-        <!-- Site Banner: Leave empty to hide, add text to display -->
         <div id="siteBanner" class="site-banner"></div>
 
         <div class="brand-banner">
@@ -55,11 +52,11 @@
             <div class="official-badge">Official Emergency Information</div>
           </div>
           <div class="banner-nav">
-            <button id="overviewButton" class="nav-btn" type="button" aria-label="Overview Map">
+            <button id="overviewButton" class="nav-btn" type="button">
               <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
               <span>Overview Map</span>
             </button>
-            <button id="coderedButton" class="nav-btn" type="button" aria-label="CodeRED Alerts">
+            <button id="coderedButton" class="nav-btn" type="button">
               <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
               <span>CodeRED Alerts</span>
             </button>
@@ -72,36 +69,33 @@
           </div>
         </div>
 
-        <div class="content-overlap"><div class="incident-strip">
-          <div class="incident-strip-top">
-            <div class="incident-bar-left">
-              <span class="incident-label">
-                Active incidents
-                <span id="incidentCountBadge" class="incident-count-badge">0</span>
-              </span>
-            </div>
-          </div>
-          <div class="incident-tip">Tap an incident below to view the evacuation map.</div>
-          <div id="incidentChips" class="incident-chips"></div>
-          <div id="noIncidentsMsg" class="incident-none">
-            <div class="incident-none-content">
-              <div class="incident-none-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div class="incident-none-text">
-                <div class="incident-none-title">No Active Incidents</div>
-                <p class="incident-none-body">No active evacuations in La Plata County.</p>
+        <div class="content-overlap">
+          <div class="incident-strip">
+            <div class="incident-strip-top">
+              <div class="incident-bar-left">
+                <span class="incident-label">Active incidents <span id="incidentCountBadge" class="incident-count-badge">0</span></span>
               </div>
             </div>
-            <a href="#" id="noIncidentCodered" class="incident-none-cta-link">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              Sign up for CodeRED Alerts
-            </a>
+            <div class="incident-tip">Tap an incident below to view the evacuation map.</div>
+            <div id="incidentChips" class="incident-chips"></div>
+            <div id="noIncidentsMsg" class="incident-none">
+              <div class="incident-none-content">
+                <div class="incident-none-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="incident-none-text">
+                  <div class="incident-none-title">No Active Incidents</div>
+                  <p class="incident-none-body">No active evacuations in La Plata County.</p>
+                </div>
+              </div>
+              <a href="#" id="noIncidentCodered" class="incident-none-cta-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                Sign up for CodeRED Alerts
+              </a>
+            </div>
           </div>
+          <div class="card-divider"></div>
         </div>
-
-        <div class="card-divider"></div>
-        </div><!-- end content-overlap -->
       </div>
     </div>
 
@@ -124,15 +118,9 @@
                 <div id="stageTimeline" class="stage-timeline">
                   <svg id="triangleLines" class="triangle-lines" aria-hidden="true">
                     <defs>
-                      <linearGradient id="grad-ready-set" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stop-color="#b33a3a"/><stop offset="100%" stop-color="#a68f00"/>
-                      </linearGradient>
-                      <linearGradient id="grad-ready-go" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stop-color="#b33a3a"/><stop offset="100%" stop-color="#0a7c25"/>
-                      </linearGradient>
-                      <linearGradient id="grad-set-go" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stop-color="#a68f00"/><stop offset="100%" stop-color="#0a7c25"/>
-                      </linearGradient>
+                      <linearGradient id="grad-ready-set" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#b33a3a"/><stop offset="100%" stop-color="#a68f00"/></linearGradient>
+                      <linearGradient id="grad-ready-go" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#b33a3a"/><stop offset="100%" stop-color="#0a7c25"/></linearGradient>
+                      <linearGradient id="grad-set-go" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#a68f00"/><stop offset="100%" stop-color="#0a7c25"/></linearGradient>
                     </defs>
                     <line id="line-ready-set" stroke="url(#grad-ready-set)" stroke-width="4" stroke-linecap="round"/>
                     <line id="line-ready-go" stroke="url(#grad-ready-go)" stroke-width="4" stroke-linecap="round"/>
@@ -194,9 +182,10 @@
     </main>
   </div>
 
+  <!-- CodeRED Overlay -->
   <div id="coderedOverlay" class="codered-overlay" aria-hidden="true">
     <div class="codered-dialog" role="dialog" aria-modal="true" aria-labelledby="coderedTitle">
-      <button id="coderedClose" class="codered-close" type="button" aria-label="Close CodeRED info">×</button>
+      <button id="coderedClose" class="codered-close" type="button" aria-label="Close">×</button>
       <h2 id="coderedTitle" class="codered-title">CodeRED Emergency Alerts</h2>
       <p class="codered-subtitle">Stay informed about wildfires, floods, and other emergencies in La Plata County.</p>
       <div class="codered-body">
@@ -212,11 +201,10 @@
     </div>
   </div>
 
-  <!-- ========== ANNOUNCEMENT OVERLAY ========== -->
+  <!-- Announcement Overlay -->
   <div id="announcementOverlay" class="announcement-overlay" aria-hidden="true">
     <div class="announcement-dialog" role="dialog" aria-modal="true" aria-labelledby="announcementTitle">
       <button id="announcementClose" class="announcement-close" type="button" aria-label="Close">×</button>
-      
       <div class="announcement-header">
         <img src="https://cms9files.revize.com/laplata/_assets_/images/logo.png" alt="La Plata County Logo" class="announcement-logo">
         <div class="announcement-header-text">
@@ -225,27 +213,22 @@
         </div>
         <div class="announcement-badge">Official Notice</div>
       </div>
-      
       <div class="announcement-body">
         <div class="announcement-content">
           <p>We are reaching out to share an important update regarding the security of our alert system <strong>CodeRED</strong>.</p>
-          
           <p>Out of an abundance of caution, <strong>we recommend that all users who currently have an account change their password</strong>. Updating your password helps ensure your information remains secure and protected.</p>
-          
           <p>Some individuals receive alerts through CodeRED without having an online account. If you are one of these legacy users, no immediate action is required. However, if you would like to view, update, or manage your information, you can do so by creating an account at any time.</p>
-          
           <p>Creating an account allows you to:</p>
           <ul class="announcement-list">
             <li>Review and update your contact information</li>
             <li>Manage alert preferences</li>
             <li>Ensure your information stays current</li>
           </ul>
-          
           <div class="announcement-contact">
             <div class="announcement-contact-title">Questions or Need Assistance?</div>
             <div class="announcement-contact-row">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              <a href="mailto:OEMECC@lpcgov.org">OEMECC@lpcgov.org</a>
+              <a href="mailto:oem@co.laplata.co.us">oem@co.laplata.co.us</a>
             </div>
             <div class="announcement-contact-row">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
@@ -254,105 +237,52 @@
           </div>
         </div>
       </div>
-      
       <div class="announcement-footer">
         <a href="https://public.coderedweb.com/CNE/en-US/" class="primary-pill" target="_blank" rel="noopener noreferrer">
           <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           Manage My CodeRED Account
         </a>
-        <button id="announcementDismiss" class="secondary-pill" type="button">
-          I'll do this later
-        </button>
+        <button id="announcementDismiss" class="secondary-pill" type="button">I'll do this later</button>
       </div>
     </div>
   </div>
 
+  <script src="shared.js"></script>
   <script>
   (function() {
     'use strict';
 
-    // ========== CONFIGURATION ==========
+    const { $, escHTML, createChip, sortIncidents, getIncidentParam, updateTimestamp, initCoderedOverlay, initAnnouncement } = ReadyLaPlata;
+
+    // Configuration
     const CONFIG = {
       mapUrl: 'evac.html',
       incidentLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0/query',
       incidentField: 'incident'
     };
 
-    // ========== ANNOUNCEMENT TOGGLE ==========
-    // SHOW_ANNOUNCEMENT: shows the bell icon on all pages when true
-    // AUTO_OPEN_ANNOUNCEMENT: auto-opens the popup on HOME PAGE ONLY (this page) when true
     const SHOW_ANNOUNCEMENT = true;
     const AUTO_OPEN_ANNOUNCEMENT = true;
 
-    // ========== DOM CACHE ==========
-    const $ = id => document.getElementById(id);
-    const DOM = {};
+    const INCIDENT = getIncidentParam();
 
-    // ========== URL PARAMETER (computed once) ==========
-    const INCIDENT = (() => {
-      const params = new URLSearchParams(location.search);
-      const raw = (params.get('incident') || params.get('Incident') || '').trim();
-      const inc = raw.slice(0, 80);
-      const ok = inc && /^[a-z0-9 .,'\-()\/]+$/i.test(inc);
-      return ok ? inc : null;
-    })();
-
-    // ========== UTILITIES ==========
-    // Escape text for safe HTML insertion (prevents DOM XSS)
-    const escHTML = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
-    }[ch]));
-
-
-    // Format timestamp with timezone
-    const formatTimestamp = () => {
-      const now = new Date();
-      const options = { 
-        year: 'numeric', month: 'numeric', day: 'numeric',
-        hour: 'numeric', minute: '2-digit', second: '2-digit',
-        timeZoneName: 'short'
-      };
-      return now.toLocaleString('en-US', options);
+    // DOM elements (cached once)
+    const DOM = {
+      chipsEl: $('incidentChips'),
+      countBadge: $('incidentCountBadge'),
+      noIncidentsMsg: $('noIncidentsMsg'),
+      noIncidentCodered: $('noIncidentCodered'),
+      overviewButton: $('overviewButton'),
+      coderedButton: $('coderedButton'),
+      coderedOverlay: $('coderedOverlay'),
+      coderedClose: $('coderedClose'),
+      lastLoaded: $('lastLoaded'),
+      announcementOverlay: $('announcementOverlay'),
+      announcementClose: $('announcementClose'),
+      announcementDismiss: $('announcementDismiss'),
+      announcementAlertBtn: $('announcementAlertBtn')
     };
 
-    const updateTimestamp = () => {
-      if (DOM.lastLoaded) DOM.lastLoaded.textContent = 'Last loaded: ' + formatTimestamp();
-    };
-
-    const createChip = (name, onClick) => {
-      const chip = document.createElement('button');
-      chip.className = 'incident-chip';
-      chip.dataset.incident = name;
-
-      const icon = document.createElement('span');
-      icon.className = 'incident-chip-icon';
-      icon.textContent = '!';
-
-      const label = document.createElement('span');
-      label.textContent = String(name ?? '');
-
-      chip.append(icon, label);
-      chip.addEventListener('click', onClick);
-      return chip;
-    };
-
-    const sortIncidents = (names, target) => {
-      const targetLower = target?.toLowerCase();
-      return names.sort((a, b) => {
-        const al = a.toLowerCase(), bl = b.toLowerCase();
-        if (targetLower) {
-          if (al === targetLower) return -1;
-          if (bl === targetLower) return 1;
-        }
-        return al.localeCompare(bl);
-      });
-    };
-
-    // ========== DATA FETCHING ==========
     async function loadIncidents() {
       const params = new URLSearchParams({
         where: '1=1',
@@ -367,7 +297,6 @@
 
         const data = await res.json();
         const seen = new Set();
-
         const names = (data.features || [])
           .map(f => f.attributes?.[CONFIG.incidentField]?.trim())
           .filter(n => {
@@ -382,7 +311,7 @@
 
         DOM.countBadge.textContent = names.length;
         if (names.length) DOM.countBadge.classList.add('has-incidents');
-        updateTimestamp();
+        updateTimestamp(DOM.lastLoaded);
 
         if (!names.length) {
           DOM.noIncidentsMsg.classList.add('is-visible');
@@ -405,59 +334,6 @@
       }
     }
 
-    // ========== CODERED OVERLAY ==========
-    function initCoderedOverlay() {
-      const overlay = DOM.coderedOverlay;
-      if (!DOM.coderedButton || !overlay) return;
-
-      const toggle = open => {
-        overlay.classList.toggle('is-open', open);
-        overlay.setAttribute('aria-hidden', String(!open));
-      };
-
-      DOM.coderedButton.addEventListener('click', () => toggle(true));
-      DOM.coderedClose?.addEventListener('click', () => toggle(false));
-      DOM.noIncidentCodered?.addEventListener('click', e => { e.preventDefault(); toggle(true); });
-      overlay.addEventListener('click', e => { if (e.target === overlay) toggle(false); });
-      document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.classList.contains('is-open')) toggle(false); });
-    }
-
-    // ========== ANNOUNCEMENT OVERLAY ==========
-    function initAnnouncement() {
-      const overlay = DOM.announcementOverlay;
-      const alertBtn = DOM.announcementAlertBtn;
-      
-      if (!SHOW_ANNOUNCEMENT || !overlay) return;
-      
-      // Show the alert button when announcement is active
-      if (alertBtn) alertBtn.classList.add('is-active');
-
-      const toggle = open => {
-        overlay.classList.toggle('is-open', open);
-        overlay.setAttribute('aria-hidden', String(!open));
-        
-        // Mark as viewed when closed
-        if (!open && alertBtn) {
-          alertBtn.classList.add('is-viewed');
-        }
-      };
-
-      // Auto-open on page load only if enabled (HOME PAGE ONLY)
-      if (AUTO_OPEN_ANNOUNCEMENT) {
-        toggle(true);
-      }
-
-      // Close handlers
-      DOM.announcementClose?.addEventListener('click', () => toggle(false));
-      DOM.announcementDismiss?.addEventListener('click', () => toggle(false));
-      overlay.addEventListener('click', e => { if (e.target === overlay) toggle(false); });
-      document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.classList.contains('is-open')) toggle(false); });
-      
-      // Alert button opens the announcement
-      alertBtn?.addEventListener('click', () => toggle(true));
-    }
-
-    // ========== TRIANGLE LINES ==========
     function initTriangleLines() {
       const container = $('stageTimeline');
       const svg = $('triangleLines');
@@ -492,34 +368,25 @@
         const set = getCenter(pins.set);
         const go = getCenter(pins.go);
 
-        const setLine = (line, p1, p2) => {
-          line.setAttribute('x1', p1.x);
-          line.setAttribute('y1', p1.y);
-          line.setAttribute('x2', p2.x);
-          line.setAttribute('y2', p2.y);
+        const setAttr = (el, p1, p2) => {
+          el.setAttribute('x1', p1.x);
+          el.setAttribute('y1', p1.y);
+          el.setAttribute('x2', p2.x);
+          el.setAttribute('y2', p2.y);
         };
 
-        const setGrad = (grad, p1, p2) => {
-          grad.setAttribute('x1', p1.x);
-          grad.setAttribute('y1', p1.y);
-          grad.setAttribute('x2', p2.x);
-          grad.setAttribute('y2', p2.y);
-        };
+        setAttr(lines.readySet, ready, set);
+        setAttr(lines.readyGo, ready, go);
+        setAttr(lines.setGo, set, go);
 
-        setLine(lines.readySet, ready, set);
-        setLine(lines.readyGo, ready, go);
-        setLine(lines.setGo, set, go);
-
-        setGrad(grads.readySet, ready, set);
-        setGrad(grads.readyGo, ready, go);
-        setGrad(grads.setGo, set, go);
+        setAttr(grads.readySet, ready, set);
+        setAttr(grads.readyGo, ready, go);
+        setAttr(grads.setGo, set, go);
       };
 
-      // Initial draw and delayed redraw after layout
       updateLines();
       setTimeout(updateLines, 100);
       
-      // Debounced resize handler
       let resizeTimeout;
       window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
@@ -527,37 +394,13 @@
       });
     }
 
-    // ========== INIT ==========
-    function init() {
-      DOM.chipsEl = $('incidentChips');
-      DOM.countBadge = $('incidentCountBadge');
-      DOM.noIncidentsMsg = $('noIncidentsMsg');
-      DOM.noIncidentCodered = $('noIncidentCodered');
-      DOM.overviewButton = $('overviewButton');
-      DOM.coderedButton = $('coderedButton');
-      DOM.coderedOverlay = $('coderedOverlay');
-      DOM.coderedClose = $('coderedClose');
-      DOM.lastLoaded = $('lastLoaded');
-      
-      // Announcement elements
-      DOM.announcementOverlay = $('announcementOverlay');
-      DOM.announcementClose = $('announcementClose');
-      DOM.announcementDismiss = $('announcementDismiss');
-      DOM.announcementAlertBtn = $('announcementAlertBtn');
-
-      DOM.overviewButton?.addEventListener('click', () => location.href = 'overview.html');
-      
-      loadIncidents();
-      initCoderedOverlay();
-      initAnnouncement();
-      initTriangleLines();
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
+    // Initialize
+    DOM.overviewButton?.addEventListener('click', () => location.href = 'overview.html');
+    
+    loadIncidents();
+    initCoderedOverlay(DOM);
+    initAnnouncement(DOM, SHOW_ANNOUNCEMENT, AUTO_OPEN_ANNOUNCEMENT);
+    initTriangleLines();
   })();
   </script>
 </body>
