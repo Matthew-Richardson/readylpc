@@ -21,7 +21,7 @@ ReadyLaPlata is the official evacuation information viewer for La Plata County O
 - **Incident support resources** (shelters, check-in locations, road closures, animal evacuation)
 - **Past incidents archive** loaded from static JSON file
 - **CodeRED integration** for emergency alert signup
-- **Announcement system** with bell icon and modal overlay
+- **JSON-driven announcement system** with bell icon and modal overlay
 - **Mobile-responsive design** optimized for emergency use
 - **Offline-friendly** critical CSS inlined for fast first paint
 
@@ -41,7 +41,7 @@ ReadyLaPlata is the official evacuation information viewer for La Plata County O
 
 ### Prerequisites
 
-- Web server (Apache, Nginx, or static hosting like GitHub Pages)
+- Web server (Apache, Nginx, IIS, or static hosting like GitHub Pages)
 - ArcGIS Online account with configured WebMap and Feature Services
 
 ### Deployment
@@ -51,17 +51,17 @@ ReadyLaPlata is the official evacuation information viewer for La Plata County O
    index.html
    overview.html
    evac.html
+   shared.js
    shared-styles.css
    favicon.svg
    incident.json
    pastincident.json
+   announcement.json
    ```
 
-2. **Configure JSON data files**:
-   - `incident.json` — Active incident support resources
-   - `pastincident.json` — Historical incident records
+2. **Configure JSON data files** (see Configuration section below)
 
-3. **Update configuration** in each HTML file if needed:
+3. **Update ArcGIS URLs** in each HTML file if needed:
    ```javascript
    const CONFIG = {
      incidentLayerUrl: 'YOUR_ARCGIS_FEATURE_SERVICE_URL',
@@ -73,70 +73,36 @@ ReadyLaPlata is the official evacuation information viewer for La Plata County O
 
 ## Configuration
 
+### JSON Data Files
+
+All content configuration is done through JSON files—no code changes required.
+
+| File | Purpose | Auto-opens |
+|------|---------|------------|
+| `incident.json` | Active incident support resources | — |
+| `pastincident.json` | Historical incident records | — |
+| `announcement.json` | Site-wide announcement banner | Configurable |
+
+See `JSON-EDITING-GUIDE.md` for detailed editing instructions and copy-paste templates.
+
+#### Quick Reference
+
+**Disable announcement:**
+```json
+{ "enabled": false }
+```
+
+**Clear all active incidents:**
+```json
+[]
+```
+
 ### ArcGIS Services
 
 | Service | URL | Purpose |
 |---------|-----|---------|
 | Feature Layer | `services2.arcgis.com/.../LPC_Evac_Zones_View/FeatureServer/0` | Evacuation zone polygons |
 | WebMap | Portal Item ID `58a8bb313db64271a55e7960cb839f64` | Pre-configured map with symbology |
-
-### JSON Data Files
-
-#### incident.json
-
-Active incident support resources. Array of incident objects:
-
-```json
-[
-  {
-    "name": "Mesa Test Fire",
-    "statusLink": "lpcgov.org",
-    "checkIn": "Durango High School\nRapid Tag 8a-4p",
-    "checkInAddr": "Durango High School",
-    "shelters": "La Plata County Fairgrounds",
-    "sheltersAddr": "2500 Main Ave, Durango, CO 81301",
-    "road": "CR 501\nCR 502\nCR 503",
-    "smallAnimals": "La Plata County Humane Society",
-    "smallAnimalsAddr": "1111 S Camino Del Rio, Durango, CO 81303",
-    "largeAnimals": "La Plata County Fairgrounds",
-    "largeAnimalsAddr": "2500 Main Ave, Durango, CO 81301"
-  }
-]
-```
-
-#### pastincident.json
-
-Historical incident records for the overview page:
-
-```json
-[
-  {
-    "name": "North Vallecito Flooding",
-    "startDate": "2025-10-10",
-    "liftedDate": "2025-10-16"
-  },
-  {
-    "name": "Blue Ridge Fire",
-    "startDate": "2025-08-15",
-    "liftedDate": "2025-08-18"
-  }
-]
-```
-
-### Announcement System
-
-The announcement system displays a bell icon and optional modal overlay across all pages. Configure in each HTML file:
-
-```javascript
-// SHOW_ANNOUNCEMENT: shows the bell icon on all pages when true
-// AUTO_OPEN_ANNOUNCEMENT: auto-opens the popup on HOME PAGE ONLY when true
-const SHOW_ANNOUNCEMENT = true;
-const AUTO_OPEN_ANNOUNCEMENT = true; // Only effective on index.html
-```
-
-- Set `SHOW_ANNOUNCEMENT = false` to hide the bell icon on all pages
-- The modal only auto-opens on `index.html` (home page)
-- Users can click the bell icon to view the announcement on any page
 
 ---
 
@@ -147,6 +113,30 @@ const AUTO_OPEN_ANNOUNCEMENT = true; // Only effective on index.html
 | Parameter | Example | Description |
 |-----------|---------|-------------|
 | `incident` | `?incident=East%20Canyon` | Filters map and data to specific incident |
+
+---
+
+## File Structure
+
+```
+readylaplata/
+├── index.html           # Home page with Ready, Set, Go! info
+├── overview.html        # County-wide incident overview map
+├── evac.html            # Per-incident evacuation details
+├── shared.js            # Shared JavaScript utilities module
+├── shared-styles.css    # Shared stylesheet
+├── favicon.svg          # Site favicon
+├── incident.json        # Active incident support resources
+├── pastincident.json    # Historical incident records
+├── announcement.json    # Announcement content and settings
+└── docs/
+    ├── README.md            # This file
+    ├── API.md               # Data format reference
+    ├── ARCHITECTURE.md      # Technical architecture
+    ├── SETUP.md             # Deployment guide
+    ├── SECURITY.md          # Security documentation
+    └── JSON-EDITING-GUIDE.md # JSON editing reference
+```
 
 ---
 
@@ -167,6 +157,7 @@ const AUTO_OPEN_ANNOUNCEMENT = true; // Only effective on index.html
 
 ### Optimization Techniques
 
+- **Shared JS module** — Common utilities loaded once, cached across pages
 - **Critical CSS inlined** — First paint without external CSS blocking
 - **Async stylesheet loading** — Non-critical CSS loaded via `media="print"` trick
 - **DNS prefetch/preconnect** — Reduced latency for ArcGIS resources
@@ -178,9 +169,10 @@ const AUTO_OPEN_ANNOUNCEMENT = true; // Only effective on index.html
 
 | Resource | Size | Notes |
 |----------|------|-------|
-| ArcGIS SDK | ~2.5 MB | Loaded with `defer` |
-| shared-styles.css | ~12 KB | Loaded async |
+| shared.js | ~6 KB | Shared utilities module |
+| shared-styles.css | ~38 KB | Loaded async |
 | Inline critical CSS | ~1 KB | Embedded in `<head>` |
+| ArcGIS SDK | ~2.5 MB | Loaded with `defer` |
 
 ---
 
@@ -208,29 +200,12 @@ This application is **public-facing** and **read-only**.
 
 - **Read-only** — The application only displays data; it cannot modify ArcGIS or JSON files
 - All external links use `rel="noopener noreferrer"`
-- HTML escaping for all user-provided content
+- HTML escaping for all dynamic content (centralized in `shared.js`)
 - SQL injection prevention in ArcGIS queries
+- URL parameter validation with allowlist
 - HTTPS enforced for all external resources
 
----
-
-## File Structure
-
-```
-readylaplata/
-├── index.html           # Home page with Ready, Set, Go! info
-├── overview.html        # County-wide incident overview map
-├── evac.html            # Per-incident evacuation details
-├── shared-styles.css    # Shared stylesheet
-├── favicon.svg          # Site favicon
-├── incident.json        # Active incident support resources
-├── pastincident.json    # Historical incident records
-└── docs/
-    ├── README.md        # This file
-    ├── API.md           # Data format reference
-    ├── ARCHITECTURE.md  # Technical architecture
-    └── SETUP.md         # Deployment guide
-```
+See `SECURITY.md` for detailed security documentation.
 
 ---
 
