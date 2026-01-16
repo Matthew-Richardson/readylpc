@@ -8,17 +8,44 @@
 
 Before starting, ensure you have:
 
-- [ ] Access to a web server or static hosting service (GitHub Pages, Netlify, etc.)
+- [ ] Access to a web server or static hosting service (GitHub Pages, Netlify, IIS, etc.)
 - [ ] ArcGIS Online organizational account
 - [ ] Access to the La Plata County Feature Services
 
 ---
 
-## Step 1: Prepare Data Files
+## Step 1: Prepare Files
+
+### File Checklist
+
+```
+readylaplata/
+├── index.html           # Home page
+├── overview.html        # Overview map page
+├── evac.html            # Evacuation details page
+├── shared.js            # Shared JavaScript module
+├── shared-styles.css    # Shared stylesheet
+├── favicon.svg          # Site favicon
+├── incident.json        # Active incident data
+├── pastincident.json    # Historical incidents
+└── announcement.json    # Announcement content
+```
+
+---
+
+## Step 2: Configure JSON Files
+
+All content configuration is done through JSON files—no code changes required for content updates.
 
 ### incident.json
 
-Create a JSON file for active incident support resources:
+Active incident support resources. Start with empty array if no incidents:
+
+```json
+[]
+```
+
+Or with incident data:
 
 ```json
 [
@@ -42,7 +69,7 @@ Create a JSON file for active incident support resources:
 
 ### pastincident.json
 
-Create a JSON file for historical incident records:
+Historical incident records:
 
 ```json
 [
@@ -59,11 +86,53 @@ Create a JSON file for historical incident records:
 ]
 ```
 
-**Note:** Use ISO date format (YYYY-MM-DD). The table will display as "Oct 16, 2025".
+**Note:** Use ISO date format (YYYY-MM-DD). Displayed as "Oct 16, 2025".
+
+### announcement.json
+
+Site-wide announcement content:
+
+**To disable announcement:**
+```json
+{
+  "enabled": false
+}
+```
+
+**Full announcement:**
+```json
+{
+  "enabled": true,
+  "autoOpen": true,
+  "title": "Announcement Title",
+  "subtitle": "Brief description",
+  "badge": "Official Notice",
+  "paragraphs": [
+    "First paragraph with <strong>bold</strong> support.",
+    "Second paragraph."
+  ],
+  "bulletPoints": [
+    "First bullet",
+    "Second bullet"
+  ],
+  "contact": {
+    "title": "Questions?",
+    "email": "oem@co.laplata.co.us",
+    "phone": "970-382-6275"
+  },
+  "primaryButton": {
+    "text": "Take Action",
+    "url": "https://example.com"
+  },
+  "dismissButton": "I'll do this later"
+}
+```
+
+See `JSON-EDITING-GUIDE.md` for complete reference and templates.
 
 ---
 
-## Step 2: ArcGIS Configuration
+## Step 3: ArcGIS Configuration
 
 ### Required Services
 
@@ -93,19 +162,21 @@ Ensure these services exist and are accessible:
 
 ---
 
-## Step 3: Configure HTML Files
+## Step 4: Update HTML Configuration (If Needed)
+
+Only needed if using different ArcGIS services than the defaults.
 
 ### Update evac.html
 
-Find the CONFIG object and update:
+Find the CONFIG object:
 
 ```javascript
 const CONFIG = {
   webmapId: 'YOUR_WEBMAP_ID_HERE',
   incidentLayerUrl: 'YOUR_FEATURE_SERVICE_URL_HERE',
-  statusJsonUrl: 'incident.json',  // Path to your incident JSON file
-  incidentField: 'incident',       // Verify this matches your field name
-  statusValues: { SET: 'Set', GO: 'Go' }  // Verify these match your STATUS values
+  statusJsonUrl: 'incident.json',
+  incidentField: 'incident',
+  statusValues: { SET: 'Set', GO: 'Go' }
 };
 ```
 
@@ -114,10 +185,10 @@ const CONFIG = {
 ```javascript
 const CONFIG = {
   incidentLayerUrl: 'YOUR_FEATURE_SERVICE_URL_HERE',
-  pastIncidentsJsonUrl: 'pastincident.json',  // Path to your past incidents JSON
+  pastIncidentsJsonUrl: 'pastincident.json',
   incidentField: 'incident',
   mapCenter: [-107.8801, 37.2753],  // Adjust to your county center
-  mapScale: 800000  // Adjust zoom level
+  mapScale: 800000
 };
 ```
 
@@ -131,42 +202,16 @@ const CONFIG = {
 };
 ```
 
-### Configure Announcement System
-
-In each HTML file, set the announcement toggle:
-
-```javascript
-// SHOW_ANNOUNCEMENT: shows the bell icon on all pages when true
-// AUTO_OPEN_ANNOUNCEMENT: auto-opens the popup on HOME PAGE ONLY when true
-const SHOW_ANNOUNCEMENT = true;   // Set to false to hide bell on all pages
-const AUTO_OPEN_ANNOUNCEMENT = true;  // Only applies to index.html
-```
-
 ---
 
-## Step 4: Deploy Static Files
-
-### File Checklist
-
-Ensure you have all files:
-
-```
-readylaplata/
-├── index.html
-├── overview.html
-├── evac.html
-├── shared-styles.css
-├── favicon.svg
-├── incident.json
-└── pastincident.json
-```
+## Step 5: Deploy
 
 ### Upload to Web Server
 
-**Option A: Traditional Web Server**
+**Option A: Traditional Web Server (IIS, Apache, Nginx)**
 
+Upload all files to your web root:
 ```bash
-# Upload via FTP/SFTP
 scp -r readylaplata/* user@yourserver:/var/www/readylaplata/
 ```
 
@@ -175,60 +220,55 @@ scp -r readylaplata/* user@yourserver:/var/www/readylaplata/
 1. Create a repository with the files
 2. Go to Settings → Pages
 3. Select source branch (usually `main`)
-4. Your site will be at `https://username.github.io/repository/`
+4. Site available at `https://username.github.io/repository/`
 
 **Option C: Netlify/Vercel**
 
 1. Create a repository with the files
-2. Connect to your hosting provider
+2. Connect to hosting provider
 3. Deploy automatically on push
 
 ### Configure Domain (Optional)
 
-1. Point `readylaplata.org` (or your domain) to your server
+1. Point your domain to your server
 2. Configure SSL certificate (Let's Encrypt recommended)
-3. Set up redirects if needed:
-   ```
-   / → /index.html
-   ```
+3. Set up redirects if needed
 
 ---
 
-## Step 5: Verification
+## Step 6: Verification
 
 ### Test Each Page
 
 1. **index.html**
-   - [ ] Page loads without errors
-   - [ ] Incident chips appear (if active incidents exist in ArcGIS)
-   - [ ] Bell icon appears (if SHOW_ANNOUNCEMENT = true)
-   - [ ] Announcement modal opens on load (if AUTO_OPEN_ANNOUNCEMENT = true)
+   - [ ] Page loads without console errors
+   - [ ] Incident chips appear (if active incidents in ArcGIS)
+   - [ ] Bell icon appears (if announcement enabled)
+   - [ ] Announcement modal auto-opens (if autoOpen: true)
    - [ ] CodeRED modal opens/closes
    - [ ] Navigation to overview.html works
-   - [ ] Timestamp shows timezone (e.g., "MST")
 
 2. **overview.html**
    - [ ] Map loads and displays
-   - [ ] Incident pins appear on map (if active incidents exist)
-   - [ ] Past incidents table loads from pastincident.json
+   - [ ] Incident pins appear on map
+   - [ ] Past incidents table loads
    - [ ] Bell icon appears but modal doesn't auto-open
    - [ ] Clicking pins navigates to evac.html
-   - [ ] Home button navigates to index.html
+   - [ ] Home button works
 
 3. **evac.html?incident=YourIncident**
    - [ ] Map zooms to incident
    - [ ] SET/GO zones display correctly
-   - [ ] Incident status card loads from incident.json
+   - [ ] Incident status card loads
    - [ ] Directions links work (Google Maps)
-   - [ ] Bell icon appears but modal doesn't auto-open
-   - [ ] Home button navigates to index.html
+   - [ ] Home button works
 
 ### Test Mobile
 
-- [ ] Test on iOS Safari
-- [ ] Test on Android Chrome
-- [ ] Verify responsive layout at all breakpoints
-- [ ] Verify modals close with tap outside
+- [ ] iOS Safari
+- [ ] Android Chrome
+- [ ] Responsive layout at all breakpoints
+- [ ] Modals close with tap outside
 
 ---
 
@@ -236,16 +276,16 @@ scp -r readylaplata/* user@yourserver:/var/www/readylaplata/
 
 ### "No incidents found"
 
-- Verify the `incident` field name matches in ArcGIS and CONFIG
+- Verify `incident` field name matches in ArcGIS and CONFIG
 - Check that Feature Service is publicly accessible
-- Confirm there are features with the `incident` field populated
+- Confirm features have `incident` field populated
 
 ### Incident status not showing
 
 - Check browser console for JSON fetch errors
-- Verify `incident.json` is in the same directory as HTML files
-- Confirm incident name in JSON matches ArcGIS exactly (case-insensitive)
-- Check JSON syntax is valid (use a JSON validator)
+- Verify `incident.json` is in same directory as HTML files
+- Confirm incident name in JSON matches ArcGIS exactly
+- Validate JSON syntax at https://jsonlint.com
 
 ### Past incidents table empty
 
@@ -257,18 +297,20 @@ scp -r readylaplata/* user@yourserver:/var/www/readylaplata/
 
 - Check browser console for errors
 - Verify ArcGIS URLs are correct and accessible
-- Confirm WebMap is shared publicly (or to your org)
+- Confirm WebMap is shared publicly
 
-### Bell icon not showing
+### Announcement not showing
 
-- Verify `SHOW_ANNOUNCEMENT = true` in the HTML file
-- Check that the CSS file (shared-styles.css) is loading
+- Check that `announcement.json` exists
+- Verify `"enabled": true` is set
+- Check browser console for fetch errors
+- Validate JSON syntax
 
-### Announcement modal opens on wrong page
+### Announcement won't auto-open
 
-- `AUTO_OPEN_ANNOUNCEMENT` only affects `index.html`
-- On overview.html and evac.html, the modal never auto-opens
-- Users can still click the bell to open it manually
+- Verify `"autoOpen": true` is set
+- Clear browser session storage (or use incognito)
+- Check that user hasn't previously dismissed it
 
 ---
 
@@ -276,32 +318,31 @@ scp -r readylaplata/* user@yourserver:/var/www/readylaplata/
 
 ### Add New Active Incident
 
-1. Add entry to `incident.json` with support resource details
-2. Add corresponding features to ArcGIS Feature Service
-3. Upload updated `incident.json` to server
-4. Data appears immediately (no cache)
+1. Add entry to `incident.json`
+2. Add features to ArcGIS Feature Service with matching `incident` field
+3. Upload updated `incident.json`
 
 ### Close Incident
 
-1. Remove entry from `incident.json`
+1. Remove entry from `incident.json` (or leave `[]` if no incidents)
 2. Add entry to `pastincident.json` with lifted date
 3. Update ArcGIS features (remove or archive)
-4. Upload both updated JSON files
+4. Upload both JSON files
 
-### Update Announcement Content
+### Update Announcement
 
-1. Edit the announcement HTML in each file (index.html, overview.html, evac.html)
-2. Update the title, body text, and links as needed
-3. Upload updated HTML files
+1. Edit `announcement.json` with new content
+2. Upload updated file
+3. Changes take effect immediately
 
 ### Disable Announcement
 
-Set in each HTML file:
-```javascript
-const SHOW_ANNOUNCEMENT = false;
+Edit `announcement.json`:
+```json
+{
+  "enabled": false
+}
 ```
-
-This hides the bell icon on all pages.
 
 ---
 
@@ -310,14 +351,14 @@ This hides the bell icon on all pages.
 ### Regular Checks
 
 - [ ] Weekly: Verify all pages load correctly
-- [ ] Monthly: Review incident.json and pastincident.json for accuracy
+- [ ] Monthly: Review JSON files for accuracy
 - [ ] Annually: Update ArcGIS SDK version (check for breaking changes)
 
 ### Backup
 
 - Keep JSON files in version control
 - Document any ArcGIS service changes
-- Maintain copy of all HTML/CSS files
+- Maintain copy of all files
 
 ---
 
@@ -325,10 +366,9 @@ This hides the bell icon on all pages.
 
 For technical issues:
 - Check browser console for JavaScript errors
-- Verify JSON file syntax
+- Verify JSON file syntax at https://jsonlint.com
 - Verify ArcGIS service status
 
 For content updates:
-- Contact La Plata County OEM
-- Update JSON data files
-- Coordinate with GIS team for map changes
+- See `JSON-EDITING-GUIDE.md` for templates
+- Contact La Plata County OEM for content questions
