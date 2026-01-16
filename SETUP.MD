@@ -1,374 +1,338 @@
-# ReadyLaPlata Setup Guide
+# Security Measures and Risk Review
 
-**Step-by-step deployment and configuration instructions**
+## Scope
 
----
+Static client-side HTML/JavaScript application:
 
-## Prerequisites
+- `index.html`
+- `overview.html`
+- `evac.html`
+- `shared.js` (centralized security utilities)
 
-Before starting, ensure you have:
+These pages load ArcGIS JS 4.31 and consume data from:
+- ArcGIS Feature Services
+- Static JSON files (`incident.json`, `pastincident.json`, `announcement.json`)
 
-- [ ] Access to a web server or static hosting service (GitHub Pages, Netlify, IIS, etc.)
-- [ ] ArcGIS Online organizational account
-- [ ] Access to the La Plata County Feature Services
-
----
-
-## Step 1: Prepare Files
-
-### File Checklist
-
-```
-readylaplata/
-├── index.html           # Home page
-├── overview.html        # Overview map page
-├── evac.html            # Evacuation details page
-├── shared.js            # Shared JavaScript module
-├── shared-styles.css    # Shared stylesheet
-├── favicon.svg          # Site favicon
-├── incident.json        # Active incident data
-├── pastincident.json    # Historical incidents
-└── announcement.json    # Announcement content
-```
+This document describes implemented security controls, remaining risks, and recommended practices.
 
 ---
 
-## Step 2: Configure JSON Files
+## Executive Summary
 
-All content configuration is done through JSON files—no code changes required for content updates.
+**Primary risk:**  
+DOM-based Cross-Site Scripting (XSS) caused by untrusted strings (URL parameters, JSON fields, Feature Service attributes) being inserted into the page as HTML.
 
-### incident.json
+**Mitigations implemented:**
+- All security utilities centralized in `shared.js`
+- Untrusted values escaped via `escHTML()` before HTML insertion
+- URL parameter validated with length limit and character allowlist
+- ArcGIS query values escaped via `escapeQuery()`
+- External links protected with `rel="noopener noreferrer"`
 
-Active incident support resources. Start with empty array if no incidents:
-
-```json
-[]
-```
-
-Or with incident data:
-
-```json
-[
-  {
-    "name": "Example Fire",
-    "statusLink": "https://lpcgov.org/updates",
-    "checkIn": "Durango High School\nRapid Tag 8a-4p",
-    "checkInAddr": "2390 Main Ave, Durango, CO",
-    "shelters": "La Plata County Fairgrounds",
-    "sheltersAddr": "2500 Main Ave, Durango, CO 81301",
-    "road": "CR 240 at mile marker 5\nCR 250 closed entirely",
-    "smallAnimals": "La Plata County Humane Society",
-    "smallAnimalsAddr": "1111 S Camino del Rio, Durango, CO",
-    "largeAnimals": "La Plata County Fairgrounds",
-    "largeAnimalsAddr": "2500 Main Ave, Durango, CO 81301"
-  }
-]
-```
-
-**Note:** The `name` field must match the `incident` field in your ArcGIS Feature Service (case-insensitive).
-
-### pastincident.json
-
-Historical incident records:
-
-```json
-[
-  {
-    "name": "North Vallecito Flooding",
-    "startDate": "2025-10-10",
-    "liftedDate": "2025-10-16"
-  },
-  {
-    "name": "Blue Ridge Fire",
-    "startDate": "2025-08-15",
-    "liftedDate": "2025-08-18"
-  }
-]
-```
-
-**Note:** Use ISO date format (YYYY-MM-DD). Displayed as "Oct 16, 2025".
-
-### announcement.json
-
-Site-wide announcement content:
-
-**To disable announcement:**
-```json
-{
-  "enabled": false
-}
-```
-
-**Full announcement:**
-```json
-{
-  "enabled": true,
-  "autoOpen": true,
-  "title": "Announcement Title",
-  "subtitle": "Brief description",
-  "badge": "Official Notice",
-  "paragraphs": [
-    "First paragraph with <strong>bold</strong> support.",
-    "Second paragraph."
-  ],
-  "bulletPoints": [
-    "First bullet",
-    "Second bullet"
-  ],
-  "contact": {
-    "title": "Questions?",
-    "email": "oem@co.laplata.co.us",
-    "phone": "970-382-6275"
-  },
-  "primaryButton": {
-    "text": "Take Action",
-    "url": "https://example.com"
-  },
-  "dismissButton": "I'll do this later"
-}
-```
-
-See `JSON-EDITING-GUIDE.md` for complete reference and templates.
+**Remaining concerns:**  
+Defense-in-depth items including Content Security Policy headers when deployed on production servers.
 
 ---
 
-## Step 3: ArcGIS Configuration
+## How the App Is Exposed to the Internet
 
-### Required Services
+- Users load the site via standard URL, optionally including `?incident=...`
+- JavaScript executes entirely in the browser
+- Web server only serves static files; no server-side execution
+- Data is fetched from:
+  1. ArcGIS Feature Services (incidents / evacuation zones)
+  2. Local JSON files (incident status, past incidents, announcement content)
 
-Ensure these services exist and are accessible:
-
-1. **Feature Service** with evacuation zones
-   - Must have `incident` field (text)
-   - Must have `STATUS` field with values `Set` or `Go`
-   - Must have `zonename` field
-   
-2. **WebMap** (for evac.html)
-   - Should include the Feature Service
-   - Configure symbology for SET (yellow) and GO (green) zones
-   - Add any additional layers (road closures, info points, etc.)
-
-### Get Service URLs
-
-1. **Feature Service URL:**
-   - Go to ArcGIS Online → Content → Your Feature Service
-   - Click on the layer → Copy URL
-   - Format: `https://services2.arcgis.com/{org}/ArcGIS/rest/services/{name}/FeatureServer/0`
-
-2. **WebMap ID:**
-   - Go to ArcGIS Online → Content → Your WebMap
-   - Copy the Item ID from the URL or Details page
-   - Format: 32-character alphanumeric string
+**Any value originating from the URL, JSON, or Feature Services is treated as untrusted input.**
 
 ---
 
-## Step 4: Update HTML Configuration (If Needed)
+## Security Utilities in shared.js
 
-Only needed if using different ArcGIS services than the defaults.
+All security-critical functions are centralized in `shared.js` for consistency and maintainability.
 
-### Update evac.html
-
-Find the CONFIG object:
+### HTML Escaping (XSS Prevention)
 
 ```javascript
-const CONFIG = {
-  webmapId: 'YOUR_WEBMAP_ID_HERE',
-  incidentLayerUrl: 'YOUR_FEATURE_SERVICE_URL_HERE',
-  statusJsonUrl: 'incident.json',
-  incidentField: 'incident',
-  statusValues: { SET: 'Set', GO: 'Go' }
+const ESC_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+const escHTML = s => String(s ?? '').replace(/[&<>"']/g, ch => ESC_MAP[ch]);
+```
+
+**Used for:**
+- Incident names from ArcGIS
+- Zone names from ArcGIS
+- All fields from `incident.json`
+- Display text from `pastincident.json`
+- User-facing content from `announcement.json`
+- Error messages
+
+### Query Escaping (SQL Injection Prevention)
+
+```javascript
+const escapeQuery = s => s.replace(/'/g, "''");
+```
+
+**Used for:**
+- ArcGIS REST API WHERE clauses
+- Incident name parameters in queries
+
+### URL Parameter Validation
+
+```javascript
+const getIncidentParam = () => {
+  const params = new URLSearchParams(location.search);
+  const raw = (params.get('incident') || params.get('Incident') || '').trim();
+  const inc = raw.slice(0, 80);  // Length limit
+  return inc && /^[a-z0-9 .,'\-()\/]+$/i.test(inc) ? inc : null;  // Allowlist
 };
 ```
 
-### Update overview.html
+**Protections:**
+- Trimmed and capped at 80 characters
+- Validated against allowlist regex
+- Invalid values return `null` (app behaves as if no incident specified)
+
+---
+
+## Security Measures by Category
+
+### 1. DOM XSS Prevention
+
+| Data Source | Escaping Method | Location |
+|-------------|-----------------|----------|
+| Incident names (ArcGIS) | `escHTML()` | Chip labels, titles |
+| Zone names (ArcGIS) | `escHTML()` | Zone chip content |
+| incident.json fields | `escHTML()` | Status card content |
+| pastincident.json | `escHTML()` | Table cells |
+| announcement.json | `escHTML()` | Modal content* |
+| Error messages | `escHTML()` | Error displays |
+
+*Note: `announcement.json` paragraphs intentionally allow `<strong>` tags for formatting. All other fields are escaped.
+
+### 2. Incident Chips (Safe DOM Construction)
+
+Chips are built using DOM methods instead of innerHTML:
 
 ```javascript
-const CONFIG = {
-  incidentLayerUrl: 'YOUR_FEATURE_SERVICE_URL_HERE',
-  pastIncidentsJsonUrl: 'pastincident.json',
-  incidentField: 'incident',
-  mapCenter: [-107.8801, 37.2753],  // Adjust to your county center
-  mapScale: 800000
+const createChip = (name, onClick) => {
+  const chip = document.createElement('button');
+  chip.className = 'incident-chip';
+  chip.dataset.incident = name;
+
+  const label = document.createElement('span');
+  label.textContent = String(name ?? '');  // Safe: textContent, not innerHTML
+
+  chip.append(icon, label);
+  return chip;
 };
 ```
 
-### Update index.html
+### 3. ArcGIS Query Protection
+
+Single quotes in incident names are doubled before inclusion in WHERE clauses:
 
 ```javascript
-const CONFIG = {
-  mapUrl: 'evac.html',
-  incidentLayerUrl: 'YOUR_FEATURE_SERVICE_URL_HERE/query',
-  incidentField: 'incident'
-};
+const where = `incident='${escapeQuery(INCIDENT)}' AND STATUS IN ('Set','Go')`;
+```
+
+### 4. External Link Protection
+
+All external links use security attributes:
+
+```html
+<a href="..." target="_blank" rel="noopener noreferrer">
+```
+
+This prevents:
+- Tabnabbing attacks
+- Access to `window.opener`
+
+### 5. URL Encoding
+
+User-provided values in generated URLs are encoded:
+
+```javascript
+location.href = `evac.html?incident=${encodeURIComponent(name)}`;
+```
+
+```javascript
+`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`
 ```
 
 ---
 
-## Step 5: Deploy
+## Data Flow Security Analysis
 
-### Upload to Web Server
+### URL Parameter Flow
 
-**Option A: Traditional Web Server (IIS, Apache, Nginx)**
-
-Upload all files to your web root:
-```bash
-scp -r readylaplata/* user@yourserver:/var/www/readylaplata/
+```
+User Input: ?incident=<value>
+      │
+      ▼
+┌─────────────────────────┐
+│   getIncidentParam()    │
+│                         │
+│   • Trim whitespace     │
+│   • Limit to 80 chars   │
+│   • Allowlist validation│
+│   • Return value or null│
+└─────────────────────────┘
+      │
+      ▼
+Valid incident name ──────┬──────────────────────────────┐
+      │                   │                              │
+      ▼                   ▼                              ▼
+┌───────────┐      ┌─────────────┐              ┌──────────────┐
+│ escHTML() │      │ escapeQuery │              │ encodeURI-   │
+│           │      │     ()      │              │ Component()  │
+└───────────┘      └─────────────┘              └──────────────┘
+      │                   │                              │
+      ▼                   ▼                              ▼
+   Display            ArcGIS               URL generation
+   in HTML            queries              (navigation)
 ```
 
-**Option B: GitHub Pages**
+### JSON Data Flow
 
-1. Create a repository with the files
-2. Go to Settings → Pages
-3. Select source branch (usually `main`)
-4. Site available at `https://username.github.io/repository/`
-
-**Option C: Netlify/Vercel**
-
-1. Create a repository with the files
-2. Connect to hosting provider
-3. Deploy automatically on push
-
-### Configure Domain (Optional)
-
-1. Point your domain to your server
-2. Configure SSL certificate (Let's Encrypt recommended)
-3. Set up redirects if needed
-
----
-
-## Step 6: Verification
-
-### Test Each Page
-
-1. **index.html**
-   - [ ] Page loads without console errors
-   - [ ] Incident chips appear (if active incidents in ArcGIS)
-   - [ ] Bell icon appears (if announcement enabled)
-   - [ ] Announcement modal auto-opens (if autoOpen: true)
-   - [ ] CodeRED modal opens/closes
-   - [ ] Navigation to overview.html works
-
-2. **overview.html**
-   - [ ] Map loads and displays
-   - [ ] Incident pins appear on map
-   - [ ] Past incidents table loads
-   - [ ] Bell icon appears but modal doesn't auto-open
-   - [ ] Clicking pins navigates to evac.html
-   - [ ] Home button works
-
-3. **evac.html?incident=YourIncident**
-   - [ ] Map zooms to incident
-   - [ ] SET/GO zones display correctly
-   - [ ] Incident status card loads
-   - [ ] Directions links work (Google Maps)
-   - [ ] Home button works
-
-### Test Mobile
-
-- [ ] iOS Safari
-- [ ] Android Chrome
-- [ ] Responsive layout at all breakpoints
-- [ ] Modals close with tap outside
-
----
-
-## Troubleshooting
-
-### "No incidents found"
-
-- Verify `incident` field name matches in ArcGIS and CONFIG
-- Check that Feature Service is publicly accessible
-- Confirm features have `incident` field populated
-
-### Incident status not showing
-
-- Check browser console for JSON fetch errors
-- Verify `incident.json` is in same directory as HTML files
-- Confirm incident name in JSON matches ArcGIS exactly
-- Validate JSON syntax at https://jsonlint.com
-
-### Past incidents table empty
-
-- Verify `pastincident.json` exists and is accessible
-- Check JSON syntax is valid
-- Confirm file contains at least one record
-
-### Map doesn't load
-
-- Check browser console for errors
-- Verify ArcGIS URLs are correct and accessible
-- Confirm WebMap is shared publicly
-
-### Announcement not showing
-
-- Check that `announcement.json` exists
-- Verify `"enabled": true` is set
-- Check browser console for fetch errors
-- Validate JSON syntax
-
-### Announcement won't auto-open
-
-- Verify `"autoOpen": true` is set
-- Clear browser session storage (or use incognito)
-- Check that user hasn't previously dismissed it
-
----
-
-## Updating Content
-
-### Add New Active Incident
-
-1. Add entry to `incident.json`
-2. Add features to ArcGIS Feature Service with matching `incident` field
-3. Upload updated `incident.json`
-
-### Close Incident
-
-1. Remove entry from `incident.json` (or leave `[]` if no incidents)
-2. Add entry to `pastincident.json` with lifted date
-3. Update ArcGIS features (remove or archive)
-4. Upload both JSON files
-
-### Update Announcement
-
-1. Edit `announcement.json` with new content
-2. Upload updated file
-3. Changes take effect immediately
-
-### Disable Announcement
-
-Edit `announcement.json`:
-```json
-{
-  "enabled": false
-}
+```
+incident.json / announcement.json
+      │
+      ▼
+┌─────────────────────────┐
+│     fetch() + JSON      │
+│       .parse()          │
+└─────────────────────────┘
+      │
+      ▼
+┌─────────────────────────┐
+│      escHTML()          │
+│  (all display values)   │
+└─────────────────────────┘
+      │
+      ▼
+   Safe HTML insertion
 ```
 
 ---
 
-## Maintenance
+## Trust Boundaries
 
-### Regular Checks
+| Data Source | Trust Level | Handling |
+|-------------|-------------|----------|
+| URL parameters | Untrusted | Validate + escape |
+| ArcGIS Feature Service | Semi-trusted* | Escape for display |
+| incident.json | Semi-trusted* | Escape for display |
+| pastincident.json | Semi-trusted* | Escape for display |
+| announcement.json | Semi-trusted* | Escape (except paragraphs) |
+| Static HTML/JS/CSS | Trusted | N/A |
 
-- [ ] Weekly: Verify all pages load correctly
-- [ ] Monthly: Review JSON files for accuracy
-- [ ] Annually: Update ArcGIS SDK version (check for breaking changes)
-
-### Backup
-
-- Keep JSON files in version control
-- Document any ArcGIS service changes
-- Maintain copy of all files
+*Semi-trusted: Controlled by organization but could contain unexpected characters.
 
 ---
 
-## Support
+## Announcement System Security
 
-For technical issues:
-- Check browser console for JavaScript errors
-- Verify JSON file syntax at https://jsonlint.com
-- Verify ArcGIS service status
+The announcement system loads content from `announcement.json` at runtime.
 
-For content updates:
-- See `JSON-EDITING-GUIDE.md` for templates
-- Contact La Plata County OEM for content questions
+### Escaped Fields
+- `title` - Fully escaped
+- `subtitle` - Fully escaped
+- `badge` - Fully escaped
+- `bulletPoints` - Fully escaped
+- `contact.title` - Fully escaped
+- `contact.email` - Fully escaped
+- `contact.phone` - Fully escaped
+- `primaryButton.text` - Fully escaped
+- `primaryButton.url` - Fully escaped
+- `dismissButton` - Fully escaped
+
+### Intentionally Unescaped
+- `paragraphs` - Allows `<strong>` for bold text
+
+**Rationale:** Paragraphs are controlled by administrators who need basic formatting. Only `<strong>` is documented as supported. Other HTML would render but is not intended.
+
+**Risk:** Low. JSON file is server-controlled and not user-editable.
+
+---
+
+## Session Storage
+
+| Key | Purpose | Security Impact |
+|-----|---------|-----------------|
+| `announcementDismissed` | Prevents auto-open after dismiss | None (boolean flag only) |
+
+No sensitive data is stored in session or local storage.
+
+---
+
+## Recommended Server Configuration
+
+### HTTP Security Headers
+
+When deploying to IIS or other web servers, add these headers:
+
+```
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://js.arcgis.com; style-src 'self' 'unsafe-inline' https://js.arcgis.com; img-src 'self' data: https:; connect-src 'self' https://*.arcgis.com;
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Referrer-Policy: strict-origin-when-cross-origin
+```
+
+### HTTPS
+
+- Enforce HTTPS for all traffic
+- Use HSTS header for production
+
+---
+
+## Attack Surface Summary
+
+| Vector | Risk | Mitigation |
+|--------|------|------------|
+| XSS via URL parameter | Medium | Allowlist validation + escaping |
+| XSS via JSON content | Low | HTML escaping |
+| XSS via ArcGIS data | Low | HTML escaping |
+| SQL injection (ArcGIS) | Low | Query escaping |
+| Tabnabbing | Low | rel="noopener noreferrer" |
+| Clickjacking | Low | X-Frame-Options header |
+
+---
+
+## Security Checklist
+
+### Code Review
+- [ ] All dynamic content uses `escHTML()` or `textContent`
+- [ ] URL parameters validated via `getIncidentParam()`
+- [ ] ArcGIS queries use `escapeQuery()`
+- [ ] External links have `rel="noopener noreferrer"`
+- [ ] URLs use `encodeURIComponent()`
+
+### Deployment
+- [ ] HTTPS enabled
+- [ ] Security headers configured
+- [ ] JSON files not publicly writable
+- [ ] ArcGIS services properly permissioned
+
+### Maintenance
+- [ ] Update ArcGIS SDK periodically
+- [ ] Review JSON file access permissions
+- [ ] Monitor for new XSS vectors in dependencies
+
+---
+
+## Incident Response
+
+If a security issue is discovered:
+
+1. **Assess scope** - Determine if user data is at risk (note: this app collects no user data)
+2. **Patch** - Update affected files
+3. **Deploy** - Push updated files to server
+4. **Verify** - Test that fix is effective
+5. **Document** - Update this security document
+
+---
+
+## Contact
+
+For security concerns, contact La Plata County IT Security team.
