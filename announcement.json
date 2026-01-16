@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "autoOpen": true,
   "title": "CodeRED Security Update",
   "subtitle": "Important information about your alert account",
@@ -17,7 +17,7 @@
   ],
   "contact": {
     "title": "Questions or Need Assistance?",
-    "email": "oem@co.laplata.co.us",
+    "email": "oem@lpcgov.org",
     "phone": "970-382-6275"
   },
   "primaryButton": {
