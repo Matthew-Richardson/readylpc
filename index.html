@@ -197,6 +197,87 @@
           <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           Sign up on CodeRED
         </a>
+        <button id="callerIdButton" class="secondary-pill" type="button">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          Save CodeRED Caller ID
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Caller ID Help Overlay -->
+  <div id="callerIdOverlay" class="callerid-overlay" aria-hidden="true">
+    <div class="callerid-dialog" role="dialog" aria-modal="true" aria-labelledby="callerIdTitle">
+      <button id="callerIdClose" class="callerid-close" type="button" aria-label="Close">×</button>
+      
+      <div class="callerid-header">
+        <h2 id="callerIdTitle" class="callerid-title">Save CodeRED Caller ID</h2>
+        <p class="callerid-subtitle">Prevent emergency alerts from being marked as spam</p>
+      </div>
+      
+      <div class="callerid-body">
+        <p class="callerid-intro">CodeRED alerts may be blocked by your phone's spam filter. Save these numbers as a contact to ensure you receive emergency notifications:</p>
+        
+        <div class="callerid-numbers">
+          <div class="callerid-number-card">
+            <div class="callerid-number-label">Text Messages</div>
+            <div class="callerid-number-value">386-71</div>
+          </div>
+          <div class="callerid-number-card">
+            <div class="callerid-number-label">Voice Calls</div>
+            <div class="callerid-number-value">(206) 536-3695</div>
+          </div>
+        </div>
+        
+        <div class="callerid-tabs">
+          <button class="callerid-tab is-active" data-tab="iphone" type="button">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            iPhone
+          </button>
+          <button class="callerid-tab" data-tab="android" type="button">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18c0 .55.45 1 1 1h1v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h2v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h1c.55 0 1-.45 1-1V8H6v10zM3.5 8C2.67 8 2 8.67 2 9.5v7c0 .83.67 1.5 1.5 1.5S5 17.33 5 16.5v-7C5 8.67 4.33 8 3.5 8zm17 0c-.83 0-1.5.67-1.5 1.5v7c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-7c0-.83-.67-1.5-1.5-1.5zm-4.97-5.84l1.3-1.3c.2-.2.2-.51 0-.71-.2-.2-.51-.2-.71 0l-1.48 1.48C13.85 1.23 12.95 1 12 1c-.96 0-1.86.23-2.66.63L7.85.15c-.2-.2-.51-.2-.71 0-.2.2-.2.51 0 .71l1.31 1.31C6.97 3.26 6 5.01 6 7h12c0-1.99-.97-3.75-2.47-4.84zM10 5H9V4h1v1zm5 0h-1V4h1v1z"/></svg>
+            Android
+          </button>
+        </div>
+        
+        <div id="iphoneInstructions" class="callerid-instructions is-visible">
+          <div class="callerid-instructions-title">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            iPhone Instructions
+          </div>
+          <ol class="callerid-steps">
+            <li>Open the <strong>Contacts</strong> app</li>
+            <li>Tap the <strong>+</strong> button to create a new contact</li>
+            <li>Enter <code>CodeRED Alerts</code> as the name</li>
+            <li>Add phone number: <code>206-536-3695</code></li>
+            <li>Tap <strong>add phone</strong> and enter: <code>386-71</code></li>
+            <li>Tap <strong>Done</strong> to save the contact</li>
+          </ol>
+        </div>
+        
+        <div id="androidInstructions" class="callerid-instructions">
+          <div class="callerid-instructions-title">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18c0 .55.45 1 1 1h1v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h2v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h1c.55 0 1-.45 1-1V8H6v10zM3.5 8C2.67 8 2 8.67 2 9.5v7c0 .83.67 1.5 1.5 1.5S5 17.33 5 16.5v-7C5 8.67 4.33 8 3.5 8zm17 0c-.83 0-1.5.67-1.5 1.5v7c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-7c0-.83-.67-1.5-1.5-1.5zm-4.97-5.84l1.3-1.3c.2-.2.2-.51 0-.71-.2-.2-.51-.2-.71 0l-1.48 1.48C13.85 1.23 12.95 1 12 1c-.96 0-1.86.23-2.66.63L7.85.15c-.2-.2-.51-.2-.71 0-.2.2-.2.51 0 .71l1.31 1.31C6.97 3.26 6 5.01 6 7h12c0-1.99-.97-3.75-2.47-4.84zM10 5H9V4h1v1zm5 0h-1V4h1v1z"/></svg>
+            Android Instructions
+          </div>
+          <ol class="callerid-steps">
+            <li>Open the <strong>Contacts</strong> app</li>
+            <li>Tap <strong>+</strong> or <strong>Create contact</strong></li>
+            <li>Enter <code>CodeRED Alerts</code> as the name</li>
+            <li>Add phone number: <code>206-536-3695</code></li>
+            <li>Tap <strong>Add phone</strong> and enter: <code>386-71</code></li>
+            <li>Tap the <strong>checkmark</strong> or <strong>Save</strong></li>
+          </ol>
+        </div>
+        
+        <div class="callerid-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>Some carriers may still filter messages. Check your spam/blocked messages folder if you're not receiving alerts.</span>
+        </div>
+      </div>
+      
+      <div class="callerid-footer">
+        <button id="callerIdDismiss" class="secondary-pill" type="button">Done</button>
       </div>
     </div>
   </div>
@@ -214,7 +295,7 @@
   (function() {
     'use strict';
 
-    const { $, escHTML, createChip, sortIncidents, getIncidentParam, updateTimestamp, initCoderedOverlay, initAnnouncement } = ReadyLaPlata;
+    const { $, escHTML, createChip, sortIncidents, getIncidentParam, updateTimestamp, initCoderedOverlay, initCallerIdOverlay, initDrillBanner, initAnnouncement } = ReadyLaPlata;
 
     // Configuration
     const CONFIG = {
@@ -227,6 +308,7 @@
 
     // DOM elements (cached once)
     const DOM = {
+      siteBanner: $('siteBanner'),
       chipsEl: $('incidentChips'),
       countBadge: $('incidentCountBadge'),
       noIncidentsMsg: $('noIncidentsMsg'),
@@ -235,12 +317,44 @@
       coderedButton: $('coderedButton'),
       coderedOverlay: $('coderedOverlay'),
       coderedClose: $('coderedClose'),
+      callerIdButton: $('callerIdButton'),
+      callerIdOverlay: $('callerIdOverlay'),
+      callerIdClose: $('callerIdClose'),
       lastLoaded: $('lastLoaded'),
       announcementOverlay: $('announcementOverlay'),
       announcementClose: $('announcementClose'),
       announcementDismiss: $('announcementDismiss'),
       announcementAlertBtn: $('announcementAlertBtn')
     };
+
+    // Initialize Caller ID tab switching
+    function initCallerIdTabs() {
+      const tabs = document.querySelectorAll('.callerid-tab');
+      const iphoneInstructions = $('iphoneInstructions');
+      const androidInstructions = $('androidInstructions');
+      
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('is-active'));
+          tab.classList.add('is-active');
+          
+          const tabName = tab.dataset.tab;
+          if (tabName === 'iphone') {
+            iphoneInstructions?.classList.add('is-visible');
+            androidInstructions?.classList.remove('is-visible');
+          } else {
+            iphoneInstructions?.classList.remove('is-visible');
+            androidInstructions?.classList.add('is-visible');
+          }
+        });
+      });
+      
+      // Dismiss button
+      $('callerIdDismiss')?.addEventListener('click', () => {
+        DOM.callerIdOverlay?.classList.remove('is-open');
+        DOM.callerIdOverlay?.setAttribute('aria-hidden', 'true');
+      });
+    }
 
     async function loadIncidents() {
       const params = new URLSearchParams({
@@ -358,6 +472,9 @@
     
     loadIncidents();
     initCoderedOverlay(DOM);
+    initCallerIdOverlay(DOM);
+    initCallerIdTabs();
+    initDrillBanner(DOM);
     initAnnouncement(DOM);
     initTriangleLines();
   })();
