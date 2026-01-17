@@ -1,6 +1,6 @@
 {
   "enabled": true,
-  "message": "DRILL IN PROGRESS — Active incidents shown are for training purposes only. There are no real emergencies.",
+  "message": "DRILL IN PROGRESS — Training purposes only.",
   "variant": "warning",
   "icon": "alert-triangle"
 }
