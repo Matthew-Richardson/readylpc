@@ -21,6 +21,7 @@
     "description": "Add these numbers to your contacts so alerts aren't marked as spam:",
     "textNumber": "386-71",
     "voiceNumber": "(206) 536-3695",
+    "downloadFile": "codered-contact.vcf",
     "note": "Some carriers may still filter messages. Check your spam folder if you're not receiving alerts."
   },
   "contact": {
