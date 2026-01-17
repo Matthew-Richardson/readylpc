@@ -15,6 +15,14 @@
     "Manage alert preferences",
     "Ensure your information stays current"
   ],
+  "callerId": {
+    "enabled": true,
+    "title": "Save CodeRED Caller ID",
+    "description": "Add these numbers to your contacts so alerts aren't marked as spam:",
+    "textNumber": "386-71",
+    "voiceNumber": "(206) 536-3695",
+    "note": "Some carriers may still filter messages. Check your spam folder if you're not receiving alerts."
+  },
   "contact": {
     "title": "Questions or Need Assistance?",
     "email": "oem@lpcgov.org",
