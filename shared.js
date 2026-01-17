@@ -112,6 +112,30 @@
         </div>` : ''}
       </div>` : '';
 
+    // Caller ID section (optional)
+    const callerId = data.callerId?.enabled ? `
+      <div class="announcement-callerid">
+        <div class="announcement-callerid-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span>${esc(data.callerId.title || 'Save CodeRED Caller ID')}</span>
+        </div>
+        ${data.callerId.description ? `<p class="announcement-callerid-desc">${esc(data.callerId.description)}</p>` : ''}
+        <div class="announcement-callerid-numbers">
+          ${data.callerId.textNumber ? `<div class="announcement-callerid-card">
+            <div class="announcement-callerid-label">Text Messages</div>
+            <div class="announcement-callerid-value">${esc(data.callerId.textNumber)}</div>
+          </div>` : ''}
+          ${data.callerId.voiceNumber ? `<div class="announcement-callerid-card">
+            <div class="announcement-callerid-label">Voice Calls</div>
+            <div class="announcement-callerid-value">${esc(data.callerId.voiceNumber)}</div>
+          </div>` : ''}
+        </div>
+        ${data.callerId.note ? `<p class="announcement-callerid-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          ${esc(data.callerId.note)}
+        </p>` : ''}
+      </div>` : '';
+
     // Note: paragraphs allow HTML (like <strong>) for formatting
     const paragraphs = (data.paragraphs || []).map(p => `<p>${p}</p>`).join('');
 
@@ -128,6 +152,7 @@
         <div class="announcement-content">
           ${paragraphs}
           ${bullets}
+          ${callerId}
           ${contact}
         </div>
       </div>
@@ -198,6 +223,60 @@
     }
   };
 
+  // ========== DRILL BANNER INIT ==========
+  const BANNER_ICONS = {
+    'alert-triangle': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    'info': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+    'megaphone': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>'
+  };
+
+  const initDrillBanner = async (elements, jsonUrl = 'drill-banner.json') => {
+    const { siteBanner } = elements;
+    if (!siteBanner) return;
+
+    try {
+      const res = await fetch(jsonUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      // If disabled, ensure banner is empty
+      if (!data.enabled) {
+        siteBanner.innerHTML = '';
+        return;
+      }
+
+      // Build banner content
+      const icon = BANNER_ICONS[data.icon] || BANNER_ICONS['alert-triangle'];
+      const variantClass = data.variant ? `site-banner--${data.variant}` : '';
+      
+      siteBanner.className = `site-banner ${variantClass}`.trim();
+      siteBanner.innerHTML = `
+        <span class="site-banner-icon">${icon}</span>
+        <span>${escHTML(data.message)}</span>
+      `;
+
+    } catch (err) {
+      // Silently fail - banner just won't show
+      console.warn('Drill banner not loaded:', err.message);
+      siteBanner.innerHTML = '';
+    }
+  };
+
+  // ========== CODERED CALLER ID OVERLAY INIT ==========
+  const initCallerIdOverlay = (elements) => {
+    const { callerIdButton, callerIdOverlay, callerIdClose } = elements;
+    if (!callerIdButton || !callerIdOverlay) return;
+
+    const toggle = createOverlayToggle(callerIdOverlay);
+
+    callerIdButton.addEventListener('click', () => toggle(true));
+    callerIdClose?.addEventListener('click', () => toggle(false));
+    callerIdOverlay.addEventListener('click', e => { if (e.target === callerIdOverlay) toggle(false); });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && callerIdOverlay.classList.contains('is-open')) toggle(false);
+    });
+  };
+
   // ========== BRAND COLORS (shared constants) ==========
   const BRAND = Object.freeze({
     blue: '#0b4da2',
@@ -222,6 +301,8 @@
     sortIncidents,
     getIncidentParam,
     initCoderedOverlay,
+    initCallerIdOverlay,
+    initDrillBanner,
     initAnnouncement,
     BRAND
   };
