@@ -130,6 +130,10 @@
             <div class="announcement-callerid-value">${esc(data.callerId.voiceNumber)}</div>
           </div>` : ''}
         </div>
+        <button type="button" class="announcement-callerid-btn" onclick="ReadyLaPlata.downloadVCard()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          Add to Contacts
+        </button>
         ${data.callerId.note ? `<p class="announcement-callerid-note">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           ${esc(data.callerId.note)}
@@ -223,6 +227,42 @@
     }
   };
 
+  // ========== VCARD GENERATION & DOWNLOAD ==========
+  const VCARD_DATA = {
+    name: 'CodeRED Alerts',
+    org: 'La Plata County Emergency Management',
+    voiceNumber: '+12065363695',
+    textNumber: '38671'
+  };
+
+  const generateVCard = () => {
+    const vcard = [
+      'BEGIN:VCARD',
+      'VERSION:3.0',
+      `FN:${VCARD_DATA.name}`,
+      `ORG:${VCARD_DATA.org}`,
+      `TEL;TYPE=VOICE:${VCARD_DATA.voiceNumber}`,
+      `TEL;TYPE=MSG:${VCARD_DATA.textNumber}`,
+      `NOTE:CodeRED emergency alert system for La Plata County. Voice calls come from (206) 536-3695 and text messages come from 386-71.`,
+      'END:VCARD'
+    ].join('\r\n');
+    return vcard;
+  };
+
+  const downloadVCard = () => {
+    const vcard = generateVCard();
+    const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'CodeRED-Alerts.vcf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   // ========== DRILL BANNER INIT ==========
   const BANNER_ICONS = {
     'alert-triangle': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
@@ -304,6 +344,7 @@
     initCallerIdOverlay,
     initDrillBanner,
     initAnnouncement,
+    downloadVCard,
     BRAND
   };
 
