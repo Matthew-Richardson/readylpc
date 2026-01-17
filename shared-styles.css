@@ -106,9 +106,15 @@ html, body {
 }
 
 .site-banner-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.site-banner-icon svg {
   width: 16px;
   height: 16px;
-  flex-shrink: 0;
   opacity: 0.9;
 }
 
@@ -149,7 +155,7 @@ html, body {
     gap: 8px;
   }
   
-  .site-banner-icon {
+  .site-banner-icon svg {
     width: 14px;
     height: 14px;
   }
@@ -1810,6 +1816,35 @@ main {
   font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
 }
 
+.announcement-callerid-download {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #0b4da2 0%, #1565c0 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(11,77,162,0.25);
+  transition: all 0.2s;
+}
+
+.announcement-callerid-download:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(11,77,162,0.35);
+}
+
+.announcement-callerid-download svg {
+  width: 16px;
+  height: 16px;
+}
+
 .announcement-callerid-note {
   display: flex;
   align-items: flex-start;
@@ -1830,6 +1865,40 @@ main {
   color: #f59e0b;
   flex-shrink: 0;
   margin-top: 1px;
+}
+
+.announcement-callerid-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #0b4da2 0%, #1565c0 100%);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(11,77,162,0.3);
+}
+
+.announcement-callerid-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(11,77,162,0.4);
+}
+
+.announcement-callerid-btn:active {
+  transform: translateY(0);
+}
+
+.announcement-callerid-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 @media (max-width: 400px) {
@@ -2634,6 +2703,69 @@ main {
   font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
   font-size: 13px;
   font-weight: 600;
+}
+
+/* Download Contact Card Section */
+.callerid-download {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.callerid-download-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.callerid-download-divider::before,
+.callerid-download-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.callerid-download-divider span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.callerid-download-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #0b4da2 0%, #1565c0 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(11,77,162,0.3);
+  transition: all 0.2s;
+}
+
+.callerid-download-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(11,77,162,0.4);
+}
+
+.callerid-download-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.callerid-download-hint {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: #64748b;
 }
 
 .callerid-note {
