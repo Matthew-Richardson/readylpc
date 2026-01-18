@@ -29,7 +29,20 @@
     .page-shell{min-height:100vh;display:flex;flex-direction:column}
     .map-wrapper{max-width:900px;width:100%;margin:16px auto 0;padding:12px}
     .map-card{width:100%;border-radius:14px;border:1px solid rgba(0,0,0,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.12);overflow:hidden;background:#fff;display:flex;flex-direction:column}
-    #viewDiv{width:100%;height:clamp(400px, 55vh, 550px);background:#e5e5e5}
+    #viewDiv{width:100%;height:clamp(400px, 55vh, 550px);background:#e5e5e5;position:relative}
+    @media (max-width: 600px) {
+      #viewDiv{height:clamp(480px, 66vh, 660px)}
+    }
+    /* Map controls - centered above map key */
+    .map-controls{display:flex;justify-content:center;gap:12px;padding:14px 18px;background:linear-gradient(135deg,#f8fafc 0%,#f1f5f9 100%);border-top:1px solid rgba(0,0,0,0.08)}
+    .map-control-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border:1px solid rgba(0,0,0,0.12);border-radius:8px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.08);cursor:pointer;font-size:13px;font-weight:600;color:#334155;transition:all 0.2s}
+    .map-control-btn:hover{background:#f8fafc;border-color:rgba(0,0,0,0.2);transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,0.12)}
+    .map-control-btn svg{width:18px;height:18px;flex-shrink:0}
+    /* Fullscreen state */
+    .map-is-fullscreen{position:fixed!important;inset:0!important;z-index:9999!important;height:100%!important;width:100%!important;border-radius:0!important}
+    .map-is-fullscreen~.map-controls,.map-is-fullscreen~.map-key-merged{position:fixed;left:0;right:0;z-index:10000;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px)}
+    .map-is-fullscreen~.map-controls{bottom:0;padding:12px 18px;border-top:1px solid rgba(0,0,0,0.1)}
+    .map-is-fullscreen~.map-controls~.map-key-merged{bottom:58px;border-top:1px solid rgba(0,0,0,0.08);border-bottom:none}
   </style>
 
   <link rel="stylesheet" href="shared-styles.css" media="print" onload="this.media='all'">
@@ -107,6 +120,21 @@
 
           <div class="card-divider"></div>
           <div id="viewDiv"></div>
+
+          <div id="mapControls" class="map-controls">
+            <button id="mapResetBtn" class="map-control-btn" type="button" aria-label="Reset map extent">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+              Map Reset
+            </button>
+            <button id="mapFullscreenBtn" class="map-control-btn" type="button" aria-label="Toggle fullscreen">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+              </svg>
+              <span id="fullscreenLabel">Full Screen</span>
+            </button>
+          </div>
 
           <div class="map-key-merged">
             <div class="legend-title">Map Key</div>
@@ -283,6 +311,10 @@
 
     const { $, escHTML, createChip, formatTimestamp, updateTimestamp, initCoderedOverlay, initCallerIdOverlay, initDrillBanner, initAnnouncement, BRAND } = ReadyLaPlata;
 
+    // Map view reference for controls
+    let mapView = null;
+    let initialExtent = null;
+
     const CONFIG = {
       incidentLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0',
       pastIncidentsJsonUrl: 'pastincident.json',
@@ -349,8 +381,8 @@
 
       require([
         'esri/Map', 'esri/views/MapView', 'esri/layers/FeatureLayer', 'esri/layers/GraphicsLayer',
-        'esri/Graphic', 'esri/widgets/Search', 'esri/widgets/Fullscreen', 'esri/geometry/Point'
-      ], (Map, MapView, FeatureLayer, GraphicsLayer, Graphic, Search, Fullscreen, Point) => {
+        'esri/Graphic', 'esri/widgets/Search', 'esri/geometry/Point'
+      ], (Map, MapView, FeatureLayer, GraphicsLayer, Graphic, Search, Point) => {
 
         const map = new Map({ basemap: 'topo-vector' });
         const pinsLayer = new GraphicsLayer({ title: 'Incident Locations' });
@@ -361,8 +393,16 @@
           map,
           center: CONFIG.mapCenter,
           scale: CONFIG.mapScale,
-          popup: { dockEnabled: true, dockOptions: { buttonEnabled: false, breakpoint: false } }
+          popup: { dockEnabled: true, dockOptions: { buttonEnabled: false, breakpoint: false } },
+          constraints: {
+            rotationEnabled: false
+          }
         });
+
+        // Store reference for map controls
+        mapView = view;
+        // Store initial extent for reset
+        initialExtent = { center: CONFIG.mapCenter, scale: CONFIG.mapScale };
 
         if (window.innerWidth < 700 && view.navigation) {
           view.navigation.mouseWheelZoomEnabled = false;
@@ -389,7 +429,6 @@
         view.when()
           .then(() => {
             view.ui.add(new Search({ view, includeDefaultSources: true }), 'top-right');
-            view.ui.add(new Fullscreen({ view }), 'top-right');
             return incidentLayer.when();
           })
           .then(() => incidentLayer.queryFeatures({
@@ -502,11 +541,44 @@
     }
 
     DOM.infoButton?.addEventListener('click', () => location.href = 'index.html');
+    
+    // Fullscreen toggle and map reset
+    function initMapControls() {
+      const btn = $('mapFullscreenBtn');
+      const resetBtn = $('mapResetBtn');
+      const viewDiv = $('viewDiv');
+      const label = $('fullscreenLabel');
+      if (!btn || !viewDiv) return;
+
+      const expandIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+      const collapseIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+
+      btn.addEventListener('click', () => {
+        const isFullscreen = viewDiv.classList.toggle('map-is-fullscreen');
+        btn.querySelector('svg').outerHTML = isFullscreen ? collapseIcon : expandIcon;
+        if (label) label.textContent = isFullscreen ? 'Exit Full Screen' : 'Full Screen';
+        document.body.style.overflow = isFullscreen ? 'hidden' : '';
+        
+        // Enable/disable single-finger panning based on fullscreen state
+        if (mapView && mapView.navigation) {
+          mapView.navigation.browserTouchPanEnabled = isFullscreen;
+        }
+      });
+
+      // Reset button - zoom back to initial extent
+      resetBtn?.addEventListener('click', () => {
+        if (mapView && initialExtent) {
+          mapView.goTo(initialExtent);
+        }
+      });
+    }
+
     initCoderedOverlay(DOM);
     initCallerIdOverlay(DOM);
     initCallerIdTabs();
     initDrillBanner(DOM);
     initAnnouncement(DOM);
+    initMapControls();
     initMap();
     loadPastIncidents();
   })();
