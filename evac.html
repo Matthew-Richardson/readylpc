@@ -34,11 +34,14 @@
       #viewDiv{height:clamp(480px, 66vh, 660px)}
     }
     /* Custom mobile fullscreen */
-    .map-fullscreen-btn{display:none;position:absolute;bottom:12px;left:12px;z-index:10;width:40px;height:40px;border:none;border-radius:8px;background:rgba(255,255,255,0.95);box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer;align-items:center;justify-content:center}
-    .map-fullscreen-btn svg{width:20px;height:20px;color:#333}
-    @media (max-width:600px){.map-fullscreen-btn{display:flex}}
+    .map-fullscreen-btn,.map-reset-btn{display:none;position:absolute;bottom:12px;z-index:10;width:40px;height:40px;border:none;border-radius:8px;background:rgba(255,255,255,0.95);box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer;align-items:center;justify-content:center}
+    .map-fullscreen-btn{left:12px}
+    .map-reset-btn{left:60px}
+    .map-fullscreen-btn svg,.map-reset-btn svg{width:20px;height:20px;color:#333}
+    @media (max-width:600px){.map-fullscreen-btn,.map-reset-btn{display:flex}}
     .map-is-fullscreen{position:fixed!important;inset:0!important;z-index:9999!important;height:100%!important;width:100%!important;border-radius:0!important}
     .map-is-fullscreen .map-fullscreen-btn{bottom:24px}
+    .map-is-fullscreen .map-reset-btn{bottom:24px}
   </style>
 
   <link rel="stylesheet" href="shared-styles.css" media="print" onload="this.media='all'">
@@ -123,6 +126,11 @@
             <button id="mapFullscreenBtn" class="map-fullscreen-btn" type="button" aria-label="Toggle fullscreen">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+              </svg>
+            </button>
+            <button id="mapResetBtn" class="map-reset-btn" type="button" aria-label="Reset map extent">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </button>
           </div>
@@ -550,6 +558,7 @@
 
     // Map view reference for fullscreen toggle
     let mapView = null;
+    let incidentExtent = null;
 
     // Map Initialization
     function initMap() {
@@ -593,7 +602,12 @@
 
         const zoomToIncident = name => {
           incidentLayer.queryExtent({ where: `${CONFIG.incidentField} = '${escapeQuery(name)}'` })
-            .then(res => res.extent && view.goTo(res.extent.expand(1.2)))
+            .then(res => {
+              if (res.extent) {
+                incidentExtent = res.extent.expand(1.2);
+                view.goTo(incidentExtent);
+              }
+            })
             .catch(console.error);
         };
 
@@ -649,6 +663,7 @@
     // Mobile fullscreen toggle
     function initMobileFullscreen() {
       const btn = $('mapFullscreenBtn');
+      const resetBtn = $('mapResetBtn');
       const viewDiv = $('viewDiv');
       if (!btn || !viewDiv) return;
 
@@ -663,6 +678,13 @@
         // Enable/disable single-finger panning based on fullscreen state
         if (mapView && mapView.navigation) {
           mapView.navigation.browserTouchPanEnabled = isFullscreen;
+        }
+      });
+
+      // Reset button - zoom back to incident extent
+      resetBtn?.addEventListener('click', () => {
+        if (mapView && incidentExtent) {
+          mapView.goTo(incidentExtent);
         }
       });
     }
