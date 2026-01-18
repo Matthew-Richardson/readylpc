@@ -29,10 +29,16 @@
     .page-shell{min-height:100vh;display:flex;flex-direction:column}
     .map-wrapper{max-width:900px;width:100%;margin:16px auto 0;padding:12px}
     .map-card{width:100%;border-radius:14px;border:1px solid rgba(0,0,0,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.12);overflow:hidden;background:#fff;display:flex;flex-direction:column}
-    #viewDiv{width:100%;height:clamp(400px, 55vh, 550px);background:#e5e5e5}
+    #viewDiv{width:100%;height:clamp(400px, 55vh, 550px);background:#e5e5e5;position:relative}
     @media (max-width: 600px) {
       #viewDiv{height:clamp(480px, 66vh, 660px)}
     }
+    /* Custom mobile fullscreen */
+    .map-fullscreen-btn{display:none;position:absolute;bottom:12px;right:12px;z-index:10;width:40px;height:40px;border:none;border-radius:8px;background:rgba(255,255,255,0.95);box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer;align-items:center;justify-content:center}
+    .map-fullscreen-btn svg{width:20px;height:20px;color:#333}
+    @media (max-width:600px){.map-fullscreen-btn{display:flex}}
+    .map-is-fullscreen{position:fixed!important;inset:0!important;z-index:9999!important;height:100%!important;width:100%important;border-radius:0!important}
+    .map-is-fullscreen .map-fullscreen-btn{top:12px;bottom:auto}
   </style>
 
   <link rel="stylesheet" href="shared-styles.css" media="print" onload="this.media='all'">
@@ -113,7 +119,13 @@
           </div>
 
           <div class="card-divider"></div>
-          <div id="viewDiv"></div>
+          <div id="viewDiv">
+            <button id="mapFullscreenBtn" class="map-fullscreen-btn" type="button" aria-label="Toggle fullscreen">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+              </svg>
+            </button>
+          </div>
 
           <div class="map-key-merged">
             <div class="legend-title">Map Key</div>
@@ -628,12 +640,29 @@
       });
     }
 
+    // Mobile fullscreen toggle
+    function initMobileFullscreen() {
+      const btn = $('mapFullscreenBtn');
+      const viewDiv = $('viewDiv');
+      if (!btn || !viewDiv) return;
+
+      const expandIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+      const collapseIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+
+      btn.addEventListener('click', () => {
+        const isFullscreen = viewDiv.classList.toggle('map-is-fullscreen');
+        btn.innerHTML = isFullscreen ? collapseIcon : expandIcon;
+        document.body.style.overflow = isFullscreen ? 'hidden' : '';
+      });
+    }
+
     // Initialize
     initCoderedOverlay(DOM);
     initCallerIdOverlay(DOM);
     initCallerIdTabs();
     initDrillBanner(DOM);
     initAnnouncement(DOM);
+    initMobileFullscreen();
     loadEvacuationZones();
     loadIncidentStatus();
     initMap();
