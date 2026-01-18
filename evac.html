@@ -33,15 +33,13 @@
     @media (max-width: 600px) {
       #viewDiv{height:clamp(480px, 66vh, 660px)}
     }
-    /* Custom mobile fullscreen */
-    .map-fullscreen-btn,.map-reset-btn{display:none;position:absolute;bottom:12px;z-index:10;width:40px;height:40px;border:none;border-radius:8px;background:rgba(255,255,255,0.95);box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer;align-items:center;justify-content:center}
-    .map-fullscreen-btn{left:12px}
-    .map-reset-btn{left:60px}
-    .map-fullscreen-btn svg,.map-reset-btn svg{width:20px;height:20px;color:#333}
-    @media (max-width:600px){.map-fullscreen-btn,.map-reset-btn{display:flex}}
+    /* Custom mobile map buttons */
+    .map-mobile-controls{display:none;position:absolute;bottom:12px;left:12px;z-index:10;flex-direction:column;gap:8px}
+    @media (max-width:600px){.map-mobile-controls{display:flex}}
+    .map-mobile-btn{display:flex;align-items:center;gap:8px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.95);box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer;font-size:13px;font-weight:600;color:#333}
+    .map-mobile-btn svg{width:18px;height:18px;flex-shrink:0}
     .map-is-fullscreen{position:fixed!important;inset:0!important;z-index:9999!important;height:100%!important;width:100%!important;border-radius:0!important}
-    .map-is-fullscreen .map-fullscreen-btn{bottom:24px}
-    .map-is-fullscreen .map-reset-btn{bottom:24px}
+    .map-is-fullscreen .map-mobile-controls{bottom:24px}
   </style>
 
   <link rel="stylesheet" href="shared-styles.css" media="print" onload="this.media='all'">
@@ -123,16 +121,20 @@
 
           <div class="card-divider"></div>
           <div id="viewDiv">
-            <button id="mapFullscreenBtn" class="map-fullscreen-btn" type="button" aria-label="Toggle fullscreen">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
-              </svg>
-            </button>
-            <button id="mapResetBtn" class="map-reset-btn" type="button" aria-label="Reset map extent">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-              </svg>
-            </button>
+            <div class="map-mobile-controls">
+              <button id="mapResetBtn" class="map-mobile-btn" type="button" aria-label="Reset map extent">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                Map Reset
+              </button>
+              <button id="mapFullscreenBtn" class="map-mobile-btn" type="button" aria-label="Toggle fullscreen">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+                </svg>
+                <span id="fullscreenLabel">Full Screen</span>
+              </button>
+            </div>
           </div>
 
           <div class="map-key-merged">
@@ -569,8 +571,9 @@
 
       require([
         'esri/WebMap', 'esri/views/MapView', 'esri/layers/FeatureLayer',
-        'esri/widgets/Search', 'esri/widgets/Fullscreen', 'esri/widgets/Locate'
-      ], (WebMap, MapView, FeatureLayer, Search, Fullscreen, Locate) => {
+        'esri/widgets/Search', 'esri/widgets/Fullscreen', 'esri/widgets/Locate',
+        'esri/widgets/Home'
+      ], (WebMap, MapView, FeatureLayer, Search, Fullscreen, Locate, Home) => {
 
         DOM.infoButton?.addEventListener('click', () => location.href = 'index.html');
         DOM.overviewButton?.addEventListener('click', () => location.href = 'overview.html');
@@ -614,6 +617,17 @@
         view.when()
           .then(() => {
             // Add widgets
+            const homeWidget = new Home({ view });
+            
+            // Override Home button to go to incident extent instead of initial extent
+            homeWidget.on('go', event => {
+              event.stopPropagation();
+              if (incidentExtent) {
+                view.goTo(incidentExtent);
+              }
+            });
+            
+            view.ui.add(homeWidget, 'top-left');
             view.ui.add(new Locate({ view }), 'top-left');
             view.ui.add(new Search({ view, includeDefaultSources: true }), 'top-right');
             view.ui.add(new Fullscreen({ view }), 'top-right');
@@ -665,6 +679,7 @@
       const btn = $('mapFullscreenBtn');
       const resetBtn = $('mapResetBtn');
       const viewDiv = $('viewDiv');
+      const label = $('fullscreenLabel');
       if (!btn || !viewDiv) return;
 
       const expandIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
@@ -672,7 +687,8 @@
 
       btn.addEventListener('click', () => {
         const isFullscreen = viewDiv.classList.toggle('map-is-fullscreen');
-        btn.innerHTML = isFullscreen ? collapseIcon : expandIcon;
+        btn.querySelector('svg').outerHTML = isFullscreen ? collapseIcon : expandIcon;
+        if (label) label.textContent = isFullscreen ? 'Exit Full Screen' : 'Full Screen';
         document.body.style.overflow = isFullscreen ? 'hidden' : '';
         
         // Enable/disable single-finger panning based on fullscreen state
