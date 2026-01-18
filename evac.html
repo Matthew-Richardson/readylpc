@@ -546,8 +546,8 @@
       require([
         'esri/WebMap', 'esri/views/MapView', 'esri/layers/FeatureLayer',
         'esri/widgets/Search', 'esri/widgets/Fullscreen', 'esri/widgets/Home',
-        'esri/widgets/Locate', 'esri/widgets/ScaleBar'
-      ], (WebMap, MapView, FeatureLayer, Search, Fullscreen, Home, Locate, ScaleBar) => {
+        'esri/widgets/Locate'
+      ], (WebMap, MapView, FeatureLayer, Search, Fullscreen, Home, Locate) => {
 
         DOM.infoButton?.addEventListener('click', () => location.href = 'index.html');
         DOM.overviewButton?.addEventListener('click', () => location.href = 'overview.html');
@@ -574,20 +574,37 @@
         });
         webmap.add(incidentLayer);
 
+        // Store incident extent for Home button
+        let incidentExtent = null;
+
         const zoomToIncident = name => {
           incidentLayer.queryExtent({ where: `${CONFIG.incidentField} = '${escapeQuery(name)}'` })
-            .then(res => res.extent && view.goTo(res.extent.expand(1.2)))
+            .then(res => {
+              if (res.extent) {
+                incidentExtent = res.extent.expand(1.2);
+                view.goTo(incidentExtent);
+              }
+            })
             .catch(console.error);
         };
 
         view.when()
           .then(() => {
             // Add widgets
-            view.ui.add(new Home({ view }), 'top-left');
+            const homeWidget = new Home({ view });
+            
+            // Override Home button to go to incident extent
+            homeWidget.on('go', event => {
+              event.stopPropagation();
+              if (incidentExtent) {
+                view.goTo(incidentExtent);
+              }
+            });
+            
+            view.ui.add(homeWidget, 'top-left');
             view.ui.add(new Locate({ view }), 'top-left');
             view.ui.add(new Search({ view, includeDefaultSources: true }), 'top-right');
             view.ui.add(new Fullscreen({ view }), 'top-right');
-            view.ui.add(new ScaleBar({ view, unit: 'dual' }), 'bottom-left');
             return incidentLayer.when();
           })
           .then(() => incidentLayer.queryFeatures({
