@@ -48,6 +48,11 @@
     .map-is-fullscreen ~ .map-controls,.map-is-fullscreen ~ .map-key-merged{display:none}
     .map-is-fullscreen ~ .fullscreen-bar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:10001;background:rgba(255,255,255,0.98);backdrop-filter:blur(8px);padding:12px 18px;border-top:1px solid rgba(0,0,0,0.1);justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}
     @media(max-width:700px){.fullscreen-bar-divider{display:none}.fullscreen-bar-key{width:100%;justify-content:center;padding-top:8px;border-top:1px solid rgba(0,0,0,0.1);margin-top:4px}}
+    /* Hide other page elements when map is fullscreen */
+    body.map-fullscreen-active .incident-panel,
+    body.map-fullscreen-active .status-timestamp,
+    body.map-fullscreen-active .announcement-alert-btn,
+    body.map-fullscreen-active .site-footer{display:none!important}
   </style>
 
   <link rel="stylesheet" href="shared-styles.css" media="print" onload="this.media='all'">
@@ -587,6 +592,7 @@
 
       btn.addEventListener('click', () => {
         const isFullscreen = viewDiv.classList.toggle('map-is-fullscreen');
+        document.body.classList.toggle('map-fullscreen-active', isFullscreen);
         btn.querySelector('svg').outerHTML = isFullscreen ? collapseIcon : expandIcon;
         if (label) label.textContent = isFullscreen ? 'Exit Full Screen' : 'Full Screen';
         document.body.style.overflow = isFullscreen ? 'hidden' : '';
@@ -599,6 +605,7 @@
       // Fullscreen bar exit button
       btnFs?.addEventListener('click', () => {
         viewDiv.classList.remove('map-is-fullscreen');
+        document.body.classList.remove('map-fullscreen-active');
         btn.querySelector('svg').outerHTML = expandIcon;
         if (label) label.textContent = 'Full Screen';
         document.body.style.overflow = '';
