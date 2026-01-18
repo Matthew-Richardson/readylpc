@@ -932,6 +932,12 @@ html, body {
   contain: strict;
 }
 
+@media (max-width: 600px) {
+  #viewDiv {
+    height: clamp(480px, 66vh, 660px);
+  }
+}
+
 .map-key-merged {
   padding: 14px 18px 16px;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
