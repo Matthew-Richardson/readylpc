@@ -1849,7 +1849,7 @@ main {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  margin: 12px 0;
+  margin: 14px 0 0;
   padding: 10px 12px;
   background: #fffbeb;
   border: 1px solid #fde68a;
@@ -1857,6 +1857,10 @@ main {
   font-size: 12px;
   line-height: 1.45;
   color: #92400e;
+}
+
+.announcement-callerid-note + .announcement-callerid-btn {
+  margin-top: 14px;
 }
 
 .announcement-callerid-note svg {
