@@ -1796,6 +1796,7 @@ main {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  margin-bottom: 2px;
 }
 
 .announcement-callerid-card {
@@ -1855,7 +1856,7 @@ main {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  margin: 14px 0 0;
+  margin: 16px 0 0;
   padding: 10px 12px;
   background: #fffbeb;
   border: 1px solid #fde68a;
@@ -1866,7 +1867,7 @@ main {
 }
 
 .announcement-callerid-note + .announcement-callerid-btn {
-  margin-top: 14px;
+  margin-top: 16px;
 }
 
 .announcement-callerid-note svg {
