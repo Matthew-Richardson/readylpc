@@ -2711,6 +2711,16 @@ main {
   text-align: center;
 }
 
+/* Top variant - appears before manual instructions */
+.callerid-download--top {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.callerid-download--top .callerid-download-btn {
+  width: 100%;
+}
+
 .callerid-download-divider {
   display: flex;
   align-items: center;
@@ -2727,6 +2737,30 @@ main {
 }
 
 .callerid-download-divider span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Manual instructions divider */
+.callerid-manual-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0 16px;
+}
+
+.callerid-manual-divider::before,
+.callerid-manual-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.callerid-manual-divider span {
   font-size: 12px;
   font-weight: 600;
   color: #94a3b8;
