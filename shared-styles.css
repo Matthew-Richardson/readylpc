@@ -1849,7 +1849,7 @@ main {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  margin: 12px 0 0;
+  margin: 12px 0;
   padding: 10px 12px;
   background: #fffbeb;
   border: 1px solid #fde68a;
