@@ -545,9 +545,8 @@
 
       require([
         'esri/WebMap', 'esri/views/MapView', 'esri/layers/FeatureLayer',
-        'esri/widgets/Search', 'esri/widgets/Fullscreen', 'esri/widgets/Home',
-        'esri/widgets/Locate'
-      ], (WebMap, MapView, FeatureLayer, Search, Fullscreen, Home, Locate) => {
+        'esri/widgets/Search', 'esri/widgets/Fullscreen', 'esri/widgets/Locate'
+      ], (WebMap, MapView, FeatureLayer, Search, Fullscreen, Locate) => {
 
         DOM.infoButton?.addEventListener('click', () => location.href = 'index.html');
         DOM.overviewButton?.addEventListener('click', () => location.href = 'overview.html');
@@ -574,34 +573,15 @@
         });
         webmap.add(incidentLayer);
 
-        // Store incident extent for Home button
-        let incidentExtent = null;
-
         const zoomToIncident = name => {
           incidentLayer.queryExtent({ where: `${CONFIG.incidentField} = '${escapeQuery(name)}'` })
-            .then(res => {
-              if (res.extent) {
-                incidentExtent = res.extent.expand(1.2);
-                view.goTo(incidentExtent);
-              }
-            })
+            .then(res => res.extent && view.goTo(res.extent.expand(1.2)))
             .catch(console.error);
         };
 
         view.when()
           .then(() => {
             // Add widgets
-            const homeWidget = new Home({ view });
-            
-            // Override Home button to go to incident extent
-            homeWidget.on('go', event => {
-              event.stopPropagation();
-              if (incidentExtent) {
-                view.goTo(incidentExtent);
-              }
-            });
-            
-            view.ui.add(homeWidget, 'top-left');
             view.ui.add(new Locate({ view }), 'top-left');
             view.ui.add(new Search({ view, includeDefaultSources: true }), 'top-right');
             view.ui.add(new Fullscreen({ view }), 'top-right');
