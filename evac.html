@@ -40,7 +40,9 @@
     .map-control-btn svg{width:18px;height:18px;flex-shrink:0}
     /* Fullscreen state */
     .map-is-fullscreen{position:fixed!important;inset:0!important;z-index:9999!important;height:100%!important;width:100%!important;border-radius:0!important}
-    .map-is-fullscreen~.map-controls{position:fixed;bottom:0;left:0;right:0;z-index:10000;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);padding:12px 18px;border-top:1px solid rgba(0,0,0,0.1)}
+    .map-is-fullscreen~.map-controls,.map-is-fullscreen~.map-key-merged{position:fixed;left:0;right:0;z-index:10000;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px)}
+    .map-is-fullscreen~.map-controls{bottom:0;padding:12px 18px;border-top:1px solid rgba(0,0,0,0.1)}
+    .map-is-fullscreen~.map-controls~.map-key-merged{bottom:58px;border-top:1px solid rgba(0,0,0,0.08);border-bottom:none}
   </style>
 
   <link rel="stylesheet" href="shared-styles.css" media="print" onload="this.media='all'">
