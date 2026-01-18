@@ -30,6 +30,9 @@
     .map-wrapper{max-width:900px;width:100%;margin:16px auto 0;padding:12px}
     .map-card{width:100%;border-radius:14px;border:1px solid rgba(0,0,0,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.12);overflow:hidden;background:#fff;display:flex;flex-direction:column}
     #viewDiv{width:100%;height:clamp(400px, 55vh, 550px);background:#e5e5e5}
+    @media (max-width: 600px) {
+      #viewDiv{height:clamp(480px, 66vh, 660px)}
+    }
   </style>
 
   <link rel="stylesheet" href="shared-styles.css" media="print" onload="this.media='all'">
@@ -542,14 +545,21 @@
 
       require([
         'esri/WebMap', 'esri/views/MapView', 'esri/layers/FeatureLayer',
-        'esri/widgets/Search', 'esri/widgets/Fullscreen'
-      ], (WebMap, MapView, FeatureLayer, Search, Fullscreen) => {
+        'esri/widgets/Search', 'esri/widgets/Fullscreen', 'esri/widgets/Home',
+        'esri/widgets/Locate', 'esri/widgets/ScaleBar'
+      ], (WebMap, MapView, FeatureLayer, Search, Fullscreen, Home, Locate, ScaleBar) => {
 
         DOM.infoButton?.addEventListener('click', () => location.href = 'index.html');
         DOM.overviewButton?.addEventListener('click', () => location.href = 'overview.html');
 
         const webmap = new WebMap({ portalItem: { id: CONFIG.webmapId } });
-        const view = new MapView({ container: 'viewDiv', map: webmap });
+        const view = new MapView({
+          container: 'viewDiv',
+          map: webmap,
+          constraints: {
+            rotationEnabled: false
+          }
+        });
 
         if (window.innerWidth < 700 && view.navigation) {
           view.navigation.mouseWheelZoomEnabled = false;
@@ -572,8 +582,12 @@
 
         view.when()
           .then(() => {
+            // Add widgets
+            view.ui.add(new Home({ view }), 'top-left');
+            view.ui.add(new Locate({ view }), 'top-left');
             view.ui.add(new Search({ view, includeDefaultSources: true }), 'top-right');
             view.ui.add(new Fullscreen({ view }), 'top-right');
+            view.ui.add(new ScaleBar({ view, unit: 'dual' }), 'bottom-left');
             return incidentLayer.when();
           })
           .then(() => incidentLayer.queryFeatures({
