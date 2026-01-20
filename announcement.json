@@ -4,34 +4,37 @@
   "title": "CodeRED Security Update",
   "subtitle": "Important information about your alert account",
   "badge": "Official Notice",
-  "paragraphs": [
-    "We are reaching out to share an important update regarding the security of our alert system <strong>CodeRED</strong>.",
-    "Out of an abundance of caution, <strong>we recommend that all users who currently have an account change their password</strong>. Updating your password helps ensure your information remains secure and protected.",
-    "Some individuals receive alerts through CodeRED without having an online account. If you are one of these legacy users, no immediate action is required. However, if you would like to view, update, or manage your information, you can do so by creating an account at any time.",
-    "Creating an account allows you to:"
-  ],
-  "bulletPoints": [
-    "Review and update your contact information",
-    "Manage alert preferences",
-    "Ensure your information stays current"
-  ],
+  "keyMessage": "<strong>We recommend all CodeRED account holders update their password</strong> to help keep your information secure.",
+  "primaryButton": {
+    "text": "Manage My CodeRED Account",
+    "url": "https://accountportal.onsolve.net/lpcalerts"
+  },
+  "accordion": {
+    "why": {
+      "title": "Why am I seeing this?",
+      "paragraphs": [
+        "Out of an abundance of caution, we are recommending that all CodeRED users with an online account update their password. This helps ensure your information remains secure and protected."
+      ]
+    },
+    "noAccount": {
+      "title": "I don't have an account",
+      "paragraphs": [
+        "Some individuals receive alerts through CodeRED without having an online account. If you're one of these legacy users, <strong>no immediate action is required</strong>.",
+        "However, creating an account allows you to review and update your contact information, manage alert preferences, and ensure your information stays current."
+      ]
+    }
+  },
   "callerId": {
     "enabled": true,
     "title": "Save CodeRED Caller ID",
     "description": "Add these numbers to your contacts so alerts aren't marked as spam:",
     "textNumber": "386-71",
-    "voiceNumber": "(206) 536-3695",
-    "downloadFile": "codered-contact.vcf",
-    "note": "Tap 'CREATE NEW CONTACT' inside your phone's app. Check your spam folder if you're not receiving alerts."
+    "voiceNumber": "(206) 536-3695"
   },
   "contact": {
-    "title": "Questions or Need Assistance?",
+    "title": "Need help?",
     "email": "oem@lpcgov.org",
     "phone": "970-382-6275"
-  },
-  "primaryButton": {
-    "text": "Manage My CodeRED Account",
-    "url": "https://accountportal.onsolve.net/lpcalerts"
   },
   "dismissButton": "I'll do this later"
 }
