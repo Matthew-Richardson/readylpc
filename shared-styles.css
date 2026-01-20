@@ -1735,16 +1735,7 @@ main {
 }
 
 .announcement-badge {
-  background: #64748b;
-  color: #fff;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  flex-shrink: 0;
-  align-self: flex-start;
+  display: none;
 }
 
 .announcement-body {
@@ -2096,12 +2087,6 @@ main {
   
   .announcement-subtitle {
     font-size: 12px;
-  }
-  
-  .announcement-badge {
-    position: absolute;
-    top: 14px;
-    right: 40px;
   }
   
   .announcement-body {
