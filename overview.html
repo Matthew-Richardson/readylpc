@@ -415,6 +415,26 @@
       ], (Map, MapView, FeatureLayer, GraphicsLayer, Graphic, Search, Point) => {
 
         const map = new Map({ basemap: 'topo-vector' });
+        
+        // County Boundary layer
+        const countyBoundaryLayer = new FeatureLayer({
+          url: 'https://gis.lpcgov.org/arcgis/rest/services/JS_website/Map_Pro/MapServer/83',
+          title: 'County Boundary',
+          opacity: 0.6,
+          renderer: {
+            type: 'simple',
+            symbol: {
+              type: 'simple-fill',
+              color: [0, 0, 0, 0],
+              outline: {
+                color: [11, 77, 162, 0.8],
+                width: 2.5
+              }
+            }
+          }
+        });
+        map.add(countyBoundaryLayer);
+        
         const pinsLayer = new GraphicsLayer({ title: 'Incident Locations' });
         map.add(pinsLayer);
 
