@@ -19,8 +19,8 @@
     "noAccount": {
       "title": "I don't have an account",
       "paragraphs": [
-        "Some individuals receive alerts through CodeRED without having an online account. If you're one of these legacy users, <strong>no immediate action is required</strong>.",
-        "However, creating an account allows you to review and update your contact information, manage alert preferences, and ensure your information stays current."
+        "Some individuals receive alerts through CodeRED without having an online account. If you're one of these legacy users, <strong>we highly recommened creating a account</strong>.",
+        "Creating an account allows you to review and update your contact information, manage alert preferences, and ensure your information stays current."
       ]
     }
   },
