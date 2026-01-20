@@ -164,66 +164,54 @@ html, body {
 /* ========== BRAND BANNER ========== */
 
 .brand-banner {
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  padding: 18px 18px 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  border-radius: 0 0 24px 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 18px 24px;
 }
 
-.brand-center {
+.brand-row {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
 .header-logo {
-  width: 180px;
+  width: 110px;
   height: auto;
   display: block;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.1));
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));
 }
 
 .brand-text {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .site-name {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 800;
-  line-height: 1.2;
+  line-height: 1.1;
   color: #0b4da2;
 }
 
 .site-subtitle {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   margin-top: 2px;
-  color: #475569;
+  color: #64748b;
 }
 
-.official-badge {
-  background: #64748b;
-  color: #fff;
-  padding: 4px 12px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-/* Nav row with call center */
+/* Nav buttons */
 .banner-nav {
   display: flex;
-  justify-content: center;
   align-items: center;
   gap: 10px;
-  width: 100%;
-  flex-wrap: wrap;
 }
 
 .banner-nav .nav-btn {
@@ -233,19 +221,19 @@ html, body {
   border: none;
   background: #0b4da2;
   color: #fff;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
   transition: all 0.2s;
 }
 
 .banner-nav .nav-btn:hover {
   background: #0a4291;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
 }
 
 .banner-nav .nav-icon {
@@ -253,79 +241,10 @@ html, body {
   height: 16px;
 }
 
-.nav-divider {
-  width: 1px;
-  height: 24px;
-  background: rgba(0,0,0,0.15);
-  margin: 0 4px;
-}
-
-.call-center-inline {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #334155;
-  font-size: 14px;
-}
-
-.call-center-inline .call-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-weight: 700;
-  color: #334155;
-}
-
-.call-center-inline .phone-icon {
-  width: 18px;
-  height: 18px;
-  color: #334155;
-}
-
-.call-center-inline a {
-  color: #0b4da2;
-  text-decoration: none;
-  font-weight: 700;
-}
-
-.call-center-inline a:hover {
-  text-decoration: underline;
-}
-
-/* 3-button variant */
-.banner-nav.nav-3-buttons .nav-btn {
-  font-size: 12px;
-  padding: 7px 12px;
-  gap: 5px;
-}
-
-.banner-nav.nav-3-buttons .nav-icon {
-  width: 14px;
-  height: 14px;
-}
-
-.banner-nav.nav-3-buttons .nav-divider {
-  height: 22px;
-  margin: 0 2px;
-}
-
-.banner-nav.nav-3-buttons .call-center-inline {
-  font-size: 13px;
-  gap: 6px;
-}
-
-.banner-nav.nav-3-buttons .call-center-inline .phone-icon {
-  width: 16px;
-  height: 16px;
-}
-
-/* Content overlap for smooth transition */
+/* Content section below header */
 .content-overlap {
   background: #fff;
-  margin-top: -24px;
-  border-radius: 16px 16px 0 0;
   padding-top: 20px;
-  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
   position: relative;
   z-index: 1;
 }
@@ -333,64 +252,48 @@ html, body {
 /* Mobile styles */
 @media (max-width: 600px) {
   .brand-banner {
-    padding: 14px 12px 36px;
-    gap: 12px;
-    border-radius: 0 0 20px 20px;
+    padding: 14px 16px;
+  }
+  
+  .brand-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  
+  .brand-group {
+    gap: 10px;
   }
   
   .header-logo {
-    width: 140px;
+    width: 70px;
   }
   
   .site-name {
-    font-size: 20px;
+    font-size: 17px;
   }
   
   .site-subtitle {
-    font-size: 13px;
-  }
-  
-  .official-badge {
-    font-size: 9px;
-    padding: 3px 10px;
+    font-size: 11px;
   }
   
   .banner-nav {
-    gap: 8px;
+    width: 100%;
   }
   
   .banner-nav .nav-btn {
+    flex: 1;
+    justify-content: center;
     font-size: 11px;
-    padding: 6px 10px;
-    gap: 4px;
+    padding: 8px 10px;
   }
   
   .banner-nav .nav-icon {
-    width: 13px;
-    height: 13px;
-  }
-  
-  .nav-divider {
-    display: none;
-  }
-  
-  .call-center-inline {
-    width: 100%;
-    justify-content: center;
-    padding-top: 8px;
-    border-top: 1px solid rgba(0,0,0,0.1);
-    margin-top: 4px;
-    font-size: 13px;
-  }
-  
-  .banner-nav.nav-3-buttons .nav-btn {
-    font-size: 11px;
-    padding: 6px 10px;
+    width: 14px;
+    height: 14px;
   }
   
   .content-overlap {
-    margin-top: -20px;
-    border-radius: 14px 14px 0 0;
     padding-top: 16px;
   }
 }
