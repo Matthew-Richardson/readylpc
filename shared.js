@@ -95,53 +95,119 @@
   const buildAnnouncementHTML = (data) => {
     const esc = s => String(s ?? '').replace(/[&<>"']/g, ch => ESC_MAP[ch]);
     
-    const bullets = data.bulletPoints?.length 
-      ? `<ul class="announcement-list">${data.bulletPoints.map(b => `<li>${esc(b)}</li>`).join('')}</ul>` 
+    // Key message (the main alert shown at top)
+    const keyMessage = data.keyMessage ? `
+      <div class="announcement-key-message">
+        <svg class="announcement-key-message-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <div class="announcement-key-message-text">${data.keyMessage}</div>
+      </div>` : '';
+
+    // Primary CTA button (shown prominently below key message)
+    const primaryCta = data.primaryButton ? `
+      <a href="${esc(data.primaryButton.url)}" class="announcement-primary-cta" target="_blank" rel="noopener noreferrer">
+        ${esc(data.primaryButton.text)}
+      </a>` : '';
+
+    // Build accordion sections
+    const accordionSections = [];
+
+    // Section 1: Why am I seeing this?
+    if (data.accordion?.why) {
+      accordionSections.push(`
+        <div class="announcement-accordion-item">
+          <button class="announcement-accordion-trigger" type="button" aria-expanded="false">
+            <span class="announcement-accordion-trigger-left">
+              <svg class="announcement-accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <span class="announcement-accordion-label">${esc(data.accordion.why.title || 'Why am I seeing this?')}</span>
+            </span>
+            <svg class="announcement-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="announcement-accordion-content">
+            ${(data.accordion.why.paragraphs || []).map(p => `<p class="announcement-accordion-text">${p}</p>`).join('')}
+          </div>
+        </div>`);
+    }
+
+    // Section 2: I don't have an account (or custom section)
+    if (data.accordion?.noAccount) {
+      accordionSections.push(`
+        <div class="announcement-accordion-item">
+          <button class="announcement-accordion-trigger" type="button" aria-expanded="false">
+            <span class="announcement-accordion-trigger-left">
+              <svg class="announcement-accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span class="announcement-accordion-label">${esc(data.accordion.noAccount.title || "I don't have an account")}</span>
+            </span>
+            <svg class="announcement-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="announcement-accordion-content">
+            ${(data.accordion.noAccount.paragraphs || []).map(p => `<p class="announcement-accordion-text">${p}</p>`).join('')}
+          </div>
+        </div>`);
+    }
+
+    // Section 3: Caller ID
+    if (data.callerId?.enabled) {
+      accordionSections.push(`
+        <div class="announcement-accordion-item">
+          <button class="announcement-accordion-trigger" type="button" aria-expanded="false">
+            <span class="announcement-accordion-trigger-left">
+              <svg class="announcement-accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <span class="announcement-accordion-label">${esc(data.callerId.title || 'Save CodeRED Caller ID')}</span>
+            </span>
+            <svg class="announcement-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="announcement-accordion-content">
+            ${data.callerId.description ? `<p class="announcement-accordion-text">${esc(data.callerId.description)}</p>` : ''}
+            <div class="announcement-accordion-callerid-cards">
+              ${data.callerId.textNumber ? `<div class="announcement-accordion-callerid-card">
+                <div class="announcement-accordion-callerid-label">Text Alerts</div>
+                <div class="announcement-accordion-callerid-value">${esc(data.callerId.textNumber)}</div>
+              </div>` : ''}
+              ${data.callerId.voiceNumber ? `<div class="announcement-accordion-callerid-card">
+                <div class="announcement-accordion-callerid-label">Voice Calls</div>
+                <div class="announcement-accordion-callerid-value">${esc(data.callerId.voiceNumber)}</div>
+              </div>` : ''}
+            </div>
+            <button type="button" class="announcement-accordion-download-btn" onclick="ReadyLaPlata.downloadVCard()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Contact Card
+            </button>
+          </div>
+        </div>`);
+    }
+
+    // Section 4: Need help / Contact
+    if (data.contact) {
+      accordionSections.push(`
+        <div class="announcement-accordion-item">
+          <button class="announcement-accordion-trigger" type="button" aria-expanded="false">
+            <span class="announcement-accordion-trigger-left">
+              <svg class="announcement-accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <span class="announcement-accordion-label">${esc(data.contact.title || 'Need help?')}</span>
+            </span>
+            <svg class="announcement-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="announcement-accordion-content">
+            <div class="announcement-accordion-contact-row">
+              ${data.contact.email ? `<div class="announcement-accordion-contact-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <a href="mailto:${esc(data.contact.email)}">${esc(data.contact.email)}</a>
+              </div>` : ''}
+              ${data.contact.phone ? `<div class="announcement-accordion-contact-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <a href="tel:${esc(data.contact.phone.replace(/[^0-9]/g, ''))}">${esc(data.contact.phone)}</a>
+              </div>` : ''}
+            </div>
+          </div>
+        </div>`);
+    }
+
+    const accordion = accordionSections.length > 0 
+      ? `<div class="announcement-accordion">${accordionSections.join('')}</div>` 
       : '';
-
-    const contact = data.contact ? `
-      <div class="announcement-contact">
-        <div class="announcement-contact-title">${esc(data.contact.title)}</div>
-        ${data.contact.email ? `<div class="announcement-contact-row">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          <a href="mailto:${esc(data.contact.email)}">${esc(data.contact.email)}</a>
-        </div>` : ''}
-        ${data.contact.phone ? `<div class="announcement-contact-row">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          <a href="tel:${esc(data.contact.phone.replace(/[^0-9]/g, ''))}">${esc(data.contact.phone)}</a>
-        </div>` : ''}
-      </div>` : '';
-
-    // Caller ID section (optional)
-    const callerId = data.callerId?.enabled ? `
-      <div class="announcement-callerid">
-        <div class="announcement-callerid-header">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          <span>${esc(data.callerId.title || 'Save CodeRED Caller ID')}</span>
-        </div>
-        ${data.callerId.description ? `<p class="announcement-callerid-desc">${esc(data.callerId.description)}</p>` : ''}
-        <div class="announcement-callerid-numbers">
-          ${data.callerId.textNumber ? `<div class="announcement-callerid-card">
-            <div class="announcement-callerid-label">Text Messages</div>
-            <div class="announcement-callerid-value">${esc(data.callerId.textNumber)}</div>
-          </div>` : ''}
-          ${data.callerId.voiceNumber ? `<div class="announcement-callerid-card">
-            <div class="announcement-callerid-label">Voice Calls</div>
-            <div class="announcement-callerid-value">${esc(data.callerId.voiceNumber)}</div>
-          </div>` : ''}
-        </div>
-        ${data.callerId.note ? `<p class="announcement-callerid-note">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          ${esc(data.callerId.note)}
-        </p>` : ''}
-        <button type="button" class="announcement-callerid-btn" onclick="ReadyLaPlata.downloadVCard()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-          Add to Contacts
-        </button>
-      </div>` : '';
-
-    // Note: paragraphs allow HTML (like <strong>) for formatting
-    const paragraphs = (data.paragraphs || []).map(p => `<p>${p}</p>`).join('');
 
     return `
       <div class="announcement-header">
@@ -153,20 +219,25 @@
         ${data.badge ? `<div class="announcement-badge">${esc(data.badge)}</div>` : ''}
       </div>
       <div class="announcement-body">
-        <div class="announcement-content">
-          ${paragraphs}
-          ${bullets}
-          ${callerId}
-          ${contact}
-        </div>
+        ${keyMessage}
+        ${primaryCta}
+        ${accordion}
       </div>
       <div class="announcement-footer">
-        ${data.primaryButton ? `<a href="${esc(data.primaryButton.url)}" class="primary-pill" target="_blank" rel="noopener noreferrer">
-          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          ${esc(data.primaryButton.text)}
-        </a>` : ''}
         <button id="announcementDismiss" class="secondary-pill" type="button">${esc(data.dismissButton || 'Close')}</button>
       </div>`;
+  };
+
+  // Initialize accordion functionality after content is injected
+  const initAnnouncementAccordion = () => {
+    document.querySelectorAll('.announcement-accordion-trigger').forEach(trigger => {
+      trigger.addEventListener('click', () => {
+        const item = trigger.closest('.announcement-accordion-item');
+        const isOpen = item.classList.contains('is-open');
+        item.classList.toggle('is-open', !isOpen);
+        trigger.setAttribute('aria-expanded', !isOpen);
+      });
+    });
   };
 
   const initAnnouncement = async (elements, jsonUrl = 'announcement.json') => {
@@ -200,6 +271,9 @@
         dialog.innerHTML = '';
         if (closeBtn) dialog.appendChild(closeBtn);
         dialog.insertAdjacentHTML('beforeend', buildAnnouncementHTML(data));
+        
+        // Initialize accordion functionality
+        initAnnouncementAccordion();
         
         // Bind dismiss button (just created)
         dialog.querySelector('#announcementDismiss')?.addEventListener('click', () => {
