@@ -1941,6 +1941,248 @@ main {
   }
 }
 
+/* ========== ANNOUNCEMENT KEY MESSAGE ========== */
+
+.announcement-key-message {
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.announcement-key-message-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  color: #d97706;
+}
+
+.announcement-key-message-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #92400e;
+}
+
+.announcement-key-message-text strong {
+  color: #78350f;
+}
+
+/* ========== ANNOUNCEMENT PRIMARY CTA ========== */
+
+.announcement-primary-cta {
+  display: block;
+  width: 100%;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #0b4da2 0%, #1565c0 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(11, 77, 162, 0.3);
+  transition: all 0.2s;
+  margin-bottom: 16px;
+}
+
+.announcement-primary-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(11, 77, 162, 0.4);
+}
+
+/* ========== ANNOUNCEMENT ACCORDION ========== */
+
+.announcement-accordion {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.announcement-accordion-item {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.announcement-accordion-item:last-child {
+  border-bottom: none;
+}
+
+.announcement-accordion-trigger {
+  width: 100%;
+  padding: 14px 16px;
+  background: #f8fafc;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  transition: background 0.2s;
+}
+
+.announcement-accordion-trigger:hover {
+  background: #f1f5f9;
+}
+
+.announcement-accordion-trigger-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.announcement-accordion-icon {
+  width: 20px;
+  height: 20px;
+  color: #0b4da2;
+  flex-shrink: 0;
+}
+
+.announcement-accordion-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.announcement-accordion-chevron {
+  width: 18px;
+  height: 18px;
+  color: #94a3b8;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.announcement-accordion-item.is-open .announcement-accordion-chevron {
+  transform: rotate(180deg);
+}
+
+.announcement-accordion-content {
+  display: none;
+  padding: 0 16px 16px;
+  background: #fff;
+}
+
+.announcement-accordion-item.is-open .announcement-accordion-content {
+  display: block;
+}
+
+.announcement-accordion-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #475569;
+  margin: 0;
+}
+
+.announcement-accordion-text + .announcement-accordion-text {
+  margin-top: 10px;
+}
+
+.announcement-accordion-text strong {
+  color: #1e293b;
+}
+
+/* Caller ID inside accordion */
+.announcement-accordion-callerid-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.announcement-accordion-callerid-card {
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.announcement-accordion-callerid-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.announcement-accordion-callerid-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0b4da2;
+  font-family: 'SF Mono', 'Menlo', monospace;
+}
+
+.announcement-accordion-download-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  margin-top: 12px;
+  background: #0b4da2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.announcement-accordion-download-btn:hover {
+  background: #0a4291;
+}
+
+.announcement-accordion-download-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Contact inside accordion */
+.announcement-accordion-contact-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.announcement-accordion-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #475569;
+}
+
+.announcement-accordion-contact-item svg {
+  width: 16px;
+  height: 16px;
+  color: #64748b;
+}
+
+.announcement-accordion-contact-item a {
+  color: #0b4da2;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.announcement-accordion-contact-item a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 400px) {
+  .announcement-accordion-callerid-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ========== ANNOUNCEMENT ALERT BUTTON ========== */
 
 .announcement-alert-btn {
