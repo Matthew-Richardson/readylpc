@@ -12,8 +12,8 @@
   const ESC_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
   const escHTML = s => String(s ?? '').replace(/[&<>"']/g, ch => ESC_MAP[ch]);
 
-  // ========== QUERY ESCAPING ==========
-  const escapeQuery = s => s.replace(/'/g, "''");
+  // ========== QUERY ESCAPING (for ArcGIS where clauses) ==========
+  const escapeQuery = s => String(s ?? '').replace(/'/g, "''");
 
   // ========== TIMESTAMP FORMATTING ==========
   const TIMESTAMP_OPTIONS = {
@@ -68,12 +68,34 @@
   };
 
   // ========== OVERLAY FACTORY ==========
+  // Track active overlays for unified escape handling
+  const activeOverlays = new Set();
+
   const createOverlayToggle = (overlay) => {
-    return (open) => {
+    const toggle = (open) => {
       overlay.classList.toggle('is-open', open);
       overlay.setAttribute('aria-hidden', String(!open));
+      if (open) {
+        activeOverlays.add(overlay);
+      } else {
+        activeOverlays.delete(overlay);
+      }
     };
+    return toggle;
   };
+
+  // Single global escape handler for all overlays
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && activeOverlays.size > 0) {
+      // Close the most recently opened overlay
+      const overlay = Array.from(activeOverlays).pop();
+      if (overlay) {
+        overlay.classList.remove('is-open');
+        overlay.setAttribute('aria-hidden', 'true');
+        activeOverlays.delete(overlay);
+      }
+    }
+  });
 
   // ========== CODERED OVERLAY INIT ==========
   const initCoderedOverlay = (elements) => {
@@ -86,9 +108,6 @@
     coderedClose?.addEventListener('click', () => toggle(false));
     noIncidentCodered?.addEventListener('click', e => { e.preventDefault(); toggle(true); });
     coderedOverlay.addEventListener('click', e => { if (e.target === coderedOverlay) toggle(false); });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && coderedOverlay.classList.contains('is-open')) toggle(false);
-    });
   };
 
   // ========== ANNOUNCEMENT OVERLAY INIT ==========
@@ -171,7 +190,7 @@
                 <div class="announcement-accordion-callerid-value">${esc(data.callerId.voiceNumber)}</div>
               </div>` : ''}
             </div>
-            <button type="button" class="announcement-accordion-download-btn" onclick="ReadyLaPlata.downloadVCard()">
+            <button type="button" class="announcement-accordion-download-btn" data-action="download-vcard">>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Download Contact Card
             </button>
@@ -238,6 +257,9 @@
         trigger.setAttribute('aria-expanded', !isOpen);
       });
     });
+
+    // Event delegation for download vcard button
+    document.querySelector('[data-action="download-vcard"]')?.addEventListener('click', downloadVCard);
   };
 
   const initAnnouncement = async (elements, jsonUrl = 'announcement.json') => {
@@ -286,9 +308,6 @@
       announcementAlertBtn?.addEventListener('click', () => toggle(true));
       announcementClose?.addEventListener('click', () => toggle(false));
       announcementOverlay.addEventListener('click', e => { if (e.target === announcementOverlay) toggle(false); });
-      document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && announcementOverlay.classList.contains('is-open')) toggle(false);
-      });
 
       // Auto-open on first visit (session-based)
       if (data.autoOpen && !sessionStorage.getItem('announcementDismissed')) {
@@ -386,19 +405,14 @@
     callerIdButton.addEventListener('click', () => toggle(true));
     callerIdClose?.addEventListener('click', () => toggle(false));
     callerIdOverlay.addEventListener('click', e => { if (e.target === callerIdOverlay) toggle(false); });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && callerIdOverlay.classList.contains('is-open')) toggle(false);
-    });
   };
 
   // ========== BRAND COLORS (shared constants) ==========
   const BRAND = Object.freeze({
     blue: '#0b4da2',
-    blueLight: '#e6f0ff',
     gray: '#64748b',
     grayLight: '#fafafa',
     text: '#000',
-    textHeading: '#0f172a',
     textMuted: '#6e6e6e',
     border: 'rgba(0,0,0,0.15)',
     borderLight: 'rgba(0,0,0,0.08)'
