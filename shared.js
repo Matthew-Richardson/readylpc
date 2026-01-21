@@ -426,14 +426,21 @@
       return document.documentElement.scrollHeight > window.innerHeight + 50;
     };
 
-    // Check if user has scrolled
+    // Check if user has scrolled past threshold
     const hasScrolled = () => {
       return window.scrollY > 100;
     };
 
+    // Check if user is near the bottom of the page
+    const isNearBottom = () => {
+      const scrollPosition = window.scrollY + window.innerHeight;
+      const pageHeight = document.documentElement.scrollHeight;
+      return scrollPosition >= pageHeight - 50; // Within 50px of bottom
+    };
+
     // Update indicator visibility
     const updateVisibility = () => {
-      if (hasScrollableContent() && !hasScrolled()) {
+      if (hasScrollableContent() && !hasScrolled() && !isNearBottom()) {
         indicator.classList.add('is-visible');
       } else {
         indicator.classList.remove('is-visible');
