@@ -53,6 +53,10 @@
     body.map-fullscreen-active .status-timestamp,
     body.map-fullscreen-active .announcement-alert-btn,
     body.map-fullscreen-active .site-footer{display:none!important}
+    /* Critical incident visibility */
+    #incidentsActive{display:none}
+    #incidentsActive.has-incidents{display:block}
+    #noIncidentsMsg.hidden{display:none}
   </style>
 
   <link rel="stylesheet" href="shared-styles.css" media="print" onload="this.media='all'">
@@ -99,15 +103,20 @@
 
         <div class="content-overlap">
           <div class="incident-strip">
-            <div class="incident-strip-top">
-              <div class="incident-bar-left">
-                <span class="incident-label">Active incidents <span id="incidentCountBadge" class="incident-count-badge">0</span></span>
+            <!-- Active incidents state -->
+            <div id="incidentsActive" class="incident-box incident-box--alert">
+              <div class="incident-box-header incident-box-header--alert">
+                <svg class="incident-box-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <span class="incident-box-header-text"><span id="incidentCountBadge">0</span> Active Incident<span id="incidentPlural">s</span></span>
+              </div>
+              <div class="incident-box-body">
+                <p class="incident-tip">Click a pin on the map or tap an incident to view details.</p>
+                <div id="incidentChips" class="incident-chips"></div>
               </div>
             </div>
-            <div class="incident-tip">Click a pin on the map or tap an incident below to view details.</div>
-            <div id="incidentChips" class="incident-chips"></div>
-            <div id="noIncidentsMsg" class="incident-none">
-              <div class="incident-none-content">
+            <!-- No incidents state -->
+            <div id="noIncidentsMsg" class="incident-box incident-box--calm">
+              <div class="incident-box-content-row">
                 <div class="incident-none-icon">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
@@ -116,10 +125,12 @@
                   <p class="incident-none-body">No active evacuations in La Plata County.</p>
                 </div>
               </div>
-              <a href="#" id="noIncidentCodered" class="incident-none-cta-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                Sign up for CodeRED Alerts
-              </a>
+              <div class="incident-box-footer">
+                <a href="#" id="noIncidentCodered" class="incident-none-cta-link">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                  Sign up for CodeRED Alerts
+                </a>
+              </div>
             </div>
           </div>
 
@@ -370,6 +381,8 @@
     const DOM = {
       siteBanner: $('siteBanner'),
       countBadge: $('incidentCountBadge'),
+      incidentPlural: $('incidentPlural'),
+      incidentsActive: $('incidentsActive'),
       chipsEl: $('incidentChips'),
       infoButton: $('infoButton'),
       coderedButton: $('coderedButton'),
@@ -505,11 +518,17 @@
             const names = (fs.features || []).map(f => f.attributes[CONFIG.incidentField]).filter(Boolean);
 
             DOM.countBadge.textContent = names.length;
-            if (names.length) DOM.countBadge.classList.add('has-incidents');
-            else DOM.noIncidentsMsg.classList.add('is-visible');
+            DOM.incidentPlural.textContent = names.length === 1 ? '' : 's';
             updateTimestamp(DOM.lastLoaded);
 
-            if (!names.length) return;
+            if (!names.length) {
+              DOM.incidentsActive.classList.remove('has-incidents');
+              DOM.noIncidentsMsg.classList.remove('hidden');
+              return;
+            }
+
+            DOM.incidentsActive.classList.add('has-incidents');
+            DOM.noIncidentsMsg.classList.add('hidden');
 
             const frag = document.createDocumentFragment();
             for (const name of names) {
