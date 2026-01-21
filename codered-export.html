@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Incident Shapefile Export (NAD83 4269)</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; max-width: 980px; margin: 40px auto; padding: 0 16px; }
+    .card { border: 1px solid #ddd; border-radius: 14px; padding: 16px; }
+    .row { display:flex; gap:12px; flex-wrap: wrap; align-items: end; }
+    label { display:block; font-weight: 650; margin-bottom: 6px; }
+    select, button { padding: 10px 12px; font-size: 16px; }
+    button { cursor:pointer; }
+    .status { margin-top: 12px; white-space: pre-wrap; }
+    .small { color:#555; font-size: 13px; margin-top: 8px; }
+    .pill { display:inline-block; padding:2px 10px; border:1px solid #ddd; border-radius:999px; font-size:12px; margin-left:8px; color:#444; }
+  </style>
+</head>
+<body>
+  <h1>Incident Shapefile Export <span class="pill">NAD83 (WKID 4269)</span></h1>
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <label for="incident">Incident</label>
+        <select id="incident" style="min-width: 320px;"></select>
+      </div>
+
+      <button id="exportBtn">Export Shapefile (.zip)</button>
+      <button id="previewBtn">Preview Count</button>
+    </div>
+
+    <div class="status" id="status"></div>
+    <div class="small">
+      Exports features from LPC_Evac_Zones_View filtered by <code>incident</code>. Data is requested from ArcGIS already in outSR=4269.
+    </div>
+  </div>
+
+  <!-- Client-side shapefile + download libs (served via CDN) -->
+  <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <script src="https://unpkg.com/@mapbox/shp-write@0.4.3/shpwrite.js"></script>
+
+  <script>
+    const FEATURE_LAYER = "https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0";
+    const INCIDENT_FIELD = "incident";
+    const OUT_SR = 4269;
+
+    const incidentEl = document.getElementById('incident');
+    const statusEl = document.getElementById('status');
+    const exportBtn = document.getElementById('exportBtn');
+    const previewBtn = document.getElementById('previewBtn');
+
+    function setStatus(msg) { statusEl.textContent = msg; }
+
+    // ArcGIS Hosted FS typically has maxRecordCount (often 2000)
+    // We'll detect it from layer metadata so paging is correct.
+    async function getLayerInfo() {
+      const url = `${FEATURE_LAYER}?f=pjson`;
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error(`Layer info failed (${res.status})`);
+      return await res.json();
+    }
+
+    async function loadIncidents() {
+      setStatus("Loading incidents…");
+
+      const url =
+        `${FEATURE_LAYER}/query` +
+        `?where=1%3D1` +
+        `&outFields=${encodeURIComponent(INCIDENT_FIELD)}` +
+        `&returnDistinctValues=true` +
+        `&returnGeometry=false` +
+        `&orderByFields=${encodeURIComponent(INCIDENT_FIELD)}` +
+        `&f=pjson`;
+
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error(`Incidents query failed (${res.status})`);
+      const data = await res.json();
+
+      const vals = [];
+      (data.features || []).forEach(f => {
+        const v = f?.attributes?.[INCIDENT_FIELD];
+        if (v !== null && v !== undefined && String(v).trim() !== "") vals.push(String(v).trim());
+      });
+
+      const incidents = [...new Set(vals)].sort((a,b)=>a.localeCompare(b));
+      incidentEl.innerHTML = incidents.map(x => `<option value="${encodeURIComponent(x)}">${x}</option>`).join("");
+
+      setStatus(incidents.length ? `Loaded ${incidents.length} incidents.` : "No incidents found.");
+    }
+
+    function escapeSqlString(v) {
+      // ArcGIS SQL string escape for single quotes
+      return String(v).replace(/'/g, "''");
+    }
+
+    async function fetchObjectIds(where) {
+      const url =
+        `${FEATURE_LAYER}/query` +
+        `?where=${encodeURIComponent(where)}` +
+        `&returnIdsOnly=true` +
+        `&f=pjson`;
+
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error(`returnIdsOnly failed (${res.status})`);
+      const data = await res.json();
+      return (data.objectIds || []).map(Number).filter(Number.isFinite).sort((a,b)=>a-b);
+    }
+
+    async function fetchGeoJSONByObjectIds(objectIds, outFields = "*") {
+      // Use f=geojson so we can feed directly into shp-write
+      const url =
+        `${FEATURE_LAYER}/query` +
+        `?objectIds=${encodeURIComponent(objectIds.join(","))}` +
+        `&outFields=${encodeURIComponent(outFields)}` +
+        `&returnGeometry=true` +
+        `&outSR=${OUT_SR}` +
+        `&f=geojson`;
+
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error(`geojson query failed (${res.status})`);
+      return await res.json();
+    }
+
+    async function previewCount() {
+      const incident = decodeURIComponent(incidentEl.value || "");
+      if (!incident) return;
+
+      const where = `${INCIDENT_FIELD} = '${escapeSqlString(incident)}'`;
+      setStatus(`Counting features for "${incident}"…`);
+
+      const objectIds = await fetchObjectIds(where);
+      setStatus(`"${incident}": ${objectIds.length} features`);
+    }
+
+    async function exportShapefile() {
+      const incident = decodeURIComponent(incidentEl.value || "");
+      if (!incident) return;
+
+      exportBtn.disabled = true;
+      previewBtn.disabled = true;
+
+      try {
+        const layerInfo = await getLayerInfo();
+        const maxRecordCount = Number(layerInfo.maxRecordCount) || 2000;
+
+        const where = `${INCIDENT_FIELD} = '${escapeSqlString(incident)}'`;
+        setStatus(`Preparing export for "${incident}"…\nFetching objectIds…`);
+
+        const objectIds = await fetchObjectIds(where);
+
+        if (objectIds.length === 0) {
+          setStatus(`No features found for "${incident}".`);
+          return;
+        }
+
+        // Safety: very large exports can crash the tab
+        const HARD_STOP = 50000;
+        if (objectIds.length > HARD_STOP) {
+          setStatus(`Too many features (${objectIds.length}). Limit is ${HARD_STOP} to keep browser export stable.`);
+          return;
+        }
+
+        setStatus(`Found ${objectIds.length} features.\nFetching GeoJSON in batches of ${maxRecordCount}…`);
+
+        // Build one combined FeatureCollection
+        const combined = { type: "FeatureCollection", features: [] };
+
+        for (let i = 0; i < objectIds.length; i += maxRecordCount) {
+          const batch = objectIds.slice(i, i + maxRecordCount);
+          setStatus(`Downloading ${Math.min(i + maxRecordCount, objectIds.length)} / ${objectIds.length}…`);
+
+          const fc = await fetchGeoJSONByObjectIds(batch, "*");
+          if (fc?.features?.length) combined.features.push(...fc.features);
+        }
+
+        setStatus(`Downloaded ${combined.features.length} features.\nBuilding shapefile ZIP…`);
+
+        // shp-write expects GeoJSON; it will generate .shp/.shx/.dbf and zip.
+        // Note: Shapefile field names are limited (10 chars) and will be truncated.
+        const safeName = incident
+          .trim()
+          .replace(/[^\w\-]+/g, "_")
+          .replace(/_+/g, "_")
+          .slice(0, 40) || "incident";
+
+        // shpwrite.download triggers a browser download itself.
+        // To control filename more explicitly, use shpwrite.zip and FileSaver.
+        const zipArrayBuffer = shpwrite.zip(combined, {
+          folder: safeName,
+          types: { point: `${safeName}_pts`, polygon: `${safeName}_poly`, line: `${safeName}_line` }
+        });
+
+        const blob = new Blob([zipArrayBuffer], { type: "application/zip" });
+        saveAs(blob, `${safeName}_NAD83_4269.zip`);
+
+        setStatus(`Done.\nSaved: ${safeName}_NAD83_4269.zip`);
+      } catch (err) {
+        console.error(err);
+        setStatus(`Error: ${err.message || err}`);
+      } finally {
+        exportBtn.disabled = false;
+        previewBtn.disabled = false;
+      }
+    }
+
+    previewBtn.addEventListener('click', () => previewCount());
+    exportBtn.addEventListener('click', () => exportShapefile());
+
+    loadIncidents().catch(err => setStatus(`Error: ${err.message || err}`));
+  </script>
+</body>
+</html>
