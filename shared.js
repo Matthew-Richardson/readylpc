@@ -407,6 +407,63 @@
     callerIdOverlay.addEventListener('click', e => { if (e.target === callerIdOverlay) toggle(false); });
   };
 
+  // ========== SCROLL INDICATOR ==========
+  const initScrollIndicator = () => {
+    // Create the indicator element
+    const indicator = document.createElement('div');
+    indicator.className = 'scroll-indicator';
+    indicator.setAttribute('aria-hidden', 'true');
+    indicator.innerHTML = `
+      <span class="scroll-indicator-text">Scroll</span>
+      <svg class="scroll-indicator-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 5v14M19 12l-7 7-7-7"/>
+      </svg>
+    `;
+    document.body.appendChild(indicator);
+
+    // Check if page has scrollable content
+    const hasScrollableContent = () => {
+      return document.documentElement.scrollHeight > window.innerHeight + 50;
+    };
+
+    // Check if user has scrolled
+    const hasScrolled = () => {
+      return window.scrollY > 100;
+    };
+
+    // Update indicator visibility
+    const updateVisibility = () => {
+      if (hasScrollableContent() && !hasScrolled()) {
+        indicator.classList.add('is-visible');
+      } else {
+        indicator.classList.remove('is-visible');
+      }
+    };
+
+    // Click to scroll down
+    indicator.addEventListener('click', () => {
+      window.scrollBy({
+        top: window.innerHeight * 0.7,
+        behavior: 'smooth'
+      });
+    });
+
+    // Listen for scroll and resize
+    let scrollTimeout;
+    window.addEventListener('scroll', () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(updateVisibility, 50);
+    }, { passive: true });
+
+    window.addEventListener('resize', () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(updateVisibility, 100);
+    }, { passive: true });
+
+    // Initial check after a short delay (allows content to load)
+    setTimeout(updateVisibility, 500);
+  };
+
   // ========== BRAND COLORS (shared constants) ==========
   const BRAND = Object.freeze({
     blue: '#0b4da2',
@@ -432,6 +489,7 @@
     initCallerIdOverlay,
     initDrillBanner,
     initAnnouncement,
+    initScrollIndicator,
     downloadVCard,
     BRAND
   };
