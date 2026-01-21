@@ -1718,6 +1718,7 @@ main {
   text-decoration: underline;
 }
 
+.announcement-footer {
   padding: 16px 24px 20px;
   background: #fafbfc;
   border-top: 1px solid rgba(0,0,0,0.06);
