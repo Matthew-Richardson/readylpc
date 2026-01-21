@@ -494,11 +494,14 @@
           });
         });
         
+        console.log('Bounds calculated:', xmin, ymin, xmax, ymax);
+        
         var shpParts = [];
         var shxRecords = [];
         var shpOffset = 50;
         
-        features.forEach(function(feature, idx) {
+        for (var idx = 0; idx < features.length; idx++) {
+          var feature = features[idx];
           var geom = feature.geometry;
           var polygons = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
           
@@ -559,7 +562,9 @@
           shpParts.push({ header: recordHeader, content: content });
           shxRecords.push({ offset: shpOffset, contentLength: contentLength });
           shpOffset += (8 + contentSize) / 2;
-        });
+        }
+        
+        console.log('Created', shpParts.length, 'SHP records and', shxRecords.length, 'SHX records');
         
         // Build SHP
         var shpContentSize = shpParts.reduce(function(sum, p) { return sum + p.header.byteLength + p.content.byteLength; }, 0);
