@@ -54,19 +54,16 @@
     <div class="small">
       Source layer: <span class="muted">LPC_Evac_Zones_View (FeatureServer/0)</span><br/>
       Filter field: <code>incident</code><br/>
-      Requesting output coords: <code>outSR=4269</code> (NAD83)<br/>
-      <span class="muted">Exporter: shapefile-write + JSZip (client-side)</span>
+      Requesting output coords from ArcGIS as NAD83 via: <code>outSR=4269</code><br/>
+      <span class="muted">This page generates the ZIP bytes properly (JSZip generateAsync when needed).</span>
     </div>
   </div>
 
   <!-- Download helper -->
   <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 
-  <!-- JSZip -->
-  <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
-
-  <!-- shapefile-write (UMD build exposes `shpwrite` on window in some builds; we’ll also support `shapefileWrite`) -->
-  <script src="https://unpkg.com/shapefile-write@0.4.3/shapefile-write.js"></script>
+  <!-- @mapbox/shp-write UMD bundle -->
+  <script src="https://unpkg.com/@mapbox/shp-write@0.4.3/shpwrite.js"></script>
 
   <script>
     // === CONFIG ===
@@ -75,9 +72,11 @@
     const INCIDENT_FIELD = "incident";
     const OUT_SR = 4269;
 
+    // Browser stability guardrails
     const HARD_STOP_FEATURES = 50000;
     const DEFAULT_FALLBACK_PAGE = 2000;
 
+    // === UI ===
     const incidentEl = document.getElementById('incident');
     const filterEl   = document.getElementById('filter');
     const statusEl   = document.getElementById('status');
@@ -142,7 +141,6 @@
 
       allIncidents = [...new Set(vals)].sort((a,b)=>a.localeCompare(b));
       renderIncidents("");
-
       setStatus(allIncidents.length ? `Loaded ${allIncidents.length} incidents.` : "No incidents found.",
         allIncidents.length ? "ok" : "warn");
     }
@@ -165,21 +163,25 @@
     }
 
     async function fetchGeoJsonByObjectIds(objectIds, outFields="*") {
+      // Ask ArcGIS to return NAD83 coords directly:
       const url =
         `${FEATURE_LAYER}/query` +
         `?objectIds=${encodeURIComponent(objectIds.join(","))}` +
         `&outFields=${encodeURIComponent(outFields)}` +
         `&returnGeometry=true` +
         `&outSR=${OUT_SR}` +
+        `&returnZ=false&returnM=false` +
         `&f=geojson`;
       return await fetchJson(url);
     }
 
-    function sanitizeForDbf(fc) {
+    function sanitizeForShapefile(fc) {
+      // Remove null/invalid geometries
       fc.features = (fc.features || []).filter(f =>
         f && f.geometry && f.geometry.type && f.geometry.coordinates !== undefined && f.geometry.coordinates !== null
       );
 
+      // DBF-safe properties (strings/numbers/booleans only)
       for (const f of fc.features) {
         const p = f.properties || {};
         for (const k of Object.keys(p)) {
@@ -194,14 +196,31 @@
     }
 
     function isZipSignature(u8) {
-      return u8 && u8.length >= 2 && u8[0] === 0x50 && u8[1] === 0x4B;
+      return u8 && u8.length >= 2 && u8[0] === 0x50 && u8[1] === 0x4B; // "PK"
     }
 
-    function getExporter() {
-      // shapefile-write UMD variants differ; try common globals
-      // - window.shapefileWrite (some builds)
-      // - window.shpwrite (others)
-      return window.shapefileWrite || window.shpwrite || null;
+    async function zipToUint8Array(zipOut) {
+      // IMPORTANT: @mapbox/shp-write zip() may return:
+      // - a JSZip instance (preferred) -> has generateAsync
+      // - a Uint8Array/ArrayBuffer/string depending on build/environment
+      if (zipOut && typeof zipOut.generateAsync === "function") {
+        return await zipOut.generateAsync({ type: "uint8array", compression: "DEFLATE" });
+      }
+
+      if (zipOut instanceof ArrayBuffer) return new Uint8Array(zipOut);
+
+      if (zipOut && zipOut.buffer instanceof ArrayBuffer && typeof zipOut.byteLength === "number") {
+        return new Uint8Array(zipOut.buffer, zipOut.byteOffset || 0, zipOut.byteLength);
+      }
+
+      if (typeof zipOut === "string") {
+        // Treat as latin1 binary string
+        const out = new Uint8Array(zipOut.length);
+        for (let i = 0; i < zipOut.length; i++) out[i] = zipOut.charCodeAt(i) & 0xff;
+        return out;
+      }
+
+      throw new Error(`Unexpected zip() return type: ${zipOut?.constructor?.name || typeof zipOut}`);
     }
 
     async function previewCount() {
@@ -223,13 +242,11 @@
       previewBtn.disabled = true;
 
       try {
-        const exporter = getExporter();
-        if (!window.JSZip) throw new Error("JSZip failed to load.");
-        if (!exporter) throw new Error("shapefile-write exporter failed to load (check CDN).");
+        if (!window.shpwrite) throw new Error("@mapbox/shp-write failed to load.");
 
         const layerInfo = await getLayerInfo();
-        const layerWkid = layerInfo?.extent?.spatialReference?.wkid ?? layerInfo?.sourceSpatialReference?.wkid;
         const pageSize = Number(layerInfo.maxRecordCount) || DEFAULT_FALLBACK_PAGE;
+        const layerWkid = layerInfo?.extent?.spatialReference?.wkid ?? layerInfo?.sourceSpatialReference?.wkid;
 
         const where = `${INCIDENT_FIELD} = '${escapeSqlString(incident)}'`;
 
@@ -245,12 +262,17 @@
           setStatus(`No features found for:\n"${incident}"`, "warn");
           return;
         }
+
         if (objectIds.length > HARD_STOP_FEATURES) {
-          setStatus(`Too many features (${objectIds.length}) for browser-only export (limit ${HARD_STOP_FEATURES}).`, "warn");
+          setStatus(
+            `Too many features for browser-only export.\n\n` +
+            `Count: ${objectIds.length}\nLimit: ${HARD_STOP_FEATURES}`,
+            "warn"
+          );
           return;
         }
 
-        setStatus(`Found ${objectIds.length} features.\nDownloading GeoJSON in batches of ${pageSize}…`);
+        setStatus(`Found ${objectIds.length} features.\nDownloading GeoJSON in batches of ${pageSize} (outSR=${OUT_SR})…`);
 
         const combined = { type: "FeatureCollection", features: [] };
 
@@ -261,8 +283,8 @@
           if (fc?.features?.length) combined.features.push(...fc.features);
         }
 
-        setStatus(`Downloaded ${combined.features.length} features.\nSanitizing attributes/geometries…`);
-        sanitizeForDbf(combined);
+        setStatus(`Downloaded ${combined.features.length} features.\nSanitizing for shapefile…`);
+        sanitizeForShapefile(combined);
 
         if (!combined.features.length) {
           setStatus(`No valid geometries returned for:\n"${incident}"`, "warn");
@@ -271,35 +293,18 @@
 
         const base = safeBaseName(incident);
 
-        setStatus(`Building shapefile ZIP with JSZip…`);
+        setStatus(`Creating ZIP…`);
+        const zipOut = shpwrite.zip(combined, {
+          folder: base,
+          types: { point: `${base}_pts`, polygon: `${base}_poly`, line: `${base}_line` }
+        });
 
-        // shapefile-write API: some builds provide `write(fc, options)` returning a JSZip instance,
-        // others provide `download(fc, options)` which triggers download. We want the zip bytes.
-        let zip;
-        if (typeof exporter.write === "function") {
-          zip = exporter.write(combined, { folder: base, types: { point: "points", line: "lines", polygon: "polygons" } });
-        } else {
-          // Fallback: if only download is available, we can’t validate bytes; try download anyway.
-          if (typeof exporter.download === "function") {
-            exporter.download(combined, { folder: base, filename: `${base}_NAD83_4269` });
-            setStatus(`Download triggered (exporter.download). If you still can’t expand it, tell me your OS + incident.`, "ok");
-            return;
-          }
-          throw new Error("Exporter does not expose write() or download().");
-        }
+        const u8 = await zipToUint8Array(zipOut);
 
-        if (!zip || typeof zip.generateAsync !== "function") {
-          throw new Error("Exporter returned an unexpected ZIP object.");
-        }
+        const sig = isZipSignature(u8);
+        setStatus(`ZIP bytes: ${u8.byteLength.toLocaleString()}\nSignature: ${sig ? "PK (valid)" : "NOT PK (invalid)"}`, sig ? "ok" : "danger");
 
-        const u8 = await zip.generateAsync({ type: "uint8array", compression: "DEFLATE" });
-
-        setStatus(`ZIP built.\nBytes: ${u8.byteLength.toLocaleString()}\nSignature: ${isZipSignature(u8) ? "PK (valid)" : "NOT PK (invalid)"}`,
-          isZipSignature(u8) ? "ok" : "danger");
-
-        if (!isZipSignature(u8)) {
-          throw new Error("ZIP signature is not 'PK' — output is not a valid ZIP.");
-        }
+        if (!sig) throw new Error("ZIP signature is not PK — exporter did not produce a real zip stream.");
 
         const blob = new Blob([u8], { type: "application/zip" });
         saveAs(blob, `${base}_NAD83_4269.zip`);
@@ -314,10 +319,12 @@
       }
     }
 
+    // Events
     filterEl.addEventListener('input', () => renderIncidents(filterEl.value));
     previewBtn.addEventListener('click', () => previewCount());
     exportBtn.addEventListener('click', () => exportShapefile());
 
+    // Init
     loadIncidents().catch(err => setStatus(`Error loading incidents:\n${err.message || err}`, "danger"));
   </script>
 </body>
