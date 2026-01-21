@@ -456,8 +456,7 @@
     }
     
     // ========================================
-    // ========================================
-    // KML Writer - Merges all zones into single feature
+    // KML Writer - Separate Placemark for each zone
     // ========================================
     function generateKML(geojson, incidentName) {
       var kml = '<?xml version="1.0" encoding="UTF-8"?>\n';
@@ -465,50 +464,42 @@
       kml += '  <Document>\n';
       kml += '    <name>' + escapeXml(incidentName) + '</name>\n';
       
-      // Style for the merged polygon
+      // Style for evacuation zones
       kml += '    <Style id="evacuationStyle">\n';
       kml += '      <PolyStyle><color>7f0000ff</color><outline>1</outline></PolyStyle>\n';
       kml += '      <LineStyle><color>ff0000cc</color><width>2</width></LineStyle>\n';
       kml += '    </Style>\n';
       
-      // Single Placemark with all polygons merged into MultiGeometry
-      kml += '    <Placemark>\n';
-      kml += '      <name>' + escapeXml(incidentName) + '</name>\n';
-      kml += '      <description>';
-      
-      // Add zone names to description
-      var zoneNames = geojson.features.map(function(f) {
-        var props = f.properties || {};
-        var name = props.zonename || props.ZONENAME || props.Zonename || props.zone || 'Zone';
-        var status = props.STATUS || props.status || props.Status || '';
-        return name + (status ? ' (' + status + ')' : '');
-      });
-      kml += escapeXml('Zones: ' + zoneNames.join(', '));
-      kml += '</description>\n';
-      kml += '      <styleUrl>#evacuationStyle</styleUrl>\n';
-      
-      // MultiGeometry containing all polygons
-      kml += '      <MultiGeometry>\n';
-      
+      // Create a separate Placemark for each feature
       geojson.features.forEach(function(feature) {
+        var props = feature.properties || {};
+        var zoneName = props.zonename || props.ZONENAME || props.Zonename || props.zone || 'Zone';
+        var status = props.STATUS || props.status || props.Status || '';
+        
+        kml += '    <Placemark>\n';
+        kml += '      <name>' + escapeXml(zoneName) + '</name>\n';
+        if (status) {
+          kml += '      <description>' + escapeXml(status) + '</description>\n';
+        }
+        kml += '      <styleUrl>#evacuationStyle</styleUrl>\n';
+        
         if (feature.geometry.type === 'Polygon') {
-          kml += '        <Polygon>\n';
-          kml += '          <outerBoundaryIs><LinearRing><coordinates>\n';
-          kml += '            ' + feature.geometry.coordinates[0].map(function(pt) {
+          kml += '      <Polygon>\n';
+          kml += '        <outerBoundaryIs><LinearRing><coordinates>\n';
+          kml += '          ' + feature.geometry.coordinates[0].map(function(pt) {
             return pt[0] + ',' + pt[1] + ',0';
           }).join(' ') + '\n';
-          kml += '          </coordinates></LinearRing></outerBoundaryIs>\n';
-          
-          // Add inner rings (holes) if present
+          kml += '        </coordinates></LinearRing></outerBoundaryIs>\n';
           for (var i = 1; i < feature.geometry.coordinates.length; i++) {
-            kml += '          <innerBoundaryIs><LinearRing><coordinates>\n';
-            kml += '            ' + feature.geometry.coordinates[i].map(function(pt) {
+            kml += '        <innerBoundaryIs><LinearRing><coordinates>\n';
+            kml += '          ' + feature.geometry.coordinates[i].map(function(pt) {
               return pt[0] + ',' + pt[1] + ',0';
             }).join(' ') + '\n';
-            kml += '          </coordinates></LinearRing></innerBoundaryIs>\n';
+            kml += '        </coordinates></LinearRing></innerBoundaryIs>\n';
           }
-          kml += '        </Polygon>\n';
+          kml += '      </Polygon>\n';
         } else if (feature.geometry.type === 'MultiPolygon') {
+          kml += '      <MultiGeometry>\n';
           feature.geometry.coordinates.forEach(function(polygon) {
             kml += '        <Polygon>\n';
             kml += '          <outerBoundaryIs><LinearRing><coordinates>\n';
@@ -525,11 +516,12 @@
             }
             kml += '        </Polygon>\n';
           });
+          kml += '      </MultiGeometry>\n';
         }
+        
+        kml += '    </Placemark>\n';
       });
       
-      kml += '      </MultiGeometry>\n';
-      kml += '    </Placemark>\n';
       kml += '  </Document>\n';
       kml += '</kml>';
       
@@ -723,6 +715,9 @@
             showStatus('Generating KML for ' + geoJSONFeatures.length + ' features...', 'loading');
             
             var kmlContent = generateKML(geoJSON, incident);
+            console.log('Generated KML length:', kmlContent.length);
+            console.log('KML content:', kmlContent);
+            
             var blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml' });
             
             var url = URL.createObjectURL(blob);
