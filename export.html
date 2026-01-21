@@ -565,6 +565,7 @@
         }
         
         console.log('Created', shpParts.length, 'SHP records and', shxRecords.length, 'SHX records');
+        console.log('Total SHP content size:', shpContentSize, 'bytes, file length:', shpFileLength, 'bytes');
         
         // Build SHP
         var shpContentSize = shpParts.reduce(function(sum, p) { return sum + p.header.byteLength + p.content.byteLength; }, 0);
@@ -619,7 +620,9 @@
         });
         
         // Build DBF
+        console.log('Building DBF for', features.length, 'features');
         var dbfBuffer = this.writeDBF(features);
+        console.log('DBF buffer size:', dbfBuffer.byteLength, 'bytes');
         
         return { shp: shpBuffer, shx: shxBuffer, dbf: dbfBuffer, prj: prjContent };
       },
@@ -845,8 +848,17 @@
         query.returnGeometry = true;
         query.outSpatialReference = { wkid: CONFIG.outSR };
         
+        console.log('Export query WHERE clause:', query.where);
+        
         featureLayer.queryFeatures(query).then(function(result) {
+          console.log('=== EXPORT QUERY RESULTS ===');
           console.log('Query returned', result.features ? result.features.length : 0, 'features');
+          
+          if (result.features && result.features.length > 0) {
+            console.log('Feature OBJECTIDs:', result.features.map(function(f) { 
+              return f.attributes.OBJECTID || f.attributes.objectid || 'no-id'; 
+            }).join(', '));
+          }
           
           if (!result.features || result.features.length === 0) {
             showStatus('No features found for this incident.', 'error');
