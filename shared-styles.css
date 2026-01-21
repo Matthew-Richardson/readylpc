@@ -400,7 +400,7 @@ html, body {
   height: 16px;
 }
 
-/* Hide states based on incident count */
+/* Hide states based on incident count - both hidden by default */
 #incidentsActive {
   display: none;
 }
@@ -410,11 +410,11 @@ html, body {
 }
 
 #noIncidentsMsg {
-  display: block;
+  display: none;
 }
 
-#noIncidentsMsg.hidden {
-  display: none;
+#noIncidentsMsg.is-visible {
+  display: block;
 }
 
 /* Legacy styles kept for backward compatibility */
