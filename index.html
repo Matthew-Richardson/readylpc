@@ -32,7 +32,8 @@
     .map-card{width:100%;border-radius:14px;border:1px solid rgba(0,0,0,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.12);overflow:hidden;background:#fff;display:flex;flex-direction:column}
     #incidentsActive{display:none}
     #incidentsActive.has-incidents{display:block}
-    #noIncidentsMsg.hidden{display:none}
+    #noIncidentsMsg{display:none}
+    #noIncidentsMsg.is-visible{display:block}
   </style>
 
   <link rel="stylesheet" href="shared-styles.css">
@@ -419,12 +420,12 @@
 
         if (!names.length) {
           DOM.incidentsActive.classList.remove('has-incidents');
-          DOM.noIncidentsMsg.classList.remove('hidden');
+          DOM.noIncidentsMsg.classList.add('is-visible');
           return;
         }
 
         DOM.incidentsActive.classList.add('has-incidents');
-        DOM.noIncidentsMsg.classList.add('hidden');
+        DOM.noIncidentsMsg.classList.remove('is-visible');
 
         const frag = document.createDocumentFragment();
         for (const name of names) {
@@ -439,7 +440,7 @@
         console.error('Error loading incidents:', err);
         DOM.countBadge.textContent = '0';
         DOM.incidentsActive.classList.remove('has-incidents');
-        DOM.noIncidentsMsg.classList.remove('hidden');
+        DOM.noIncidentsMsg.classList.add('is-visible');
       }
     }
 
