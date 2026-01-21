@@ -278,9 +278,145 @@ html, body {
 /* ========== INCIDENT BAR & CHIPS ========== */
 
 .incident-strip {
-  padding: 10px 18px 14px;
+  padding: 14px 18px 16px;
 }
 
+/* ========== INCIDENT BOX (Style E) ========== */
+
+.incident-box {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.incident-box--alert {
+  border: 1px solid rgba(179,38,30,0.2);
+  background: linear-gradient(135deg, #fef5f5 0%, #fef3eb 100%);
+}
+
+.incident-box--calm {
+  border: 1px solid rgba(0,0,0,0.1);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.incident-box-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(179,38,30,0.15);
+}
+
+.incident-box-header--alert {
+  background: rgba(179,38,30,0.08);
+}
+
+.incident-box-header-icon {
+  width: 16px;
+  height: 16px;
+  color: #b3261e;
+  flex-shrink: 0;
+}
+
+.incident-box-header-text {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #991b1b;
+}
+
+.incident-box-body {
+  padding: 12px 14px 14px;
+}
+
+.incident-box-body .incident-tip {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: rgba(120,40,30,0.7);
+}
+
+.incident-box-content-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+}
+
+.incident-box-footer {
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.03);
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+/* No incidents icon - brand blue */
+.incident-box--calm .incident-none-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(11,77,162,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.incident-box--calm .incident-none-icon svg {
+  width: 24px;
+  height: 24px;
+  color: #0b4da2;
+}
+
+.incident-box--calm .incident-none-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 2px;
+}
+
+.incident-box--calm .incident-none-body {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.incident-box--calm .incident-none-cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #0b4da2;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.incident-box--calm .incident-none-cta-link:hover {
+  color: #083a7a;
+}
+
+.incident-box--calm .incident-none-cta-link svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Hide states based on incident count */
+#incidentsActive {
+  display: none;
+}
+
+#incidentsActive.has-incidents {
+  display: block;
+}
+
+#noIncidentsMsg {
+  display: block;
+}
+
+#noIncidentsMsg.hidden {
+  display: none;
+}
+
+/* Legacy styles kept for backward compatibility */
 .incident-strip-top {
   display: flex;
   align-items: center;
@@ -310,22 +446,7 @@ html, body {
 }
 
 .incident-count-badge {
-  padding: 5px 14px;
-  border-radius: 999px;
-  background: #b3261e;
-  color: #fff;
-  font-size: 16px;
   font-weight: 700;
-  line-height: 1.4;
-}
-
-.incident-count-badge.has-incidents {
-  animation: badgePulse 2s ease-in-out infinite;
-}
-
-@keyframes badgePulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(179,38,30,0.5); }
-  50% { box-shadow: 0 0 0 6px rgba(179,38,30,0); }
 }
 
 .incident-actions {
@@ -564,25 +685,23 @@ html, body {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 8px;
 }
 
 .incident-chip {
-  border-radius: 12px;
-  padding: 12px 18px;
+  border-radius: 10px;
+  padding: 12px 16px;
   border: 1px solid rgba(179,38,30,0.2);
-  background: linear-gradient(135deg, #fff 0%, #fef8f8 100%);
-  font-size: 17px;
+  background: #fff;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   color: #1a1a1a;
-  transition: background 0.2s, border-color 0.2s, transform 0.2s;
-  box-shadow: 0 2px 10px rgba(179,38,30,0.08);
+  transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   white-space: nowrap;
-  animation: chipGlow 2.5s ease-in-out infinite;
 }
 
 @keyframes chipGlow {
@@ -610,13 +729,12 @@ html, body {
   box-shadow: 0 2px 6px rgba(179,38,30,0.3);
 }
 
-/* Hover: Deeper gradient with lift, pause animation */
+/* Hover: lift and emphasize */
 .incident-chip:hover {
-  background: linear-gradient(135deg, #fef5f5 0%, #fceaea 100%);
-  border-color: rgba(179,38,30,0.35);
-  box-shadow: 0 4px 16px rgba(179,38,30,0.15);
-  transform: translateY(-2px);
-  animation: none;
+  background: #fef5f5;
+  border-color: rgba(179,38,30,0.4);
+  box-shadow: 0 4px 12px rgba(179,38,30,0.12);
+  transform: translateY(-1px);
 }
 
 .incident-chip.active {
