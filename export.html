@@ -501,15 +501,276 @@
     
   </div>
   
-  <!-- shp-write library -->
-  <script src="https://unpkg.com/@mapbox/shp-write@0.4.4/shpwrite.js"></script>
-  
   <!-- ArcGIS JS API -->
   <script src="https://js.arcgis.com/4.31/"></script>
+  
+  <!-- JSZip for creating zip files -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   
   <script>
     (function() {
       'use strict';
+      
+      // ============================================
+      // Minimal Shapefile Writer (self-contained)
+      // ============================================
+      const ShapefileWriter = {
+        
+        // Write a shapefile from GeoJSON polygons
+        writePolygonShapefile: function(geojson, prjContent) {
+          const features = geojson.features.filter(f => 
+            f.geometry && (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon')
+          );
+          
+          if (features.length === 0) {
+            throw new Error('No polygon features to export');
+          }
+          
+          // Calculate bounds
+          let xmin = Infinity, ymin = Infinity, xmax = -Infinity, ymax = -Infinity;
+          features.forEach(f => {
+            const coords = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
+            coords.forEach(polygon => {
+              polygon.forEach(ring => {
+                ring.forEach(pt => {
+                  xmin = Math.min(xmin, pt[0]);
+                  ymin = Math.min(ymin, pt[1]);
+                  xmax = Math.max(xmax, pt[0]);
+                  ymax = Math.max(ymax, pt[1]);
+                });
+              });
+            });
+          });
+          
+          // Build SHP content
+          const shpParts = [];
+          const shxRecords = [];
+          let shpOffset = 50; // Header is 100 bytes = 50 16-bit words
+          
+          features.forEach((feature, idx) => {
+            const geom = feature.geometry;
+            const polygons = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+            
+            // Calculate record bounds
+            let rxmin = Infinity, rymin = Infinity, rxmax = -Infinity, rymax = -Infinity;
+            let totalPoints = 0;
+            let numParts = 0;
+            
+            polygons.forEach(polygon => {
+              polygon.forEach(ring => {
+                numParts++;
+                totalPoints += ring.length;
+                ring.forEach(pt => {
+                  rxmin = Math.min(rxmin, pt[0]);
+                  rymin = Math.min(rymin, pt[1]);
+                  rxmax = Math.max(rxmax, pt[0]);
+                  rymax = Math.max(rymax, pt[1]);
+                });
+              });
+            });
+            
+            // Content length in 16-bit words (exclude record header)
+            // 4 bytes shape type + 32 bytes bbox + 4 bytes numParts + 4 bytes numPoints + 4*numParts parts + 16*numPoints points
+            const contentLength = (4 + 32 + 4 + 4 + 4 * numParts + 16 * totalPoints) / 2;
+            
+            // Record header (8 bytes, big endian)
+            const recordHeader = new ArrayBuffer(8);
+            const recordHeaderView = new DataView(recordHeader);
+            recordHeaderView.setInt32(0, idx + 1, false); // Record number (1-based, big endian)
+            recordHeaderView.setInt32(4, contentLength, false); // Content length (big endian)
+            
+            // Record content
+            const contentSize = 4 + 32 + 4 + 4 + 4 * numParts + 16 * totalPoints;
+            const content = new ArrayBuffer(contentSize);
+            const contentView = new DataView(content);
+            let offset = 0;
+            
+            // Shape type (5 = Polygon)
+            contentView.setInt32(offset, 5, true); offset += 4;
+            
+            // Bounding box
+            contentView.setFloat64(offset, rxmin, true); offset += 8;
+            contentView.setFloat64(offset, rymin, true); offset += 8;
+            contentView.setFloat64(offset, rxmax, true); offset += 8;
+            contentView.setFloat64(offset, rymax, true); offset += 8;
+            
+            // Number of parts and points
+            contentView.setInt32(offset, numParts, true); offset += 4;
+            contentView.setInt32(offset, totalPoints, true); offset += 4;
+            
+            // Part indices
+            let pointIndex = 0;
+            polygons.forEach(polygon => {
+              polygon.forEach(ring => {
+                contentView.setInt32(offset, pointIndex, true); offset += 4;
+                pointIndex += ring.length;
+              });
+            });
+            
+            // Points
+            polygons.forEach(polygon => {
+              polygon.forEach(ring => {
+                ring.forEach(pt => {
+                  contentView.setFloat64(offset, pt[0], true); offset += 8;
+                  contentView.setFloat64(offset, pt[1], true); offset += 8;
+                });
+              });
+            });
+            
+            shpParts.push({ header: recordHeader, content: content });
+            shxRecords.push({ offset: shpOffset, contentLength: contentLength });
+            shpOffset += (8 + contentSize) / 2; // Add record size in 16-bit words
+          });
+          
+          // Build SHP file
+          const shpContentSize = shpParts.reduce((sum, p) => sum + p.header.byteLength + p.content.byteLength, 0);
+          const shpFileLength = 100 + shpContentSize;
+          const shpBuffer = new ArrayBuffer(shpFileLength);
+          const shpView = new DataView(shpBuffer);
+          
+          // SHP Header
+          shpView.setInt32(0, 9994, false); // File code (big endian)
+          shpView.setInt32(24, shpFileLength / 2, false); // File length in 16-bit words (big endian)
+          shpView.setInt32(28, 1000, true); // Version (little endian)
+          shpView.setInt32(32, 5, true); // Shape type: Polygon (little endian)
+          shpView.setFloat64(36, xmin, true);
+          shpView.setFloat64(44, ymin, true);
+          shpView.setFloat64(52, xmax, true);
+          shpView.setFloat64(60, ymax, true);
+          // Z and M ranges (set to 0)
+          shpView.setFloat64(68, 0, true);
+          shpView.setFloat64(76, 0, true);
+          shpView.setFloat64(84, 0, true);
+          shpView.setFloat64(92, 0, true);
+          
+          // Write records
+          let shpWriteOffset = 100;
+          shpParts.forEach(part => {
+            new Uint8Array(shpBuffer, shpWriteOffset, part.header.byteLength).set(new Uint8Array(part.header));
+            shpWriteOffset += part.header.byteLength;
+            new Uint8Array(shpBuffer, shpWriteOffset, part.content.byteLength).set(new Uint8Array(part.content));
+            shpWriteOffset += part.content.byteLength;
+          });
+          
+          // Build SHX file
+          const shxFileLength = 100 + shxRecords.length * 8;
+          const shxBuffer = new ArrayBuffer(shxFileLength);
+          const shxView = new DataView(shxBuffer);
+          
+          // SHX Header (same as SHP header except file length)
+          shxView.setInt32(0, 9994, false);
+          shxView.setInt32(24, shxFileLength / 2, false);
+          shxView.setInt32(28, 1000, true);
+          shxView.setInt32(32, 5, true);
+          shxView.setFloat64(36, xmin, true);
+          shxView.setFloat64(44, ymin, true);
+          shxView.setFloat64(52, xmax, true);
+          shxView.setFloat64(60, ymax, true);
+          shxView.setFloat64(68, 0, true);
+          shxView.setFloat64(76, 0, true);
+          shxView.setFloat64(84, 0, true);
+          shxView.setFloat64(92, 0, true);
+          
+          // SHX Records
+          let shxWriteOffset = 100;
+          shxRecords.forEach(rec => {
+            shxView.setInt32(shxWriteOffset, rec.offset, false); // Offset (big endian)
+            shxView.setInt32(shxWriteOffset + 4, rec.contentLength, false); // Content length (big endian)
+            shxWriteOffset += 8;
+          });
+          
+          // Build DBF file
+          const dbfBuffer = this.writeDBF(features);
+          
+          return {
+            shp: shpBuffer,
+            shx: shxBuffer,
+            dbf: dbfBuffer,
+            prj: prjContent
+          };
+        },
+        
+        // Write DBF file
+        writeDBF: function(features) {
+          // Collect all field names (max 10 chars for shapefile)
+          const fieldSet = new Set();
+          features.forEach(f => {
+            if (f.properties) {
+              Object.keys(f.properties).forEach(k => fieldSet.add(k.substring(0, 10)));
+            }
+          });
+          const fields = Array.from(fieldSet).slice(0, 128); // Max 128 fields
+          
+          // Determine field widths
+          const fieldInfo = fields.map(name => {
+            let maxLen = 1;
+            features.forEach(f => {
+              const val = f.properties ? f.properties[name] : null;
+              if (val !== null && val !== undefined) {
+                maxLen = Math.max(maxLen, String(val).length);
+              }
+            });
+            return { name: name, width: Math.min(Math.max(maxLen, 1), 254), type: 'C' };
+          });
+          
+          const recordSize = 1 + fieldInfo.reduce((sum, f) => sum + f.width, 0); // 1 byte deletion flag + fields
+          const headerSize = 32 + (fieldInfo.length * 32) + 1; // Header + field descriptors + header terminator
+          const fileSize = headerSize + (features.length * recordSize) + 1; // + EOF marker
+          
+          const buffer = new ArrayBuffer(fileSize);
+          const view = new DataView(buffer);
+          const bytes = new Uint8Array(buffer);
+          
+          // DBF Header
+          view.setUint8(0, 3); // Version (dBASE III)
+          const now = new Date();
+          view.setUint8(1, now.getFullYear() - 1900); // Year
+          view.setUint8(2, now.getMonth() + 1); // Month
+          view.setUint8(3, now.getDate()); // Day
+          view.setUint32(4, features.length, true); // Number of records
+          view.setUint16(8, headerSize, true); // Header size
+          view.setUint16(10, recordSize, true); // Record size
+          
+          // Field descriptors
+          let fieldOffset = 32;
+          fieldInfo.forEach(field => {
+            // Field name (11 bytes, null-padded)
+            for (let i = 0; i < 11; i++) {
+              bytes[fieldOffset + i] = i < field.name.length ? field.name.charCodeAt(i) : 0;
+            }
+            bytes[fieldOffset + 11] = field.type.charCodeAt(0); // Field type
+            view.setUint8(fieldOffset + 16, field.width); // Field length
+            fieldOffset += 32;
+          });
+          
+          // Header terminator
+          bytes[fieldOffset] = 0x0D;
+          
+          // Records
+          let recordOffset = headerSize;
+          features.forEach(f => {
+            bytes[recordOffset] = 0x20; // Not deleted
+            let fieldDataOffset = recordOffset + 1;
+            
+            fieldInfo.forEach(field => {
+              const val = f.properties ? f.properties[field.name] : null;
+              const str = val !== null && val !== undefined ? String(val) : '';
+              const padded = str.substring(0, field.width).padEnd(field.width, ' ');
+              for (let i = 0; i < field.width; i++) {
+                bytes[fieldDataOffset + i] = padded.charCodeAt(i);
+              }
+              fieldDataOffset += field.width;
+            });
+            
+            recordOffset += recordSize;
+          });
+          
+          // EOF marker
+          bytes[fileSize - 1] = 0x1A;
+          
+          return buffer;
+        }
+      };
       
       // Configuration
       const CONFIG = {
@@ -768,35 +1029,36 @@
             
             showStatus('Generating shapefile...', 'loading');
             
-            // Generate shapefile with NAD83 projection
+            // Generate shapefile with NAD83 projection using custom writer
             const filename = incident.replace(/[^a-zA-Z0-9_-]/g, '_') + '_NAD83';
             
-            const options = {
-              folder: filename,
-              filename: filename,
-              outputType: 'blob',
-              compression: 'STORE',
-              prj: NAD83_WKT,
-              types: {
-                polygon: filename,
-                polyline: filename + '_lines',
-                point: filename + '_points'
-              }
-            };
-            
-            const zipBlob = await shpwrite.zip(geoJSON, options);
-            
-            // Trigger download
-            const url = URL.createObjectURL(zipBlob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename + '.zip';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showStatus(`Successfully exported ${geoJSONFeatures.length} features!`, 'success');
+            try {
+              const shapefiles = ShapefileWriter.writePolygonShapefile(geoJSON, NAD83_WKT);
+              
+              // Create ZIP file
+              const zip = new JSZip();
+              zip.file(filename + '.shp', shapefiles.shp);
+              zip.file(filename + '.shx', shapefiles.shx);
+              zip.file(filename + '.dbf', shapefiles.dbf);
+              zip.file(filename + '.prj', shapefiles.prj);
+              
+              const zipBlob = await zip.generateAsync({ type: 'blob' });
+              
+              // Trigger download
+              const url = URL.createObjectURL(zipBlob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = filename + '.zip';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+              
+              showStatus(`Successfully exported ${geoJSONFeatures.length} features!`, 'success');
+            } catch (shpErr) {
+              console.error('Shapefile generation error:', shpErr);
+              showStatus('Shapefile generation failed: ' + shpErr.message, 'error');
+            }
             
           } catch (err) {
             console.error('Export error:', err);
