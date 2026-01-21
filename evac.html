@@ -497,7 +497,7 @@
         const name = lines.shift().trim();
         const rest = lines.join('\n').trim();
         return `${name ? `<div style="font-weight:700;color:${BRAND.textHeading};">${esc(name)}</div>` : ''}
-          ${rest ? `<div style="margin-top:4px;color:#334155;">${esc(rest).replace(/\n/g,'<br>')}</div>` : ''}`;
+          ${rest ? `<div style="margin-top:4px;color:#1e293b;">${esc(rest).replace(/\n/g,'<br>')}</div>` : ''}`;
       };
 
       const directionsList = addr => {
@@ -511,12 +511,12 @@
 
       const addressBlock = addr => {
         const list = directionsList(addr);
-        return list ? `<div style="margin-top:10px;padding-top:10px;border-top:1px dashed rgba(0,0,0,0.1);"><div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Directions</div>${list}</div>` : '';
+        return list ? `<div style="margin-top:10px;padding-top:10px;border-top:1px dashed rgba(0,0,0,0.1);"><div style="font-size:11px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Directions</div>${list}</div>` : '';
       };
 
       const roadContent = val => {
         val = str(val);
-        if (!val) return `<span style="color:#64748b;font-style:italic;">No road closures reported.</span>`;
+        if (!val) return `<span style="color:#475569;font-style:italic;">No road closures reported.</span>`;
         const list = val.split(/\n+/).map(l => l.trim()).filter(Boolean);
         return list.length === 1 ? `<div>${esc(list[0])}</div>` : `<ul style="margin:0;padding-left:20px;">${list.map(l => `<li style="margin-bottom:4px;">${esc(l)}</li>`).join('')}</ul>`;
       };
@@ -527,13 +527,13 @@
             <div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">${icon}</div>
             <h3 style="margin:0;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">${esc(title)}</h3>
           </div>
-          <div style="margin-left:42px;font-size:14px;line-height:1.6;color:#334155;">${body}</div>
+          <div style="margin-left:42px;font-size:14px;line-height:1.6;color:#1e293b;">${body}</div>
         </div>`;
 
       const animalSubCard = (label, value, addr) => `
         <div style="background:#ffffff;border:1px solid ${BRAND.border};border-radius:8px;padding:10px 12px;">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:${BRAND.textMuted};margin-bottom:4px;">${esc(label)}</div>
-          <div style="font-size:14px;line-height:1.6;color:#334155;">${formatSection(value)}${addressBlock(addr)}</div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#475569;margin-bottom:4px;">${esc(label)}</div>
+          <div style="font-size:14px;line-height:1.6;color:#1e293b;">${formatSection(value)}${addressBlock(addr)}</div>
         </div>`;
 
       // Icons
@@ -554,7 +554,7 @@
               <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#64748b 0%,#475569 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
               <div style="display:flex;flex-direction:column;gap:2px;">
                 <div style="font-size:16px;font-weight:700;color:#1e293b;line-height:1.3;">Incident Support Resources</div>
-                <div style="font-size:13px;color:#64748b;line-height:1.3;">Shelters, check-in locations, and assistance</div>
+                <div style="font-size:13px;color:#475569;line-height:1.3;">Shelters, check-in locations, and assistance</div>
               </div>
             </div>
             ${normalizedLink ? `<a href="${normalizedLink}" target="_blank" rel="noopener noreferrer" class="status-btn" style="display:inline-flex;padding:8px 16px;border:none;border-radius:8px;background:#0b4da2;color:#fff;font-size:14px;font-weight:600;text-decoration:none;transition:all 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.1);">View Status Update</a>` : ''}
