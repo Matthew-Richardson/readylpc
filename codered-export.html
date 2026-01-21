@@ -20,14 +20,15 @@
     .muted { color:#666; }
     .divider { height: 1px; background: #eee; margin: 12px 0; }
     .danger { color:#8a1f11; }
-    .ok { color:#0b5; }
+    .ok { color:#0a7; }
     .warn { color:#b45309; }
+    code { background:#f7f7f7; padding:1px 6px; border-radius:6px; }
   </style>
 </head>
 <body>
   <h1>
     CodeRED Incident Shapefile Export
-    <span class="pill">NAD83 (WKID 4269)</span>
+    <span class="pill">Download as NAD83 (WKID 4269)</span>
   </h1>
 
   <div class="card">
@@ -51,15 +52,14 @@
     <div class="divider"></div>
 
     <div class="small">
-      Source layer:
-      <span class="muted">LPC_Evac_Zones_View (FeatureServer/0)</span><br/>
-      Filters by field: <code>incident</code><br/>
-      Export is requested from ArcGIS already in NAD83 via: <code>outSR=4269</code><br/>
-      Notes: Shapefile fields are limited (10-char names) and DBF supports only basic types; complex values are stringified.
+      Source layer: <span class="muted">LPC_Evac_Zones_View (FeatureServer/0)</span><br/>
+      Filter field: <code>incident</code><br/>
+      Requesting output coords: <code>outSR=4269</code> (NAD83)<br/>
+      <span class="muted">Note: Shapefile has DBF limits (10-char field names, simple value types). This page sanitizes values to keep exports valid.</span>
     </div>
   </div>
 
-  <!-- Client-side download + shapefile ZIP -->
+  <!-- Libraries (client-side only) -->
   <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
   <script src="https://unpkg.com/@mapbox/shp-write@0.4.3/shpwrite.js"></script>
 
@@ -71,7 +71,7 @@
     const OUT_SR = 4269;
 
     // Browser stability guardrails
-    const HARD_STOP_FEATURES = 50000;   // stop huge exports (tab stability)
+    const HARD_STOP_FEATURES = 50000;   // keep browser export stable
     const DEFAULT_FALLBACK_PAGE = 2000; // typical ArcGIS maxRecordCount
 
     // === UI HOOKS ===
@@ -110,7 +110,8 @@
       const data = await res.json();
       if (data && data.error) {
         const msg = data.error.message || "ArcGIS error";
-        throw new Error(`${msg}${data.error.details ? "\n" + data.error.details.join("\n") : ""}`);
+        const details = Array.isArray(data.error.details) ? ("\n" + data.error.details.join("\n")) : "";
+        throw new Error(`${msg}${details}`);
       }
       return data;
     }
@@ -172,6 +173,7 @@
     }
 
     async function fetchGeoJsonByObjectIds(objectIds, outFields="*") {
+      // f=geojson gives GeoJSON FeatureCollection directly
       const url =
         `${FEATURE_LAYER}/query` +
         `?objectIds=${encodeURIComponent(objectIds.join(","))}` +
@@ -189,9 +191,10 @@
         f && f.geometry && f.geometry.type && f.geometry.coordinates !== undefined && f.geometry.coordinates !== null
       );
 
-      // 2) ensure properties are DBF-safe: strings/numbers/booleans only
+      // 2) DBF-safe properties: strings/numbers/booleans only
       for (const f of featureCollection.features) {
         const p = f.properties || {};
+
         for (const k of Object.keys(p)) {
           const v = p[k];
           if (v === null || v === undefined) continue;
@@ -203,8 +206,25 @@
           if (v instanceof Date) p[k] = v.toISOString();
           else p[k] = JSON.stringify(v);
         }
+
         f.properties = p;
       }
+    }
+
+    function normalizeZipOutput(zipOut) {
+      // shpwrite.zip may return ArrayBuffer, Uint8Array, or something array-like depending on build.
+      if (zipOut instanceof ArrayBuffer) return zipOut;
+
+      if (zipOut && zipOut.buffer instanceof ArrayBuffer) {
+        // Uint8Array / typed array
+        // Note: zipOut.buffer may include extra bytes; slice to the view's exact region.
+        const byteOffset = zipOut.byteOffset || 0;
+        const byteLength = zipOut.byteLength || zipOut.length || 0;
+        return zipOut.buffer.slice(byteOffset, byteOffset + byteLength);
+      }
+
+      // Some builds return a string (rare); try to detect and fail loudly.
+      throw new Error(`Unexpected zip() return type: ${zipOut?.constructor?.name || typeof zipOut}`);
     }
 
     async function previewCount() {
@@ -227,11 +247,17 @@
 
       try {
         const layerInfo = await getLayerInfo();
+        const layerWkid = layerInfo?.extent?.spatialReference?.wkid ?? layerInfo?.sourceSpatialReference?.wkid;
         const pageSize = Number(layerInfo.maxRecordCount) || DEFAULT_FALLBACK_PAGE;
 
         const where = `${INCIDENT_FIELD} = '${escapeSqlString(incident)}'`;
 
-        setStatus(`Preparing export for:\n"${incident}"\n\nFetching objectIds…`);
+        setStatus(
+          `Layer SR (reported): ${layerWkid ?? "unknown"}\n` +
+          `Requesting outSR: ${OUT_SR}\n\n` +
+          `Preparing export for:\n"${incident}"\n\nFetching objectIds…`
+        );
+
         const objectIds = await fetchObjectIds(where);
 
         if (!objectIds.length) {
@@ -244,7 +270,7 @@
             `Too many features for a browser-only export.\n\n` +
             `Count: ${objectIds.length}\n` +
             `Limit: ${HARD_STOP_FEATURES}\n\n` +
-            `Tip: For exports this large, use a small server endpoint to stream the ZIP.`,
+            `Tip: If you truly need exports this large, you’ll need a server endpoint to stream the ZIP.`,
             "warn"
           );
           return;
@@ -252,7 +278,7 @@
 
         setStatus(
           `Found ${objectIds.length} features.\n` +
-          `Downloading GeoJSON in batches of ${pageSize}…`
+          `Downloading GeoJSON in batches of ${pageSize} (outSR=${OUT_SR})…`
         );
 
         const combined = { type: "FeatureCollection", features: [] };
@@ -271,7 +297,7 @@
 
         setStatus(
           `Downloaded ${combined.features.length} features.\n` +
-          `Sanitizing attributes + geometries…`
+          `Sanitizing attributes + geometries for shapefile…`
         );
 
         sanitizeForDbf(combined);
@@ -283,13 +309,19 @@
 
         const base = safeBaseName(incident);
 
-        // ✅ Most reliable approach: let shpwrite handle the download
-        setStatus(`Building shapefile ZIP and downloading…`);
-        shpwrite.download(combined, {
+        setStatus(`Building shapefile ZIP in browser…`);
+
+        // Create ZIP bytes in-memory (more reliable than shpwrite.download on some setups)
+        const zipOut = shpwrite.zip(combined, {
           folder: base,
-          file: `${base}_NAD83_4269`,
           types: { point: `${base}_pts`, polygon: `${base}_poly`, line: `${base}_line` }
         });
+
+        const zipBytes = normalizeZipOutput(zipOut);
+        const blob = new Blob([zipBytes], { type: "application/zip" });
+
+        // IMPORTANT: This filename must include .zip for Windows/macOS “Expand” to recognize it cleanly
+        saveAs(blob, `${base}_NAD83_4269.zip`);
 
         setStatus(`Done.\nSaved: ${base}_NAD83_4269.zip`, "ok");
       } catch (err) {
@@ -297,7 +329,7 @@
         const msg = (err && err.message) ? err.message : String(err);
         setStatus(
           `Error:\n${msg}\n\n` +
-          `If you see a CORS error in the browser console, the ArcGIS service must allow cross-origin requests from your IIS domain for a pure HTML/JS export to work.`,
+          `If you see a CORS error in DevTools Console/Network, the ArcGIS service must allow cross-origin requests from your GitHub Pages origin for a pure HTML/JS export to work.`,
           "danger"
         );
       } finally {
