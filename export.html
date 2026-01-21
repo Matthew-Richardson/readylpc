@@ -32,7 +32,7 @@
     }
     
     .brand-banner {
-      background: linear-gradient(135deg, #0b4da2 0%, #1565c0 50%, #0d47a1 100%);
+      background: linear-gradient(135deg, #2d3436 0%, #434a4d 50%, #2d3436 100%);
       padding: 16px 20px;
       display: flex;
       align-items: center;
@@ -181,6 +181,55 @@
     .feature-count.show { display: block; }
     .feature-count strong { color: #1d1d1f; }
     
+    .zone-list {
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: #f9f9fb;
+      border: 1px solid #e5e5e7;
+      border-radius: 8px;
+      display: none;
+    }
+    
+    .zone-list.show { display: block; }
+    
+    .zone-list-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #86868b;
+      margin-bottom: 8px;
+    }
+    
+    .zone-list-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    
+    .zone-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      background: #fff;
+      border: 1px solid #d2d2d7;
+      border-radius: 14px;
+      font-size: 13px;
+      color: #1d1d1f;
+    }
+    
+    .zone-chip.status-set {
+      background: #fff9c4;
+      border-color: #fdd835;
+      color: #f57f17;
+    }
+    
+    .zone-chip.status-go {
+      background: #e8f5e9;
+      border-color: #81c784;
+      color: #2e7d32;
+    }
+    
     .back-link {
       display: inline-flex;
       align-items: center;
@@ -261,6 +310,10 @@
             </svg>
           </div>
           <div id="featureCount" class="feature-count"></div>
+          <div id="zoneList" class="zone-list">
+            <div class="zone-list-label">Zones to export</div>
+            <div id="zoneListItems" class="zone-list-items"></div>
+          </div>
         </div>
         
         <div class="card-section">
@@ -332,12 +385,15 @@
     var btnText = document.getElementById('btnText');
     var statusMsg = document.getElementById('statusMsg');
     var featureCountEl = document.getElementById('featureCount');
+    var zoneListEl = document.getElementById('zoneList');
+    var zoneListItemsEl = document.getElementById('zoneListItems');
     var emptyState = document.getElementById('emptyState');
     var exportCard = document.getElementById('exportCard');
     
     // State
     var featureLayer = null;
     var incidentFeatureCounts = {};
+    var incidentZones = {}; // Store zone details per incident
     
     // Utility functions
     function showStatus(message, type) {
@@ -415,6 +471,8 @@
         var features = geojson.features.filter(function(f) {
           return f.geometry && (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon');
         });
+        
+        console.log('ShapefileWriter processing', features.length, 'polygon features');
         
         if (features.length === 0) {
           throw new Error('No polygon features to export');
@@ -562,13 +620,22 @@
       },
       
       writeDBF: function(features) {
+        // Collect all unique field names from all features
         var fieldSet = {};
         features.forEach(function(f) {
           if (f.properties) {
-            Object.keys(f.properties).forEach(function(k) { fieldSet[k.substring(0, 10)] = true; });
+            Object.keys(f.properties).forEach(function(k) { 
+              // Field names already truncated in arcgisToGeoJSON, use as-is
+              fieldSet[k] = true; 
+            });
           }
         });
         var fields = Object.keys(fieldSet).slice(0, 128);
+        
+        // If no fields, create a dummy ID field
+        if (fields.length === 0) {
+          fields = ['ID'];
+        }
         
         var fieldInfo = fields.map(function(name) {
           var maxLen = 1;
@@ -578,7 +645,8 @@
               maxLen = Math.max(maxLen, String(val).length);
             }
           });
-          return { name: name, width: Math.min(Math.max(maxLen, 1), 254), type: 'C' };
+          // Ensure minimum width of 1, max of 254
+          return { name: name.substring(0, 10), width: Math.min(Math.max(maxLen, 1), 254), type: 'C' };
         });
         
         var recordSize = 1 + fieldInfo.reduce(function(sum, f) { return sum + f.width; }, 0);
@@ -611,12 +679,24 @@
         bytes[fieldOffset] = 0x0D;
         
         var recordOffset = headerSize;
-        features.forEach(function(f) {
+        features.forEach(function(f, idx) {
           bytes[recordOffset] = 0x20;
           var fieldDataOffset = recordOffset + 1;
           
           fieldInfo.forEach(function(field) {
-            var val = f.properties ? f.properties[field.name] : null;
+            // Try both the truncated name and original property keys
+            var val = null;
+            if (f.properties) {
+              val = f.properties[field.name];
+              // Also check for the original key if truncated
+              if (val === undefined) {
+                Object.keys(f.properties).forEach(function(k) {
+                  if (k.substring(0, 10) === field.name) {
+                    val = f.properties[k];
+                  }
+                });
+              }
+            }
             var str = val !== null && val !== undefined ? String(val) : '';
             var padded = str.substring(0, field.width);
             while (padded.length < field.width) padded += ' ';
@@ -653,10 +733,24 @@
         
         featureLayer.queryFeatures(query).then(function(result) {
           var incidents = {};
+          
+          // Group zones by incident
           result.features.forEach(function(f) {
             var incident = getAttr(f.attributes, 'incident', 'Incident', 'INCIDENT');
             if (incident && String(incident).trim()) {
-              incidents[String(incident).trim()] = true;
+              var incName = String(incident).trim();
+              if (!incidents[incName]) {
+                incidents[incName] = [];
+              }
+              
+              var zoneName = getAttr(f.attributes, 'zonename', 'Zonename', 'ZONENAME') || 
+                             getAttr(f.attributes, 'zone', 'Zone', 'ZONE') || 'Unknown';
+              var status = getAttr(f.attributes, 'status', 'Status', 'STATUS') || '';
+              
+              incidents[incName].push({
+                name: String(zoneName),
+                status: String(status).toLowerCase()
+              });
             }
           });
           
@@ -668,30 +762,23 @@
             return;
           }
           
-          // Count features per incident (sequentially)
-          var countPromises = incidentList.map(function(inc) {
-            var countQuery = featureLayer.createQuery();
-            countQuery.where = "incident = '" + inc.replace(/'/g, "''") + "'";
-            return featureLayer.queryFeatureCount(countQuery).then(function(count) {
-              incidentFeatureCounts[inc] = count;
-            }).catch(function() {
-              incidentFeatureCounts[inc] = 0;
-            });
+          // Store zone details and counts
+          incidentList.forEach(function(inc) {
+            incidentZones[inc] = incidents[inc];
+            incidentFeatureCounts[inc] = incidents[inc].length;
           });
           
-          Promise.all(countPromises).then(function() {
-            // Populate dropdown
-            incidentSelect.innerHTML = '<option value="">Select an incident...</option>';
-            incidentList.forEach(function(inc) {
-              var count = incidentFeatureCounts[inc] || 0;
-              var opt = document.createElement('option');
-              opt.value = inc;
-              opt.textContent = inc + ' (' + count + ' zone' + (count !== 1 ? 's' : '') + ')';
-              incidentSelect.appendChild(opt);
-            });
-            
-            incidentSelect.disabled = false;
+          // Populate dropdown
+          incidentSelect.innerHTML = '<option value="">Select an incident...</option>';
+          incidentList.forEach(function(inc) {
+            var count = incidentFeatureCounts[inc] || 0;
+            var opt = document.createElement('option');
+            opt.value = inc;
+            opt.textContent = inc + ' (' + count + ' zone' + (count !== 1 ? 's' : '') + ')';
+            incidentSelect.appendChild(opt);
           });
+          
+          incidentSelect.disabled = false;
           
         }).catch(function(err) {
           console.error('Error loading incidents:', err);
@@ -710,9 +797,30 @@
           var count = incidentFeatureCounts[selected] || 0;
           featureCountEl.innerHTML = '<strong>' + count + '</strong> evacuation zone' + (count !== 1 ? 's' : '') + ' will be exported';
           featureCountEl.classList.add('show');
+          
+          // Show zone list
+          var zones = incidentZones[selected] || [];
+          if (zones.length > 0) {
+            zoneListItemsEl.innerHTML = '';
+            zones.forEach(function(zone) {
+              var chip = document.createElement('span');
+              chip.className = 'zone-chip';
+              if (zone.status === 'set') {
+                chip.className += ' status-set';
+              } else if (zone.status === 'go') {
+                chip.className += ' status-go';
+              }
+              chip.textContent = zone.name;
+              zoneListItemsEl.appendChild(chip);
+            });
+            zoneListEl.classList.add('show');
+          } else {
+            zoneListEl.classList.remove('show');
+          }
         } else {
           exportBtn.disabled = true;
           featureCountEl.classList.remove('show');
+          zoneListEl.classList.remove('show');
         }
       });
       
@@ -733,6 +841,8 @@
         query.outSpatialReference = { wkid: CONFIG.outSR };
         
         featureLayer.queryFeatures(query).then(function(result) {
+          console.log('Query returned', result.features ? result.features.length : 0, 'features');
+          
           if (!result.features || result.features.length === 0) {
             showStatus('No features found for this incident.', 'error');
             setButtonLoading(false);
@@ -745,6 +855,11 @@
             .map(function(f) { return arcgisToGeoJSON(f); })
             .filter(function(f) { return f !== null; });
           
+          console.log('Converted to', geoJSONFeatures.length, 'GeoJSON features');
+          if (geoJSONFeatures.length > 0) {
+            console.log('First feature:', JSON.stringify(geoJSONFeatures[0]).substring(0, 500));
+          }
+          
           if (geoJSONFeatures.length === 0) {
             showStatus('Could not convert features to GeoJSON.', 'error');
             setButtonLoading(false);
@@ -753,10 +868,20 @@
           
           var geoJSON = { type: 'FeatureCollection', features: geoJSONFeatures };
           
-          showStatus('Generating shapefile...', 'loading');
+          showStatus('Generating shapefile for ' + geoJSONFeatures.length + ' features...', 'loading');
           
           try {
-            var filename = incident.replace(/[^a-zA-Z0-9_-]/g, '_') + '_NAD83';
+            // Generate filename: first 3 letters of incident + datetime
+            var prefix = incident.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase();
+            if (prefix.length < 3) prefix = (prefix + 'XXX').substring(0, 3);
+            var now = new Date();
+            var datetime = now.getFullYear().toString() +
+                          ('0' + (now.getMonth() + 1)).slice(-2) +
+                          ('0' + now.getDate()).slice(-2) + '_' +
+                          ('0' + now.getHours()).slice(-2) +
+                          ('0' + now.getMinutes()).slice(-2);
+            var filename = prefix + '_' + datetime;
+            
             var shapefiles = ShapefileWriter.write(geoJSON, NAD83_WKT);
             
             // Create ZIP
