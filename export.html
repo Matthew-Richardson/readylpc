@@ -31,7 +31,6 @@
       flex-direction: column;
     }
     
-    /* Header */
     .brand-banner {
       background: linear-gradient(135deg, #0b4da2 0%, #1565c0 50%, #0d47a1 100%);
       padding: 16px 20px;
@@ -42,28 +41,11 @@
       box-shadow: 0 2px 12px rgba(0,0,0,0.15);
     }
     
-    .header-logo {
-      height: 48px;
-      width: auto;
-    }
+    .header-logo { height: 48px; width: auto; }
+    .brand-text { color: #fff; }
+    .site-name { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+    .site-subtitle { font-size: 13px; opacity: 0.9; margin-top: 2px; }
     
-    .brand-text {
-      color: #fff;
-    }
-    
-    .site-name {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-    }
-    
-    .site-subtitle {
-      font-size: 13px;
-      opacity: 0.9;
-      margin-top: 2px;
-    }
-    
-    /* Main content */
     .content-wrapper {
       flex: 1;
       max-width: 680px;
@@ -72,20 +54,9 @@
       padding: 24px 16px 48px;
     }
     
-    .page-title {
-      font-size: 28px;
-      font-weight: 700;
-      margin: 0 0 8px;
-      color: #1d1d1f;
-    }
+    .page-title { font-size: 28px; font-weight: 700; margin: 0 0 8px; color: #1d1d1f; }
+    .page-subtitle { font-size: 15px; color: #6e6e73; margin: 0 0 32px; }
     
-    .page-subtitle {
-      font-size: 15px;
-      color: #6e6e73;
-      margin: 0 0 32px;
-    }
-    
-    /* Card */
     .export-card {
       background: #fff;
       border-radius: 16px;
@@ -94,13 +65,8 @@
       margin-bottom: 24px;
     }
     
-    .card-section {
-      margin-bottom: 28px;
-    }
-    
-    .card-section:last-child {
-      margin-bottom: 0;
-    }
+    .card-section { margin-bottom: 28px; }
+    .card-section:last-child { margin-bottom: 0; }
     
     .section-label {
       font-size: 12px;
@@ -111,10 +77,7 @@
       margin-bottom: 10px;
     }
     
-    /* Select dropdown */
-    .incident-select-wrapper {
-      position: relative;
-    }
+    .incident-select-wrapper { position: relative; }
     
     .incident-select {
       width: 100%;
@@ -130,21 +93,9 @@
       transition: all 0.2s;
     }
     
-    .incident-select:hover {
-      border-color: #0b4da2;
-    }
-    
-    .incident-select:focus {
-      outline: none;
-      border-color: #0b4da2;
-      box-shadow: 0 0 0 4px rgba(11, 77, 162, 0.15);
-    }
-    
-    .incident-select:disabled {
-      background: #f5f5f7;
-      color: #86868b;
-      cursor: not-allowed;
-    }
+    .incident-select:hover { border-color: #0b4da2; }
+    .incident-select:focus { outline: none; border-color: #0b4da2; box-shadow: 0 0 0 4px rgba(11, 77, 162, 0.15); }
+    .incident-select:disabled { background: #f5f5f7; color: #86868b; cursor: not-allowed; }
     
     .select-arrow {
       position: absolute;
@@ -157,7 +108,6 @@
       color: #86868b;
     }
     
-    /* Info box */
     .info-box {
       background: #f0f7ff;
       border: 1px solid #b3d4fc;
@@ -168,20 +118,8 @@
       align-items: flex-start;
     }
     
-    .info-box svg {
-      width: 20px;
-      height: 20px;
-      color: #0b4da2;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-    
-    .info-box p {
-      margin: 0;
-      font-size: 14px;
-      color: #1d1d1f;
-    }
-    
+    .info-box svg { width: 20px; height: 20px; color: #0b4da2; flex-shrink: 0; margin-top: 1px; }
+    .info-box p { margin: 0; font-size: 14px; color: #1d1d1f; }
     .info-box code {
       background: rgba(11, 77, 162, 0.1);
       padding: 2px 6px;
@@ -190,7 +128,6 @@
       font-size: 13px;
     }
     
-    /* Export button */
     .export-btn {
       width: 100%;
       padding: 16px 24px;
@@ -210,27 +147,11 @@
       box-shadow: 0 4px 14px rgba(11, 77, 162, 0.35);
     }
     
-    .export-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(11, 77, 162, 0.45);
-    }
+    .export-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(11, 77, 162, 0.45); }
+    .export-btn:active:not(:disabled) { transform: translateY(0); }
+    .export-btn:disabled { background: #d2d2d7; box-shadow: none; cursor: not-allowed; }
+    .export-btn svg { width: 22px; height: 22px; }
     
-    .export-btn:active:not(:disabled) {
-      transform: translateY(0);
-    }
-    
-    .export-btn:disabled {
-      background: #d2d2d7;
-      box-shadow: none;
-      cursor: not-allowed;
-    }
-    
-    .export-btn svg {
-      width: 22px;
-      height: 22px;
-    }
-    
-    /* Spinner */
     .spinner {
       width: 22px;
       height: 22px;
@@ -240,11 +161,8 @@
       animation: spin 0.8s linear infinite;
     }
     
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
     
-    /* Status messages */
     .status-msg {
       text-align: center;
       padding: 16px;
@@ -254,45 +172,15 @@
       display: none;
     }
     
-    .status-msg.show {
-      display: block;
-    }
+    .status-msg.show { display: block; }
+    .status-msg.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .status-msg.error { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+    .status-msg.loading { background: #fff8e1; color: #f57c00; border: 1px solid #ffe082; }
     
-    .status-msg.success {
-      background: #e8f5e9;
-      color: #2e7d32;
-      border: 1px solid #a5d6a7;
-    }
+    .feature-count { font-size: 14px; color: #6e6e73; margin-top: 10px; display: none; }
+    .feature-count.show { display: block; }
+    .feature-count strong { color: #1d1d1f; }
     
-    .status-msg.error {
-      background: #ffebee;
-      color: #c62828;
-      border: 1px solid #ef9a9a;
-    }
-    
-    .status-msg.loading {
-      background: #fff8e1;
-      color: #f57c00;
-      border: 1px solid #ffe082;
-    }
-    
-    /* Feature count */
-    .feature-count {
-      font-size: 14px;
-      color: #6e6e73;
-      margin-top: 10px;
-      display: none;
-    }
-    
-    .feature-count.show {
-      display: block;
-    }
-    
-    .feature-count strong {
-      color: #1d1d1f;
-    }
-    
-    /* Back link */
     .back-link {
       display: inline-flex;
       align-items: center;
@@ -305,16 +193,9 @@
       transition: color 0.2s;
     }
     
-    .back-link:hover {
-      color: #1565c0;
-    }
+    .back-link:hover { color: #1565c0; }
+    .back-link svg { width: 18px; height: 18px; }
     
-    .back-link svg {
-      width: 18px;
-      height: 18px;
-    }
-    
-    /* Footer */
     .page-footer {
       background: #1d1d1f;
       color: rgba(255,255,255,0.7);
@@ -324,87 +205,22 @@
       margin-top: auto;
     }
     
-    .page-footer a {
-      color: #fff;
-      text-decoration: none;
-    }
+    .page-footer a { color: #fff; text-decoration: none; }
+    .page-footer a:hover { text-decoration: underline; }
     
-    .page-footer a:hover {
-      text-decoration: underline;
-    }
-    
-    /* Loading state for dropdown */
-    .loading-incidents {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 16px;
-      color: #6e6e73;
-      font-size: 15px;
-    }
-    
-    .loading-incidents .spinner {
-      width: 18px;
-      height: 18px;
-      border-color: rgba(11, 77, 162, 0.2);
-      border-top-color: #0b4da2;
-    }
-    
-    /* Empty state */
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: #6e6e73;
-    }
-    
-    .empty-state svg {
-      width: 48px;
-      height: 48px;
-      color: #d2d2d7;
-      margin-bottom: 16px;
-    }
-    
-    .empty-state h3 {
-      margin: 0 0 8px;
-      color: #1d1d1f;
-      font-size: 18px;
-    }
-    
-    .empty-state p {
-      margin: 0;
-      font-size: 14px;
-    }
+    .empty-state { text-align: center; padding: 40px 20px; color: #6e6e73; }
+    .empty-state svg { width: 48px; height: 48px; color: #d2d2d7; margin-bottom: 16px; }
+    .empty-state h3 { margin: 0 0 8px; color: #1d1d1f; font-size: 18px; }
+    .empty-state p { margin: 0; font-size: 14px; }
     
     @media (max-width: 480px) {
-      .brand-banner {
-        padding: 12px 16px;
-        gap: 12px;
-      }
-      
-      .header-logo {
-        height: 40px;
-      }
-      
-      .site-name {
-        font-size: 18px;
-      }
-      
-      .site-subtitle {
-        font-size: 12px;
-      }
-      
-      .content-wrapper {
-        padding: 16px 12px 32px;
-      }
-      
-      .page-title {
-        font-size: 24px;
-      }
-      
-      .export-card {
-        padding: 20px;
-        border-radius: 12px;
-      }
+      .brand-banner { padding: 12px 16px; gap: 12px; }
+      .header-logo { height: 40px; }
+      .site-name { font-size: 18px; }
+      .site-subtitle { font-size: 12px; }
+      .content-wrapper { padding: 16px 12px 32px; }
+      .page-title { font-size: 24px; }
+      .export-card { padding: 20px; border-radius: 12px; }
     }
   </style>
 </head>
@@ -412,7 +228,6 @@
 <body>
   <div class="page-shell">
     
-    <!-- Header -->
     <header class="brand-banner">
       <img src="https://cms9files.revize.com/laplata/_assets_/images/logo.png" alt="La Plata County Logo" class="header-logo" width="180" height="auto" loading="eager">
       <div class="brand-text">
@@ -421,7 +236,6 @@
       </div>
     </header>
     
-    <!-- Main Content -->
     <main class="content-wrapper">
       
       <a href="index.html" class="back-link">
@@ -434,9 +248,8 @@
       <h1 class="page-title">Export Shapefile</h1>
       <p class="page-subtitle">Download evacuation zone data as a shapefile for use in GIS applications.</p>
       
-      <div class="export-card">
+      <div id="exportCard" class="export-card">
         
-        <!-- Incident Selection -->
         <div class="card-section">
           <div class="section-label">Select Incident</div>
           <div class="incident-select-wrapper">
@@ -450,7 +263,6 @@
           <div id="featureCount" class="feature-count"></div>
         </div>
         
-        <!-- Projection Info -->
         <div class="card-section">
           <div class="info-box">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -465,7 +277,6 @@
           </div>
         </div>
         
-        <!-- Export Button -->
         <div class="card-section">
           <button id="exportBtn" class="export-btn" disabled>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -481,7 +292,6 @@
         
       </div>
       
-      <!-- Empty state (shown when no incidents) -->
       <div id="emptyState" class="export-card empty-state" style="display: none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
@@ -494,559 +304,472 @@
       
     </main>
     
-    <!-- Footer -->
     <footer class="page-footer">
       <a href="https://www.co.laplata.co.us/government/departments/emergency_management/index.php">La Plata County Office of Emergency Management</a>
     </footer>
     
   </div>
   
-  <!-- ArcGIS JS API -->
-  <script src="https://js.arcgis.com/4.31/"></script>
-  
-  <!-- JSZip for creating zip files -->
+  <!-- Load JSZip first -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   
+  <!-- Then ArcGIS JS API -->
+  <script src="https://js.arcgis.com/4.31/"></script>
+  
   <script>
-    (function() {
-      'use strict';
-      
-      // ============================================
-      // Minimal Shapefile Writer (self-contained)
-      // ============================================
-      const ShapefileWriter = {
-        
-        // Write a shapefile from GeoJSON polygons
-        writePolygonShapefile: function(geojson, prjContent) {
-          const features = geojson.features.filter(f => 
-            f.geometry && (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon')
-          );
-          
-          if (features.length === 0) {
-            throw new Error('No polygon features to export');
-          }
-          
-          // Calculate bounds
-          let xmin = Infinity, ymin = Infinity, xmax = -Infinity, ymax = -Infinity;
-          features.forEach(f => {
-            const coords = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
-            coords.forEach(polygon => {
-              polygon.forEach(ring => {
-                ring.forEach(pt => {
-                  xmin = Math.min(xmin, pt[0]);
-                  ymin = Math.min(ymin, pt[1]);
-                  xmax = Math.max(xmax, pt[0]);
-                  ymax = Math.max(ymax, pt[1]);
-                });
-              });
-            });
-          });
-          
-          // Build SHP content
-          const shpParts = [];
-          const shxRecords = [];
-          let shpOffset = 50; // Header is 100 bytes = 50 16-bit words
-          
-          features.forEach((feature, idx) => {
-            const geom = feature.geometry;
-            const polygons = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
-            
-            // Calculate record bounds
-            let rxmin = Infinity, rymin = Infinity, rxmax = -Infinity, rymax = -Infinity;
-            let totalPoints = 0;
-            let numParts = 0;
-            
-            polygons.forEach(polygon => {
-              polygon.forEach(ring => {
-                numParts++;
-                totalPoints += ring.length;
-                ring.forEach(pt => {
-                  rxmin = Math.min(rxmin, pt[0]);
-                  rymin = Math.min(rymin, pt[1]);
-                  rxmax = Math.max(rxmax, pt[0]);
-                  rymax = Math.max(rymax, pt[1]);
-                });
-              });
-            });
-            
-            // Content length in 16-bit words (exclude record header)
-            // 4 bytes shape type + 32 bytes bbox + 4 bytes numParts + 4 bytes numPoints + 4*numParts parts + 16*numPoints points
-            const contentLength = (4 + 32 + 4 + 4 + 4 * numParts + 16 * totalPoints) / 2;
-            
-            // Record header (8 bytes, big endian)
-            const recordHeader = new ArrayBuffer(8);
-            const recordHeaderView = new DataView(recordHeader);
-            recordHeaderView.setInt32(0, idx + 1, false); // Record number (1-based, big endian)
-            recordHeaderView.setInt32(4, contentLength, false); // Content length (big endian)
-            
-            // Record content
-            const contentSize = 4 + 32 + 4 + 4 + 4 * numParts + 16 * totalPoints;
-            const content = new ArrayBuffer(contentSize);
-            const contentView = new DataView(content);
-            let offset = 0;
-            
-            // Shape type (5 = Polygon)
-            contentView.setInt32(offset, 5, true); offset += 4;
-            
-            // Bounding box
-            contentView.setFloat64(offset, rxmin, true); offset += 8;
-            contentView.setFloat64(offset, rymin, true); offset += 8;
-            contentView.setFloat64(offset, rxmax, true); offset += 8;
-            contentView.setFloat64(offset, rymax, true); offset += 8;
-            
-            // Number of parts and points
-            contentView.setInt32(offset, numParts, true); offset += 4;
-            contentView.setInt32(offset, totalPoints, true); offset += 4;
-            
-            // Part indices
-            let pointIndex = 0;
-            polygons.forEach(polygon => {
-              polygon.forEach(ring => {
-                contentView.setInt32(offset, pointIndex, true); offset += 4;
-                pointIndex += ring.length;
-              });
-            });
-            
-            // Points
-            polygons.forEach(polygon => {
-              polygon.forEach(ring => {
-                ring.forEach(pt => {
-                  contentView.setFloat64(offset, pt[0], true); offset += 8;
-                  contentView.setFloat64(offset, pt[1], true); offset += 8;
-                });
-              });
-            });
-            
-            shpParts.push({ header: recordHeader, content: content });
-            shxRecords.push({ offset: shpOffset, contentLength: contentLength });
-            shpOffset += (8 + contentSize) / 2; // Add record size in 16-bit words
-          });
-          
-          // Build SHP file
-          const shpContentSize = shpParts.reduce((sum, p) => sum + p.header.byteLength + p.content.byteLength, 0);
-          const shpFileLength = 100 + shpContentSize;
-          const shpBuffer = new ArrayBuffer(shpFileLength);
-          const shpView = new DataView(shpBuffer);
-          
-          // SHP Header
-          shpView.setInt32(0, 9994, false); // File code (big endian)
-          shpView.setInt32(24, shpFileLength / 2, false); // File length in 16-bit words (big endian)
-          shpView.setInt32(28, 1000, true); // Version (little endian)
-          shpView.setInt32(32, 5, true); // Shape type: Polygon (little endian)
-          shpView.setFloat64(36, xmin, true);
-          shpView.setFloat64(44, ymin, true);
-          shpView.setFloat64(52, xmax, true);
-          shpView.setFloat64(60, ymax, true);
-          // Z and M ranges (set to 0)
-          shpView.setFloat64(68, 0, true);
-          shpView.setFloat64(76, 0, true);
-          shpView.setFloat64(84, 0, true);
-          shpView.setFloat64(92, 0, true);
-          
-          // Write records
-          let shpWriteOffset = 100;
-          shpParts.forEach(part => {
-            new Uint8Array(shpBuffer, shpWriteOffset, part.header.byteLength).set(new Uint8Array(part.header));
-            shpWriteOffset += part.header.byteLength;
-            new Uint8Array(shpBuffer, shpWriteOffset, part.content.byteLength).set(new Uint8Array(part.content));
-            shpWriteOffset += part.content.byteLength;
-          });
-          
-          // Build SHX file
-          const shxFileLength = 100 + shxRecords.length * 8;
-          const shxBuffer = new ArrayBuffer(shxFileLength);
-          const shxView = new DataView(shxBuffer);
-          
-          // SHX Header (same as SHP header except file length)
-          shxView.setInt32(0, 9994, false);
-          shxView.setInt32(24, shxFileLength / 2, false);
-          shxView.setInt32(28, 1000, true);
-          shxView.setInt32(32, 5, true);
-          shxView.setFloat64(36, xmin, true);
-          shxView.setFloat64(44, ymin, true);
-          shxView.setFloat64(52, xmax, true);
-          shxView.setFloat64(60, ymax, true);
-          shxView.setFloat64(68, 0, true);
-          shxView.setFloat64(76, 0, true);
-          shxView.setFloat64(84, 0, true);
-          shxView.setFloat64(92, 0, true);
-          
-          // SHX Records
-          let shxWriteOffset = 100;
-          shxRecords.forEach(rec => {
-            shxView.setInt32(shxWriteOffset, rec.offset, false); // Offset (big endian)
-            shxView.setInt32(shxWriteOffset + 4, rec.contentLength, false); // Content length (big endian)
-            shxWriteOffset += 8;
-          });
-          
-          // Build DBF file
-          const dbfBuffer = this.writeDBF(features);
-          
-          return {
-            shp: shpBuffer,
-            shx: shxBuffer,
-            dbf: dbfBuffer,
-            prj: prjContent
-          };
-        },
-        
-        // Write DBF file
-        writeDBF: function(features) {
-          // Collect all field names (max 10 chars for shapefile)
-          const fieldSet = new Set();
-          features.forEach(f => {
-            if (f.properties) {
-              Object.keys(f.properties).forEach(k => fieldSet.add(k.substring(0, 10)));
-            }
-          });
-          const fields = Array.from(fieldSet).slice(0, 128); // Max 128 fields
-          
-          // Determine field widths
-          const fieldInfo = fields.map(name => {
-            let maxLen = 1;
-            features.forEach(f => {
-              const val = f.properties ? f.properties[name] : null;
-              if (val !== null && val !== undefined) {
-                maxLen = Math.max(maxLen, String(val).length);
-              }
-            });
-            return { name: name, width: Math.min(Math.max(maxLen, 1), 254), type: 'C' };
-          });
-          
-          const recordSize = 1 + fieldInfo.reduce((sum, f) => sum + f.width, 0); // 1 byte deletion flag + fields
-          const headerSize = 32 + (fieldInfo.length * 32) + 1; // Header + field descriptors + header terminator
-          const fileSize = headerSize + (features.length * recordSize) + 1; // + EOF marker
-          
-          const buffer = new ArrayBuffer(fileSize);
-          const view = new DataView(buffer);
-          const bytes = new Uint8Array(buffer);
-          
-          // DBF Header
-          view.setUint8(0, 3); // Version (dBASE III)
-          const now = new Date();
-          view.setUint8(1, now.getFullYear() - 1900); // Year
-          view.setUint8(2, now.getMonth() + 1); // Month
-          view.setUint8(3, now.getDate()); // Day
-          view.setUint32(4, features.length, true); // Number of records
-          view.setUint16(8, headerSize, true); // Header size
-          view.setUint16(10, recordSize, true); // Record size
-          
-          // Field descriptors
-          let fieldOffset = 32;
-          fieldInfo.forEach(field => {
-            // Field name (11 bytes, null-padded)
-            for (let i = 0; i < 11; i++) {
-              bytes[fieldOffset + i] = i < field.name.length ? field.name.charCodeAt(i) : 0;
-            }
-            bytes[fieldOffset + 11] = field.type.charCodeAt(0); // Field type
-            view.setUint8(fieldOffset + 16, field.width); // Field length
-            fieldOffset += 32;
-          });
-          
-          // Header terminator
-          bytes[fieldOffset] = 0x0D;
-          
-          // Records
-          let recordOffset = headerSize;
-          features.forEach(f => {
-            bytes[recordOffset] = 0x20; // Not deleted
-            let fieldDataOffset = recordOffset + 1;
-            
-            fieldInfo.forEach(field => {
-              const val = f.properties ? f.properties[field.name] : null;
-              const str = val !== null && val !== undefined ? String(val) : '';
-              const padded = str.substring(0, field.width).padEnd(field.width, ' ');
-              for (let i = 0; i < field.width; i++) {
-                bytes[fieldDataOffset + i] = padded.charCodeAt(i);
-              }
-              fieldDataOffset += field.width;
-            });
-            
-            recordOffset += recordSize;
-          });
-          
-          // EOF marker
-          bytes[fileSize - 1] = 0x1A;
-          
-          return buffer;
-        }
-      };
-      
-      // Configuration
-      const CONFIG = {
-        featureLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0',
-        outSR: 4269 // NAD83
-      };
-      
-      // NAD83 WKT for .prj file
-      const NAD83_WKT = 'GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4269"]]';
-      
-      // DOM Elements
-      const incidentSelect = document.getElementById('incidentSelect');
-      const exportBtn = document.getElementById('exportBtn');
-      const btnText = document.getElementById('btnText');
-      const statusMsg = document.getElementById('statusMsg');
-      const featureCount = document.getElementById('featureCount');
-      const emptyState = document.getElementById('emptyState');
-      const exportCard = document.querySelector('.export-card');
-      
-      // State
-      let featureLayer = null;
-      let incidentFeatureCounts = {};
-      
-      // Show status message
-      function showStatus(message, type) {
-        statusMsg.textContent = message;
-        statusMsg.className = 'status-msg show ' + type;
+    // Configuration
+    var CONFIG = {
+      featureLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0',
+      outSR: 4269
+    };
+    
+    // NAD83 WKT for .prj file
+    var NAD83_WKT = 'GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4269"]]';
+    
+    // DOM Elements
+    var incidentSelect = document.getElementById('incidentSelect');
+    var exportBtn = document.getElementById('exportBtn');
+    var btnText = document.getElementById('btnText');
+    var statusMsg = document.getElementById('statusMsg');
+    var featureCountEl = document.getElementById('featureCount');
+    var emptyState = document.getElementById('emptyState');
+    var exportCard = document.getElementById('exportCard');
+    
+    // State
+    var featureLayer = null;
+    var incidentFeatureCounts = {};
+    
+    // Utility functions
+    function showStatus(message, type) {
+      statusMsg.textContent = message;
+      statusMsg.className = 'status-msg show ' + type;
+    }
+    
+    function hideStatus() {
+      statusMsg.className = 'status-msg';
+    }
+    
+    function setButtonLoading(loading) {
+      if (loading) {
+        exportBtn.disabled = true;
+        exportBtn.innerHTML = '<div class="spinner"></div><span>Exporting...</span>';
+      } else {
+        exportBtn.disabled = !incidentSelect.value;
+        exportBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Export Shapefile</span>';
       }
+    }
+    
+    function getAttr(attrs, key1, key2, key3) {
+      if (attrs[key1] !== undefined) return attrs[key1];
+      if (attrs[key2] !== undefined) return attrs[key2];
+      if (attrs[key3] !== undefined) return attrs[key3];
+      if (attrs[key1.toLowerCase()] !== undefined) return attrs[key1.toLowerCase()];
+      if (attrs[key1.toUpperCase()] !== undefined) return attrs[key1.toUpperCase()];
+      return null;
+    }
+    
+    // Convert ArcGIS geometry to GeoJSON
+    function arcgisToGeoJSON(feature) {
+      var geom = feature.geometry;
+      var attrs = feature.attributes;
       
-      function hideStatus() {
-        statusMsg.className = 'status-msg';
-      }
+      if (!geom) return null;
       
-      // Set button loading state
-      function setButtonLoading(loading) {
-        if (loading) {
-          exportBtn.disabled = true;
-          btnText.parentElement.innerHTML = '<div class="spinner"></div><span id="btnText">Exporting...</span>';
-        } else {
-          exportBtn.disabled = !incidentSelect.value;
-          exportBtn.innerHTML = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            <span id="btnText">Export Shapefile</span>
-          `;
-        }
-      }
+      var geometry = null;
       
-      // Get case-insensitive attribute value
-      function getAttr(attrs, ...keys) {
-        for (const key of keys) {
-          if (attrs[key] !== undefined) return attrs[key];
-          const lower = key.toLowerCase();
-          const upper = key.toUpperCase();
-          const cap = key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
-          if (attrs[lower] !== undefined) return attrs[lower];
-          if (attrs[upper] !== undefined) return attrs[upper];
-          if (attrs[cap] !== undefined) return attrs[cap];
-        }
-        return null;
-      }
-      
-      // Convert ArcGIS geometry to GeoJSON
-      function arcgisToGeoJSON(feature) {
-        const geom = feature.geometry;
-        const attrs = feature.attributes;
-        
-        if (!geom) return null;
-        
-        let geometry = null;
-        
-        if (geom.rings) {
-          // Polygon
-          if (geom.rings.length === 1) {
-            geometry = {
-              type: 'Polygon',
-              coordinates: [geom.rings[0].map(pt => [pt[0], pt[1]])]
-            };
-          } else {
-            // MultiPolygon or polygon with holes
-            geometry = {
-              type: 'Polygon',
-              coordinates: geom.rings.map(ring => ring.map(pt => [pt[0], pt[1]]))
-            };
-          }
-        } else if (geom.paths) {
-          // Polyline
-          if (geom.paths.length === 1) {
-            geometry = {
-              type: 'LineString',
-              coordinates: geom.paths[0].map(pt => [pt[0], pt[1]])
-            };
-          } else {
-            geometry = {
-              type: 'MultiLineString',
-              coordinates: geom.paths.map(path => path.map(pt => [pt[0], pt[1]]))
-            };
-          }
-        } else if (geom.x !== undefined && geom.y !== undefined) {
-          // Point
-          geometry = {
-            type: 'Point',
-            coordinates: [geom.x, geom.y]
-          };
-        }
-        
-        if (!geometry) return null;
-        
-        // Clean attributes (shp-write has 10 char field name limit)
-        const props = {};
-        for (const key in attrs) {
-          // Truncate field names to 10 chars for shapefile compatibility
-          const shortKey = key.substring(0, 10);
-          props[shortKey] = attrs[key];
-        }
-        
-        return {
-          type: 'Feature',
-          geometry: geometry,
-          properties: props
+      if (geom.rings) {
+        geometry = {
+          type: 'Polygon',
+          coordinates: geom.rings.map(function(ring) {
+            return ring.map(function(pt) { return [pt[0], pt[1]]; });
+          })
         };
+      } else if (geom.paths) {
+        geometry = {
+          type: geom.paths.length === 1 ? 'LineString' : 'MultiLineString',
+          coordinates: geom.paths.length === 1 
+            ? geom.paths[0].map(function(pt) { return [pt[0], pt[1]]; })
+            : geom.paths.map(function(path) { return path.map(function(pt) { return [pt[0], pt[1]]; }); })
+        };
+      } else if (geom.x !== undefined && geom.y !== undefined) {
+        geometry = { type: 'Point', coordinates: [geom.x, geom.y] };
       }
       
-      // Initialize the app
-      require([
-        'esri/layers/FeatureLayer',
-        'esri/rest/support/Query'
-      ], function(FeatureLayer, Query) {
-        
-        // Create feature layer
-        featureLayer = new FeatureLayer({
-          url: CONFIG.featureLayerUrl
+      if (!geometry) return null;
+      
+      // Truncate field names to 10 chars for shapefile
+      var props = {};
+      for (var key in attrs) {
+        props[key.substring(0, 10)] = attrs[key];
+      }
+      
+      return { type: 'Feature', geometry: geometry, properties: props };
+    }
+    
+    // ========================================
+    // Shapefile Writer
+    // ========================================
+    var ShapefileWriter = {
+      
+      write: function(geojson, prjContent) {
+        var features = geojson.features.filter(function(f) {
+          return f.geometry && (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon');
         });
         
-        // Load distinct incidents
-        loadIncidents();
+        if (features.length === 0) {
+          throw new Error('No polygon features to export');
+        }
         
-        async function loadIncidents() {
-          try {
-            // First, query all features to extract unique incident names
-            // (returnDistinctValues requires specific field configuration)
-            const query = featureLayer.createQuery();
-            query.where = '1=1';
-            query.outFields = ['incident', 'Incident', 'INCIDENT'];
-            query.returnGeometry = false;
-            
-            const result = await featureLayer.queryFeatures(query);
-            
-            // Extract unique incidents
-            const incidents = new Set();
-            result.features.forEach(f => {
-              const incident = getAttr(f.attributes, 'incident', 'Incident', 'INCIDENT');
-              if (incident && String(incident).trim()) {
-                incidents.add(String(incident).trim());
-              }
+        // Calculate bounds
+        var xmin = Infinity, ymin = Infinity, xmax = -Infinity, ymax = -Infinity;
+        features.forEach(function(f) {
+          var coords = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
+          coords.forEach(function(polygon) {
+            polygon.forEach(function(ring) {
+              ring.forEach(function(pt) {
+                xmin = Math.min(xmin, pt[0]);
+                ymin = Math.min(ymin, pt[1]);
+                xmax = Math.max(xmax, pt[0]);
+                ymax = Math.max(ymax, pt[1]);
+              });
             });
-            
-            const incidentList = Array.from(incidents).sort();
-            
-            if (incidentList.length === 0) {
-              // No incidents
-              exportCard.style.display = 'none';
-              emptyState.style.display = 'block';
-              return;
+          });
+        });
+        
+        var shpParts = [];
+        var shxRecords = [];
+        var shpOffset = 50;
+        
+        features.forEach(function(feature, idx) {
+          var geom = feature.geometry;
+          var polygons = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+          
+          var rxmin = Infinity, rymin = Infinity, rxmax = -Infinity, rymax = -Infinity;
+          var totalPoints = 0;
+          var numParts = 0;
+          
+          polygons.forEach(function(polygon) {
+            polygon.forEach(function(ring) {
+              numParts++;
+              totalPoints += ring.length;
+              ring.forEach(function(pt) {
+                rxmin = Math.min(rxmin, pt[0]);
+                rymin = Math.min(rymin, pt[1]);
+                rxmax = Math.max(rxmax, pt[0]);
+                rymax = Math.max(rymax, pt[1]);
+              });
+            });
+          });
+          
+          var contentLength = (4 + 32 + 4 + 4 + 4 * numParts + 16 * totalPoints) / 2;
+          
+          var recordHeader = new ArrayBuffer(8);
+          var recordHeaderView = new DataView(recordHeader);
+          recordHeaderView.setInt32(0, idx + 1, false);
+          recordHeaderView.setInt32(4, contentLength, false);
+          
+          var contentSize = 4 + 32 + 4 + 4 + 4 * numParts + 16 * totalPoints;
+          var content = new ArrayBuffer(contentSize);
+          var contentView = new DataView(content);
+          var offset = 0;
+          
+          contentView.setInt32(offset, 5, true); offset += 4;
+          contentView.setFloat64(offset, rxmin, true); offset += 8;
+          contentView.setFloat64(offset, rymin, true); offset += 8;
+          contentView.setFloat64(offset, rxmax, true); offset += 8;
+          contentView.setFloat64(offset, rymax, true); offset += 8;
+          contentView.setInt32(offset, numParts, true); offset += 4;
+          contentView.setInt32(offset, totalPoints, true); offset += 4;
+          
+          var pointIndex = 0;
+          polygons.forEach(function(polygon) {
+            polygon.forEach(function(ring) {
+              contentView.setInt32(offset, pointIndex, true); offset += 4;
+              pointIndex += ring.length;
+            });
+          });
+          
+          polygons.forEach(function(polygon) {
+            polygon.forEach(function(ring) {
+              ring.forEach(function(pt) {
+                contentView.setFloat64(offset, pt[0], true); offset += 8;
+                contentView.setFloat64(offset, pt[1], true); offset += 8;
+              });
+            });
+          });
+          
+          shpParts.push({ header: recordHeader, content: content });
+          shxRecords.push({ offset: shpOffset, contentLength: contentLength });
+          shpOffset += (8 + contentSize) / 2;
+        });
+        
+        // Build SHP
+        var shpContentSize = shpParts.reduce(function(sum, p) { return sum + p.header.byteLength + p.content.byteLength; }, 0);
+        var shpFileLength = 100 + shpContentSize;
+        var shpBuffer = new ArrayBuffer(shpFileLength);
+        var shpView = new DataView(shpBuffer);
+        
+        shpView.setInt32(0, 9994, false);
+        shpView.setInt32(24, shpFileLength / 2, false);
+        shpView.setInt32(28, 1000, true);
+        shpView.setInt32(32, 5, true);
+        shpView.setFloat64(36, xmin, true);
+        shpView.setFloat64(44, ymin, true);
+        shpView.setFloat64(52, xmax, true);
+        shpView.setFloat64(60, ymax, true);
+        shpView.setFloat64(68, 0, true);
+        shpView.setFloat64(76, 0, true);
+        shpView.setFloat64(84, 0, true);
+        shpView.setFloat64(92, 0, true);
+        
+        var shpWriteOffset = 100;
+        shpParts.forEach(function(part) {
+          new Uint8Array(shpBuffer, shpWriteOffset, part.header.byteLength).set(new Uint8Array(part.header));
+          shpWriteOffset += part.header.byteLength;
+          new Uint8Array(shpBuffer, shpWriteOffset, part.content.byteLength).set(new Uint8Array(part.content));
+          shpWriteOffset += part.content.byteLength;
+        });
+        
+        // Build SHX
+        var shxFileLength = 100 + shxRecords.length * 8;
+        var shxBuffer = new ArrayBuffer(shxFileLength);
+        var shxView = new DataView(shxBuffer);
+        
+        shxView.setInt32(0, 9994, false);
+        shxView.setInt32(24, shxFileLength / 2, false);
+        shxView.setInt32(28, 1000, true);
+        shxView.setInt32(32, 5, true);
+        shxView.setFloat64(36, xmin, true);
+        shxView.setFloat64(44, ymin, true);
+        shxView.setFloat64(52, xmax, true);
+        shxView.setFloat64(60, ymax, true);
+        shxView.setFloat64(68, 0, true);
+        shxView.setFloat64(76, 0, true);
+        shxView.setFloat64(84, 0, true);
+        shxView.setFloat64(92, 0, true);
+        
+        var shxWriteOffset = 100;
+        shxRecords.forEach(function(rec) {
+          shxView.setInt32(shxWriteOffset, rec.offset, false);
+          shxView.setInt32(shxWriteOffset + 4, rec.contentLength, false);
+          shxWriteOffset += 8;
+        });
+        
+        // Build DBF
+        var dbfBuffer = this.writeDBF(features);
+        
+        return { shp: shpBuffer, shx: shxBuffer, dbf: dbfBuffer, prj: prjContent };
+      },
+      
+      writeDBF: function(features) {
+        var fieldSet = {};
+        features.forEach(function(f) {
+          if (f.properties) {
+            Object.keys(f.properties).forEach(function(k) { fieldSet[k.substring(0, 10)] = true; });
+          }
+        });
+        var fields = Object.keys(fieldSet).slice(0, 128);
+        
+        var fieldInfo = fields.map(function(name) {
+          var maxLen = 1;
+          features.forEach(function(f) {
+            var val = f.properties ? f.properties[name] : null;
+            if (val !== null && val !== undefined) {
+              maxLen = Math.max(maxLen, String(val).length);
             }
-            
-            // Get feature counts for each incident
-            for (const inc of incidentList) {
-              const countQuery = featureLayer.createQuery();
-              countQuery.where = `incident = '${inc.replace(/'/g, "''")}'`;
-              const count = await featureLayer.queryFeatureCount(countQuery);
+          });
+          return { name: name, width: Math.min(Math.max(maxLen, 1), 254), type: 'C' };
+        });
+        
+        var recordSize = 1 + fieldInfo.reduce(function(sum, f) { return sum + f.width; }, 0);
+        var headerSize = 32 + (fieldInfo.length * 32) + 1;
+        var fileSize = headerSize + (features.length * recordSize) + 1;
+        
+        var buffer = new ArrayBuffer(fileSize);
+        var view = new DataView(buffer);
+        var bytes = new Uint8Array(buffer);
+        
+        view.setUint8(0, 3);
+        var now = new Date();
+        view.setUint8(1, now.getFullYear() - 1900);
+        view.setUint8(2, now.getMonth() + 1);
+        view.setUint8(3, now.getDate());
+        view.setUint32(4, features.length, true);
+        view.setUint16(8, headerSize, true);
+        view.setUint16(10, recordSize, true);
+        
+        var fieldOffset = 32;
+        fieldInfo.forEach(function(field) {
+          for (var i = 0; i < 11; i++) {
+            bytes[fieldOffset + i] = i < field.name.length ? field.name.charCodeAt(i) : 0;
+          }
+          bytes[fieldOffset + 11] = field.type.charCodeAt(0);
+          view.setUint8(fieldOffset + 16, field.width);
+          fieldOffset += 32;
+        });
+        
+        bytes[fieldOffset] = 0x0D;
+        
+        var recordOffset = headerSize;
+        features.forEach(function(f) {
+          bytes[recordOffset] = 0x20;
+          var fieldDataOffset = recordOffset + 1;
+          
+          fieldInfo.forEach(function(field) {
+            var val = f.properties ? f.properties[field.name] : null;
+            var str = val !== null && val !== undefined ? String(val) : '';
+            var padded = str.substring(0, field.width);
+            while (padded.length < field.width) padded += ' ';
+            for (var i = 0; i < field.width; i++) {
+              bytes[fieldDataOffset + i] = padded.charCodeAt(i);
+            }
+            fieldDataOffset += field.width;
+          });
+          
+          recordOffset += recordSize;
+        });
+        
+        bytes[fileSize - 1] = 0x1A;
+        
+        return buffer;
+      }
+    };
+    
+    // ========================================
+    // Initialize with ArcGIS API
+    // ========================================
+    require(['esri/layers/FeatureLayer'], function(FeatureLayer) {
+      
+      featureLayer = new FeatureLayer({ url: CONFIG.featureLayerUrl });
+      
+      // Load incidents
+      loadIncidents();
+      
+      function loadIncidents() {
+        var query = featureLayer.createQuery();
+        query.where = '1=1';
+        query.outFields = ['*'];
+        query.returnGeometry = false;
+        
+        featureLayer.queryFeatures(query).then(function(result) {
+          var incidents = {};
+          result.features.forEach(function(f) {
+            var incident = getAttr(f.attributes, 'incident', 'Incident', 'INCIDENT');
+            if (incident && String(incident).trim()) {
+              incidents[String(incident).trim()] = true;
+            }
+          });
+          
+          var incidentList = Object.keys(incidents).sort();
+          
+          if (incidentList.length === 0) {
+            exportCard.style.display = 'none';
+            emptyState.style.display = 'block';
+            return;
+          }
+          
+          // Count features per incident (sequentially)
+          var countPromises = incidentList.map(function(inc) {
+            var countQuery = featureLayer.createQuery();
+            countQuery.where = "incident = '" + inc.replace(/'/g, "''") + "'";
+            return featureLayer.queryFeatureCount(countQuery).then(function(count) {
               incidentFeatureCounts[inc] = count;
-            }
-            
+            }).catch(function() {
+              incidentFeatureCounts[inc] = 0;
+            });
+          });
+          
+          Promise.all(countPromises).then(function() {
             // Populate dropdown
             incidentSelect.innerHTML = '<option value="">Select an incident...</option>';
-            incidentList.forEach(inc => {
-              const count = incidentFeatureCounts[inc] || 0;
-              const opt = document.createElement('option');
+            incidentList.forEach(function(inc) {
+              var count = incidentFeatureCounts[inc] || 0;
+              var opt = document.createElement('option');
               opt.value = inc;
-              opt.textContent = `${inc} (${count} zone${count !== 1 ? 's' : ''})`;
+              opt.textContent = inc + ' (' + count + ' zone' + (count !== 1 ? 's' : '') + ')';
               incidentSelect.appendChild(opt);
             });
             
             incidentSelect.disabled = false;
-            
-          } catch (err) {
-            console.error('Error loading incidents:', err);
-            incidentSelect.innerHTML = '<option value="">Error loading incidents</option>';
-            showStatus('Failed to load incidents. Please refresh the page.', 'error');
-          }
-        }
-        
-        // Handle incident selection
-        incidentSelect.addEventListener('change', function() {
-          const selected = this.value;
-          hideStatus();
+          });
           
-          if (selected) {
-            exportBtn.disabled = false;
-            const count = incidentFeatureCounts[selected] || 0;
-            featureCount.innerHTML = `<strong>${count}</strong> evacuation zone${count !== 1 ? 's' : ''} will be exported`;
-            featureCount.classList.add('show');
-          } else {
-            exportBtn.disabled = true;
-            featureCount.classList.remove('show');
-          }
+        }).catch(function(err) {
+          console.error('Error loading incidents:', err);
+          incidentSelect.innerHTML = '<option value="">Error loading incidents</option>';
+          showStatus('Failed to load incidents: ' + err.message, 'error');
         });
+      }
+      
+      // Handle selection change
+      incidentSelect.addEventListener('change', function() {
+        var selected = this.value;
+        hideStatus();
         
-        // Handle export
-        exportBtn.addEventListener('click', async function() {
-          const incident = incidentSelect.value;
-          if (!incident) return;
+        if (selected) {
+          exportBtn.disabled = false;
+          var count = incidentFeatureCounts[selected] || 0;
+          featureCountEl.innerHTML = '<strong>' + count + '</strong> evacuation zone' + (count !== 1 ? 's' : '') + ' will be exported';
+          featureCountEl.classList.add('show');
+        } else {
+          exportBtn.disabled = true;
+          featureCountEl.classList.remove('show');
+        }
+      });
+      
+      // Handle export
+      exportBtn.addEventListener('click', function() {
+        var incident = incidentSelect.value;
+        if (!incident) return;
+        
+        setButtonLoading(true);
+        hideStatus();
+        
+        showStatus('Querying features...', 'loading');
+        
+        var query = featureLayer.createQuery();
+        query.where = "incident = '" + incident.replace(/'/g, "''") + "'";
+        query.outFields = ['*'];
+        query.returnGeometry = true;
+        query.outSpatialReference = { wkid: CONFIG.outSR };
+        
+        featureLayer.queryFeatures(query).then(function(result) {
+          if (!result.features || result.features.length === 0) {
+            showStatus('No features found for this incident.', 'error');
+            setButtonLoading(false);
+            return;
+          }
           
-          setButtonLoading(true);
-          hideStatus();
+          showStatus('Converting ' + result.features.length + ' features...', 'loading');
+          
+          var geoJSONFeatures = result.features
+            .map(function(f) { return arcgisToGeoJSON(f); })
+            .filter(function(f) { return f !== null; });
+          
+          if (geoJSONFeatures.length === 0) {
+            showStatus('Could not convert features to GeoJSON.', 'error');
+            setButtonLoading(false);
+            return;
+          }
+          
+          var geoJSON = { type: 'FeatureCollection', features: geoJSONFeatures };
+          
+          showStatus('Generating shapefile...', 'loading');
           
           try {
-            showStatus('Querying features...', 'loading');
+            var filename = incident.replace(/[^a-zA-Z0-9_-]/g, '_') + '_NAD83';
+            var shapefiles = ShapefileWriter.write(geoJSON, NAD83_WKT);
             
-            // Query features for selected incident with NAD83 projection
-            const query = featureLayer.createQuery();
-            query.where = `incident = '${incident.replace(/'/g, "''")}'`;
-            query.outFields = ['*'];
-            query.returnGeometry = true;
-            query.outSpatialReference = { wkid: CONFIG.outSR };
+            // Create ZIP
+            var zip = new JSZip();
+            zip.file(filename + '.shp', shapefiles.shp);
+            zip.file(filename + '.shx', shapefiles.shx);
+            zip.file(filename + '.dbf', shapefiles.dbf);
+            zip.file(filename + '.prj', shapefiles.prj);
             
-            const result = await featureLayer.queryFeatures(query);
-            
-            if (!result.features || result.features.length === 0) {
-              showStatus('No features found for this incident.', 'error');
-              setButtonLoading(false);
-              return;
-            }
-            
-            showStatus(`Converting ${result.features.length} features...`, 'loading');
-            
-            // Convert to GeoJSON
-            const geoJSONFeatures = result.features
-              .map(f => arcgisToGeoJSON(f))
-              .filter(f => f !== null);
-            
-            if (geoJSONFeatures.length === 0) {
-              showStatus('Could not convert features to GeoJSON.', 'error');
-              setButtonLoading(false);
-              return;
-            }
-            
-            const geoJSON = {
-              type: 'FeatureCollection',
-              features: geoJSONFeatures
-            };
-            
-            showStatus('Generating shapefile...', 'loading');
-            
-            // Generate shapefile with NAD83 projection using custom writer
-            const filename = incident.replace(/[^a-zA-Z0-9_-]/g, '_') + '_NAD83';
-            
-            try {
-              const shapefiles = ShapefileWriter.writePolygonShapefile(geoJSON, NAD83_WKT);
-              
-              // Create ZIP file
-              const zip = new JSZip();
-              zip.file(filename + '.shp', shapefiles.shp);
-              zip.file(filename + '.shx', shapefiles.shx);
-              zip.file(filename + '.dbf', shapefiles.dbf);
-              zip.file(filename + '.prj', shapefiles.prj);
-              
-              const zipBlob = await zip.generateAsync({ type: 'blob' });
-              
-              // Trigger download
-              const url = URL.createObjectURL(zipBlob);
-              const a = document.createElement('a');
+            zip.generateAsync({ type: 'blob' }).then(function(zipBlob) {
+              // Download
+              var url = URL.createObjectURL(zipBlob);
+              var a = document.createElement('a');
               a.href = url;
               a.download = filename + '.zip';
               document.body.appendChild(a);
@@ -1054,23 +777,23 @@
               document.body.removeChild(a);
               URL.revokeObjectURL(url);
               
-              showStatus(`Successfully exported ${geoJSONFeatures.length} features!`, 'success');
-            } catch (shpErr) {
-              console.error('Shapefile generation error:', shpErr);
-              showStatus('Shapefile generation failed: ' + shpErr.message, 'error');
-            }
-            
-          } catch (err) {
-            console.error('Export error:', err);
-            showStatus('Export failed: ' + (err.message || 'Unknown error'), 'error');
+              showStatus('Successfully exported ' + geoJSONFeatures.length + ' features!', 'success');
+              setButtonLoading(false);
+            });
+          } catch (shpErr) {
+            console.error('Shapefile generation error:', shpErr);
+            showStatus('Shapefile generation failed: ' + shpErr.message, 'error');
+            setButtonLoading(false);
           }
           
+        }).catch(function(err) {
+          console.error('Export error:', err);
+          showStatus('Export failed: ' + (err.message || 'Unknown error'), 'error');
           setButtonLoading(false);
         });
-        
       });
       
-    })();
+    });
   </script>
   
 </body>
