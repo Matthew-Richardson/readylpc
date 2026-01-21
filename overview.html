@@ -56,7 +56,8 @@
     /* Critical incident visibility */
     #incidentsActive{display:none}
     #incidentsActive.has-incidents{display:block}
-    #noIncidentsMsg.hidden{display:none}
+    #noIncidentsMsg{display:none}
+    #noIncidentsMsg.is-visible{display:block}
   </style>
 
   <link rel="stylesheet" href="shared-styles.css" media="print" onload="this.media='all'">
@@ -523,12 +524,12 @@
 
             if (!names.length) {
               DOM.incidentsActive.classList.remove('has-incidents');
-              DOM.noIncidentsMsg.classList.remove('hidden');
+              DOM.noIncidentsMsg.classList.add('is-visible');
               return;
             }
 
             DOM.incidentsActive.classList.add('has-incidents');
-            DOM.noIncidentsMsg.classList.add('hidden');
+            DOM.noIncidentsMsg.classList.remove('is-visible');
 
             const frag = document.createDocumentFragment();
             for (const name of names) {
