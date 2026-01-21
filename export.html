@@ -913,11 +913,11 @@
         
         async function loadIncidents() {
           try {
-            // Query for distinct incident values
+            // First, query all features to extract unique incident names
+            // (returnDistinctValues requires specific field configuration)
             const query = featureLayer.createQuery();
             query.where = '1=1';
-            query.outFields = ['*'];
-            query.returnDistinctValues = true;
+            query.outFields = ['incident', 'Incident', 'INCIDENT'];
             query.returnGeometry = false;
             
             const result = await featureLayer.queryFeatures(query);
@@ -926,8 +926,8 @@
             const incidents = new Set();
             result.features.forEach(f => {
               const incident = getAttr(f.attributes, 'incident', 'Incident', 'INCIDENT');
-              if (incident && incident.trim()) {
-                incidents.add(incident.trim());
+              if (incident && String(incident).trim()) {
+                incidents.add(String(incident).trim());
               }
             });
             
