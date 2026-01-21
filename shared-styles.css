@@ -39,7 +39,7 @@ html, body {
   position: relative;
   width: 100%;
   border-radius: 14px;
-  border: 1px solid rgba(0,0,0,0.15);
+  border: 1.5px solid rgba(0,0,0,0.18);
   box-shadow: 0 4px 20px rgba(0,0,0,0.12);
   overflow: hidden;
   background: #fff;
@@ -290,12 +290,12 @@ html, body {
 }
 
 .incident-box--alert {
-  border: 1px solid rgba(179,38,30,0.2);
+  border: 1.5px solid rgba(179,38,30,0.25);
   background: linear-gradient(135deg, #fef5f5 0%, #fef3eb 100%);
 }
 
 .incident-box--calm {
-  border: 1px solid rgba(0,0,0,0.1);
+  border: 1.5px solid rgba(0,0,0,0.12);
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
@@ -691,7 +691,7 @@ html, body {
 .incident-chip {
   border-radius: 10px;
   padding: 12px 16px;
-  border: 1px solid rgba(179,38,30,0.2);
+  border: 1.5px solid rgba(179,38,30,0.25);
   background: #fff;
   font-size: 16px;
   font-weight: 600;
@@ -1198,7 +1198,7 @@ main {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 1px 6px rgba(0,0,0,0.18);
-  border: 1px solid rgba(0,0,0,0.15);
+  border: 1.5px solid rgba(0,0,0,0.18);
   margin: 12px 0;
   padding: 12px 16px;
   background: #fff;
@@ -2555,7 +2555,7 @@ main {
 .past-incidents-card {
   background: #fff;
   border-radius: 14px;
-  border: 1px solid rgba(0,0,0,0.15);
+  border: 1.5px solid rgba(0,0,0,0.18);
   box-shadow: 0 4px 20px rgba(0,0,0,0.12);
   overflow: hidden;
 }
