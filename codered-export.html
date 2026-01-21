@@ -55,7 +55,7 @@
       Source layer: <span class="muted">LPC_Evac_Zones_View (FeatureServer/0)</span><br/>
       Filter field: <code>incident</code><br/>
       Requesting output coords: <code>outSR=4269</code> (NAD83)<br/>
-      <span class="muted">Note: Shapefile has DBF limits (10-char field names, simple value types). This page sanitizes values to keep exports valid.</span>
+      <span class="muted">Debug: this page validates the ZIP signature (“PK”) before downloading.</span>
     </div>
   </div>
 
@@ -90,7 +90,6 @@
     }
 
     function escapeSqlString(v) {
-      // ArcGIS SQL string escape for single quotes
       return String(v).replace(/'/g, "''");
     }
 
@@ -155,10 +154,7 @@
         : allIncidents;
 
       incidentEl.innerHTML = list.map(x => `<option value="${encodeURIComponent(x)}">${x}</option>`).join("");
-
-      if (!list.length) {
-        incidentEl.innerHTML = `<option value="">No matches</option>`;
-      }
+      if (!list.length) incidentEl.innerHTML = `<option value="">No matches</option>`;
     }
 
     async function fetchObjectIds(where) {
@@ -167,13 +163,11 @@
         `?where=${encodeURIComponent(where)}` +
         `&returnIdsOnly=true` +
         `&f=pjson`;
-
       const data = await fetchJson(url);
       return (data.objectIds || []).map(Number).filter(Number.isFinite).sort((a,b)=>a-b);
     }
 
     async function fetchGeoJsonByObjectIds(objectIds, outFields="*") {
-      // f=geojson gives GeoJSON FeatureCollection directly
       const url =
         `${FEATURE_LAYER}/query` +
         `?objectIds=${encodeURIComponent(objectIds.join(","))}` +
@@ -181,50 +175,57 @@
         `&returnGeometry=true` +
         `&outSR=${OUT_SR}` +
         `&f=geojson`;
-
       return await fetchJson(url);
     }
 
-    function sanitizeForDbf(featureCollection) {
-      // 1) remove null/invalid geometries
-      featureCollection.features = (featureCollection.features || []).filter(f =>
+    function sanitizeForDbf(fc) {
+      fc.features = (fc.features || []).filter(f =>
         f && f.geometry && f.geometry.type && f.geometry.coordinates !== undefined && f.geometry.coordinates !== null
       );
 
-      // 2) DBF-safe properties: strings/numbers/booleans only
-      for (const f of featureCollection.features) {
+      for (const f of fc.features) {
         const p = f.properties || {};
-
         for (const k of Object.keys(p)) {
           const v = p[k];
           if (v === null || v === undefined) continue;
-
           const t = typeof v;
           if (t === "string" || t === "number" || t === "boolean") continue;
-
-          // Convert arrays/objects/dates to strings
           if (v instanceof Date) p[k] = v.toISOString();
           else p[k] = JSON.stringify(v);
         }
-
         f.properties = p;
       }
     }
 
-    function normalizeZipOutput(zipOut) {
-      // shpwrite.zip may return ArrayBuffer, Uint8Array, or something array-like depending on build.
-      if (zipOut instanceof ArrayBuffer) return zipOut;
+    function binaryStringToUint8Array(str) {
+      // Treat as Latin-1 binary string
+      const out = new Uint8Array(str.length);
+      for (let i = 0; i < str.length; i++) out[i] = str.charCodeAt(i) & 0xff;
+      return out;
+    }
 
-      if (zipOut && zipOut.buffer instanceof ArrayBuffer) {
-        // Uint8Array / typed array
-        // Note: zipOut.buffer may include extra bytes; slice to the view's exact region.
-        const byteOffset = zipOut.byteOffset || 0;
-        const byteLength = zipOut.byteLength || zipOut.length || 0;
-        return zipOut.buffer.slice(byteOffset, byteOffset + byteLength);
+    async function toZipBytes(zipOut) {
+      // Some builds return a Promise
+      if (zipOut && typeof zipOut.then === "function") zipOut = await zipOut;
+
+      if (zipOut instanceof ArrayBuffer) return new Uint8Array(zipOut);
+
+      // Typed array (Uint8Array, etc.)
+      if (zipOut && zipOut.buffer instanceof ArrayBuffer && typeof zipOut.byteLength === "number") {
+        return new Uint8Array(zipOut.buffer, zipOut.byteOffset || 0, zipOut.byteLength);
       }
 
-      // Some builds return a string (rare); try to detect and fail loudly.
+      // Binary string (rare but real)
+      if (typeof zipOut === "string") {
+        return binaryStringToUint8Array(zipOut);
+      }
+
       throw new Error(`Unexpected zip() return type: ${zipOut?.constructor?.name || typeof zipOut}`);
+    }
+
+    function isZipSignature(u8) {
+      // ZIP files start with "PK" => 0x50 0x4B
+      return u8 && u8.length >= 2 && u8[0] === 0x50 && u8[1] === 0x4B;
     }
 
     async function previewCount() {
@@ -285,21 +286,12 @@
 
         for (let i = 0; i < objectIds.length; i += pageSize) {
           const batch = objectIds.slice(i, i + pageSize);
-
-          setStatus(
-            `Downloading… ${Math.min(i + pageSize, objectIds.length)} / ${objectIds.length}\n` +
-            `(Large incidents may take a minute.)`
-          );
-
+          setStatus(`Downloading… ${Math.min(i + pageSize, objectIds.length)} / ${objectIds.length}`);
           const fc = await fetchGeoJsonByObjectIds(batch, "*");
           if (fc?.features?.length) combined.features.push(...fc.features);
         }
 
-        setStatus(
-          `Downloaded ${combined.features.length} features.\n` +
-          `Sanitizing attributes + geometries for shapefile…`
-        );
-
+        setStatus(`Downloaded ${combined.features.length} features.\nSanitizing for shapefile…`);
         sanitizeForDbf(combined);
 
         if (!combined.features.length) {
@@ -310,26 +302,36 @@
         const base = safeBaseName(incident);
 
         setStatus(`Building shapefile ZIP in browser…`);
-
-        // Create ZIP bytes in-memory (more reliable than shpwrite.download on some setups)
         const zipOut = shpwrite.zip(combined, {
           folder: base,
           types: { point: `${base}_pts`, polygon: `${base}_poly`, line: `${base}_line` }
         });
 
-        const zipBytes = normalizeZipOutput(zipOut);
-        const blob = new Blob([zipBytes], { type: "application/zip" });
+        const zipU8 = await toZipBytes(zipOut);
 
-        // IMPORTANT: This filename must include .zip for Windows/macOS “Expand” to recognize it cleanly
+        const sigOk = isZipSignature(zipU8);
+        setStatus(
+          `ZIP built.\n` +
+          `Bytes: ${zipU8.byteLength.toLocaleString()}\n` +
+          `Signature: ${sigOk ? "PK (valid)" : "NOT PK (invalid)"}\n` +
+          `Downloading…`,
+          sigOk ? "ok" : "danger"
+        );
+
+        if (!sigOk) {
+          throw new Error("ZIP signature is not 'PK' — output is not a valid ZIP. (Usually caused by shapefile/DBF encoding issues.)");
+        }
+
+        const blob = new Blob([zipU8], { type: "application/zip" });
         saveAs(blob, `${base}_NAD83_4269.zip`);
 
         setStatus(`Done.\nSaved: ${base}_NAD83_4269.zip`, "ok");
       } catch (err) {
-        console.error(err);
         const msg = (err && err.message) ? err.message : String(err);
         setStatus(
           `Error:\n${msg}\n\n` +
-          `If you see a CORS error in DevTools Console/Network, the ArcGIS service must allow cross-origin requests from your GitHub Pages origin for a pure HTML/JS export to work.`,
+          `If downloads work but ZIP fails validation, the issue is typically a shapefile/DBF constraint (field types/lengths) from the source data.\n` +
+          `This page already stringifies complex values, but a few edge cases can still break older DBF writers.`,
           "danger"
         );
       } finally {
@@ -345,12 +347,7 @@
 
     // Init
     loadIncidents().catch(err => {
-      console.error(err);
-      setStatus(
-        `Error loading incidents:\n${err.message || err}\n\n` +
-        `If this is CORS-related, the ArcGIS service must permit your site origin.`,
-        "danger"
-      );
+      setStatus(`Error loading incidents:\n${err.message || err}`, "danger");
     });
   </script>
 </body>
