@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Export Shapefile — ReadyLaPlata</title>
+  <meta name="description" content="Export evacuation zone shapefiles by incident for La Plata County, Colorado.">
+  <meta name="theme-color" content="#0b4da2">
+  
+  <link rel="dns-prefetch" href="//js.arcgis.com">
+  <link rel="dns-prefetch" href="//services2.arcgis.com">
+  <link rel="preconnect" href="https://js.arcgis.com" crossorigin>
+  
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    
+    .page-shell {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Header */
+    .brand-banner {
+      background: linear-gradient(135deg, #0b4da2 0%, #1565c0 50%, #0d47a1 100%);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
+    
+    .header-logo {
+      height: 48px;
+      width: auto;
+    }
+    
+    .brand-text {
+      color: #fff;
+    }
+    
+    .site-name {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    
+    .site-subtitle {
+      font-size: 13px;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+    
+    /* Main content */
+    .content-wrapper {
+      flex: 1;
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+    
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 0 8px;
+      color: #1d1d1f;
+    }
+    
+    .page-subtitle {
+      font-size: 15px;
+      color: #6e6e73;
+      margin: 0 0 32px;
+    }
+    
+    /* Card */
+    .export-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+    
+    .card-section {
+      margin-bottom: 28px;
+    }
+    
+    .card-section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #86868b;
+      margin-bottom: 10px;
+    }
+    
+    /* Select dropdown */
+    .incident-select-wrapper {
+      position: relative;
+    }
+    
+    .incident-select {
+      width: 100%;
+      padding: 14px 48px 14px 16px;
+      font-size: 16px;
+      font-family: inherit;
+      border: 2px solid #d2d2d7;
+      border-radius: 12px;
+      background: #fff;
+      color: #1d1d1f;
+      appearance: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .incident-select:hover {
+      border-color: #0b4da2;
+    }
+    
+    .incident-select:focus {
+      outline: none;
+      border-color: #0b4da2;
+      box-shadow: 0 0 0 4px rgba(11, 77, 162, 0.15);
+    }
+    
+    .incident-select:disabled {
+      background: #f5f5f7;
+      color: #86868b;
+      cursor: not-allowed;
+    }
+    
+    .select-arrow {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+      color: #86868b;
+    }
+    
+    /* Info box */
+    .info-box {
+      background: #f0f7ff;
+      border: 1px solid #b3d4fc;
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    
+    .info-box svg {
+      width: 20px;
+      height: 20px;
+      color: #0b4da2;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    
+    .info-box p {
+      margin: 0;
+      font-size: 14px;
+      color: #1d1d1f;
+    }
+    
+    .info-box code {
+      background: rgba(11, 77, 162, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+      font-size: 13px;
+    }
+    
+    /* Export button */
+    .export-btn {
+      width: 100%;
+      padding: 16px 24px;
+      font-size: 17px;
+      font-weight: 600;
+      font-family: inherit;
+      color: #fff;
+      background: linear-gradient(135deg, #0b4da2 0%, #1565c0 100%);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(11, 77, 162, 0.35);
+    }
+    
+    .export-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(11, 77, 162, 0.45);
+    }
+    
+    .export-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+    
+    .export-btn:disabled {
+      background: #d2d2d7;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+    
+    .export-btn svg {
+      width: 22px;
+      height: 22px;
+    }
+    
+    /* Spinner */
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Status messages */
+    .status-msg {
+      text-align: center;
+      padding: 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      margin-top: 16px;
+      display: none;
+    }
+    
+    .status-msg.show {
+      display: block;
+    }
+    
+    .status-msg.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #a5d6a7;
+    }
+    
+    .status-msg.error {
+      background: #ffebee;
+      color: #c62828;
+      border: 1px solid #ef9a9a;
+    }
+    
+    .status-msg.loading {
+      background: #fff8e1;
+      color: #f57c00;
+      border: 1px solid #ffe082;
+    }
+    
+    /* Feature count */
+    .feature-count {
+      font-size: 14px;
+      color: #6e6e73;
+      margin-top: 10px;
+      display: none;
+    }
+    
+    .feature-count.show {
+      display: block;
+    }
+    
+    .feature-count strong {
+      color: #1d1d1f;
+    }
+    
+    /* Back link */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #0b4da2;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 20px;
+      transition: color 0.2s;
+    }
+    
+    .back-link:hover {
+      color: #1565c0;
+    }
+    
+    .back-link svg {
+      width: 18px;
+      height: 18px;
+    }
+    
+    /* Footer */
+    .page-footer {
+      background: #1d1d1f;
+      color: rgba(255,255,255,0.7);
+      padding: 20px;
+      text-align: center;
+      font-size: 13px;
+      margin-top: auto;
+    }
+    
+    .page-footer a {
+      color: #fff;
+      text-decoration: none;
+    }
+    
+    .page-footer a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Loading state for dropdown */
+    .loading-incidents {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      color: #6e6e73;
+      font-size: 15px;
+    }
+    
+    .loading-incidents .spinner {
+      width: 18px;
+      height: 18px;
+      border-color: rgba(11, 77, 162, 0.2);
+      border-top-color: #0b4da2;
+    }
+    
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6e6e73;
+    }
+    
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      color: #d2d2d7;
+      margin-bottom: 16px;
+    }
+    
+    .empty-state h3 {
+      margin: 0 0 8px;
+      color: #1d1d1f;
+      font-size: 18px;
+    }
+    
+    .empty-state p {
+      margin: 0;
+      font-size: 14px;
+    }
+    
+    @media (max-width: 480px) {
+      .brand-banner {
+        padding: 12px 16px;
+        gap: 12px;
+      }
+      
+      .header-logo {
+        height: 40px;
+      }
+      
+      .site-name {
+        font-size: 18px;
+      }
+      
+      .site-subtitle {
+        font-size: 12px;
+      }
+      
+      .content-wrapper {
+        padding: 16px 12px 32px;
+      }
+      
+      .page-title {
+        font-size: 24px;
+      }
+      
+      .export-card {
+        padding: 20px;
+        border-radius: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-shell">
+    
+    <!-- Header -->
+    <header class="brand-banner">
+      <img src="https://cms9files.revize.com/laplata/_assets_/images/logo.png" alt="La Plata County Logo" class="header-logo" width="180" height="auto" loading="eager">
+      <div class="brand-text">
+        <div class="site-name">ReadyLaPlata</div>
+        <div class="site-subtitle">La Plata County Evacuation Viewer</div>
+      </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="content-wrapper">
+      
+      <a href="index.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Back to Home
+      </a>
+      
+      <h1 class="page-title">Export Shapefile</h1>
+      <p class="page-subtitle">Download evacuation zone data as a shapefile for use in GIS applications.</p>
+      
+      <div class="export-card">
+        
+        <!-- Incident Selection -->
+        <div class="card-section">
+          <div class="section-label">Select Incident</div>
+          <div class="incident-select-wrapper">
+            <select id="incidentSelect" class="incident-select" disabled>
+              <option value="">Loading incidents...</option>
+            </select>
+            <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+          <div id="featureCount" class="feature-count"></div>
+        </div>
+        
+        <!-- Projection Info -->
+        <div class="card-section">
+          <div class="info-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            <p>
+              Shapefile will be exported in <strong>NAD83</strong> coordinate system<br>
+              <code>EPSG:4269</code> (WKID 4269)
+            </p>
+          </div>
+        </div>
+        
+        <!-- Export Button -->
+        <div class="card-section">
+          <button id="exportBtn" class="export-btn" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span id="btnText">Export Shapefile</span>
+          </button>
+          
+          <div id="statusMsg" class="status-msg"></div>
+        </div>
+        
+      </div>
+      
+      <!-- Empty state (shown when no incidents) -->
+      <div id="emptyState" class="export-card empty-state" style="display: none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="9" y1="15" x2="15" y2="15"/>
+        </svg>
+        <h3>No Incidents Available</h3>
+        <p>There are currently no incidents with evacuation zones to export.</p>
+      </div>
+      
+    </main>
+    
+    <!-- Footer -->
+    <footer class="page-footer">
+      <a href="https://www.co.laplata.co.us/government/departments/emergency_management/index.php">La Plata County Office of Emergency Management</a>
+    </footer>
+    
+  </div>
+  
+  <!-- shp-write library -->
+  <script src="https://unpkg.com/@mapbox/shp-write@0.4.4/shpwrite.js"></script>
+  
+  <!-- ArcGIS JS API -->
+  <script src="https://js.arcgis.com/4.31/"></script>
+  
+  <script>
+    (function() {
+      'use strict';
+      
+      // Configuration
+      const CONFIG = {
+        featureLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0',
+        outSR: 4269 // NAD83
+      };
+      
+      // NAD83 WKT for .prj file
+      const NAD83_WKT = 'GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4269"]]';
+      
+      // DOM Elements
+      const incidentSelect = document.getElementById('incidentSelect');
+      const exportBtn = document.getElementById('exportBtn');
+      const btnText = document.getElementById('btnText');
+      const statusMsg = document.getElementById('statusMsg');
+      const featureCount = document.getElementById('featureCount');
+      const emptyState = document.getElementById('emptyState');
+      const exportCard = document.querySelector('.export-card');
+      
+      // State
+      let featureLayer = null;
+      let incidentFeatureCounts = {};
+      
+      // Show status message
+      function showStatus(message, type) {
+        statusMsg.textContent = message;
+        statusMsg.className = 'status-msg show ' + type;
+      }
+      
+      function hideStatus() {
+        statusMsg.className = 'status-msg';
+      }
+      
+      // Set button loading state
+      function setButtonLoading(loading) {
+        if (loading) {
+          exportBtn.disabled = true;
+          btnText.parentElement.innerHTML = '<div class="spinner"></div><span id="btnText">Exporting...</span>';
+        } else {
+          exportBtn.disabled = !incidentSelect.value;
+          exportBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span id="btnText">Export Shapefile</span>
+          `;
+        }
+      }
+      
+      // Get case-insensitive attribute value
+      function getAttr(attrs, ...keys) {
+        for (const key of keys) {
+          if (attrs[key] !== undefined) return attrs[key];
+          const lower = key.toLowerCase();
+          const upper = key.toUpperCase();
+          const cap = key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
+          if (attrs[lower] !== undefined) return attrs[lower];
+          if (attrs[upper] !== undefined) return attrs[upper];
+          if (attrs[cap] !== undefined) return attrs[cap];
+        }
+        return null;
+      }
+      
+      // Convert ArcGIS geometry to GeoJSON
+      function arcgisToGeoJSON(feature) {
+        const geom = feature.geometry;
+        const attrs = feature.attributes;
+        
+        if (!geom) return null;
+        
+        let geometry = null;
+        
+        if (geom.rings) {
+          // Polygon
+          if (geom.rings.length === 1) {
+            geometry = {
+              type: 'Polygon',
+              coordinates: [geom.rings[0].map(pt => [pt[0], pt[1]])]
+            };
+          } else {
+            // MultiPolygon or polygon with holes
+            geometry = {
+              type: 'Polygon',
+              coordinates: geom.rings.map(ring => ring.map(pt => [pt[0], pt[1]]))
+            };
+          }
+        } else if (geom.paths) {
+          // Polyline
+          if (geom.paths.length === 1) {
+            geometry = {
+              type: 'LineString',
+              coordinates: geom.paths[0].map(pt => [pt[0], pt[1]])
+            };
+          } else {
+            geometry = {
+              type: 'MultiLineString',
+              coordinates: geom.paths.map(path => path.map(pt => [pt[0], pt[1]]))
+            };
+          }
+        } else if (geom.x !== undefined && geom.y !== undefined) {
+          // Point
+          geometry = {
+            type: 'Point',
+            coordinates: [geom.x, geom.y]
+          };
+        }
+        
+        if (!geometry) return null;
+        
+        // Clean attributes (shp-write has 10 char field name limit)
+        const props = {};
+        for (const key in attrs) {
+          // Truncate field names to 10 chars for shapefile compatibility
+          const shortKey = key.substring(0, 10);
+          props[shortKey] = attrs[key];
+        }
+        
+        return {
+          type: 'Feature',
+          geometry: geometry,
+          properties: props
+        };
+      }
+      
+      // Initialize the app
+      require([
+        'esri/layers/FeatureLayer',
+        'esri/rest/support/Query'
+      ], function(FeatureLayer, Query) {
+        
+        // Create feature layer
+        featureLayer = new FeatureLayer({
+          url: CONFIG.featureLayerUrl
+        });
+        
+        // Load distinct incidents
+        loadIncidents();
+        
+        async function loadIncidents() {
+          try {
+            // Query for distinct incident values
+            const query = featureLayer.createQuery();
+            query.where = '1=1';
+            query.outFields = ['*'];
+            query.returnDistinctValues = true;
+            query.returnGeometry = false;
+            
+            const result = await featureLayer.queryFeatures(query);
+            
+            // Extract unique incidents
+            const incidents = new Set();
+            result.features.forEach(f => {
+              const incident = getAttr(f.attributes, 'incident', 'Incident', 'INCIDENT');
+              if (incident && incident.trim()) {
+                incidents.add(incident.trim());
+              }
+            });
+            
+            const incidentList = Array.from(incidents).sort();
+            
+            if (incidentList.length === 0) {
+              // No incidents
+              exportCard.style.display = 'none';
+              emptyState.style.display = 'block';
+              return;
+            }
+            
+            // Get feature counts for each incident
+            for (const inc of incidentList) {
+              const countQuery = featureLayer.createQuery();
+              countQuery.where = `incident = '${inc.replace(/'/g, "''")}'`;
+              const count = await featureLayer.queryFeatureCount(countQuery);
+              incidentFeatureCounts[inc] = count;
+            }
+            
+            // Populate dropdown
+            incidentSelect.innerHTML = '<option value="">Select an incident...</option>';
+            incidentList.forEach(inc => {
+              const count = incidentFeatureCounts[inc] || 0;
+              const opt = document.createElement('option');
+              opt.value = inc;
+              opt.textContent = `${inc} (${count} zone${count !== 1 ? 's' : ''})`;
+              incidentSelect.appendChild(opt);
+            });
+            
+            incidentSelect.disabled = false;
+            
+          } catch (err) {
+            console.error('Error loading incidents:', err);
+            incidentSelect.innerHTML = '<option value="">Error loading incidents</option>';
+            showStatus('Failed to load incidents. Please refresh the page.', 'error');
+          }
+        }
+        
+        // Handle incident selection
+        incidentSelect.addEventListener('change', function() {
+          const selected = this.value;
+          hideStatus();
+          
+          if (selected) {
+            exportBtn.disabled = false;
+            const count = incidentFeatureCounts[selected] || 0;
+            featureCount.innerHTML = `<strong>${count}</strong> evacuation zone${count !== 1 ? 's' : ''} will be exported`;
+            featureCount.classList.add('show');
+          } else {
+            exportBtn.disabled = true;
+            featureCount.classList.remove('show');
+          }
+        });
+        
+        // Handle export
+        exportBtn.addEventListener('click', async function() {
+          const incident = incidentSelect.value;
+          if (!incident) return;
+          
+          setButtonLoading(true);
+          hideStatus();
+          
+          try {
+            showStatus('Querying features...', 'loading');
+            
+            // Query features for selected incident with NAD83 projection
+            const query = featureLayer.createQuery();
+            query.where = `incident = '${incident.replace(/'/g, "''")}'`;
+            query.outFields = ['*'];
+            query.returnGeometry = true;
+            query.outSpatialReference = { wkid: CONFIG.outSR };
+            
+            const result = await featureLayer.queryFeatures(query);
+            
+            if (!result.features || result.features.length === 0) {
+              showStatus('No features found for this incident.', 'error');
+              setButtonLoading(false);
+              return;
+            }
+            
+            showStatus(`Converting ${result.features.length} features...`, 'loading');
+            
+            // Convert to GeoJSON
+            const geoJSONFeatures = result.features
+              .map(f => arcgisToGeoJSON(f))
+              .filter(f => f !== null);
+            
+            if (geoJSONFeatures.length === 0) {
+              showStatus('Could not convert features to GeoJSON.', 'error');
+              setButtonLoading(false);
+              return;
+            }
+            
+            const geoJSON = {
+              type: 'FeatureCollection',
+              features: geoJSONFeatures
+            };
+            
+            showStatus('Generating shapefile...', 'loading');
+            
+            // Generate shapefile with NAD83 projection
+            const filename = incident.replace(/[^a-zA-Z0-9_-]/g, '_') + '_NAD83';
+            
+            const options = {
+              folder: filename,
+              filename: filename,
+              outputType: 'blob',
+              compression: 'STORE',
+              prj: NAD83_WKT,
+              types: {
+                polygon: filename,
+                polyline: filename + '_lines',
+                point: filename + '_points'
+              }
+            };
+            
+            const zipBlob = await shpwrite.zip(geoJSON, options);
+            
+            // Trigger download
+            const url = URL.createObjectURL(zipBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename + '.zip';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus(`Successfully exported ${geoJSONFeatures.length} features!`, 'success');
+            
+          } catch (err) {
+            console.error('Export error:', err);
+            showStatus('Export failed: ' + (err.message || 'Unknown error'), 'error');
+          }
+          
+          setButtonLoading(false);
+        });
+        
+      });
+      
+    })();
+  </script>
+  
+</body>
+</html>
