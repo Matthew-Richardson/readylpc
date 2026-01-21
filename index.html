@@ -314,7 +314,7 @@
   (function() {
     'use strict';
 
-    const { $, escHTML, createChip, sortIncidents, getIncidentParam, updateTimestamp, initCoderedOverlay, initCallerIdOverlay, initDrillBanner, initAnnouncement } = ReadyLaPlata;
+    const { $, escHTML, createChip, sortIncidents, getIncidentParam, updateTimestamp, initCoderedOverlay, initCallerIdOverlay, initDrillBanner, initAnnouncement, initScrollIndicator } = ReadyLaPlata;
 
     // Configuration
     const CONFIG = {
@@ -496,6 +496,7 @@
     initDrillBanner(DOM);
     initAnnouncement(DOM);
     initTriangleLines();
+    initScrollIndicator();
   })();
   </script>
 </body>
