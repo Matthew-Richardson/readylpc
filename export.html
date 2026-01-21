@@ -3,15 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodeRED Shapefile Export — ReadyLaPlata</title>
-  <meta name="description" content="Export evacuation zone shapefiles by incident for La Plata County, Colorado.">
-  <meta name="theme-color" content="#0b4da2">
+  <title>CodeRED KML Export — ReadyLaPlata</title>
+  <meta name="description" content="Export evacuation zones as KML for CodeRED notifications.">
+  <meta name="theme-color" content="#2d3436">
   
+  <!-- Performance: DNS prefetch for external resources -->
   <link rel="dns-prefetch" href="//js.arcgis.com">
   <link rel="dns-prefetch" href="//services2.arcgis.com">
   <link rel="preconnect" href="https://js.arcgis.com" crossorigin>
   
   <style>
+    /* ========================================
+       Base Styles
+       ======================================== */
     *, *::before, *::after { box-sizing: border-box; }
     
     html, body {
@@ -25,6 +29,9 @@
       line-height: 1.5;
     }
     
+    /* ========================================
+       Layout
+       ======================================== */
     .page-shell {
       min-height: 100vh;
       display: flex;
@@ -57,6 +64,9 @@
     .page-title { font-size: 28px; font-weight: 700; margin: 0 0 8px; color: #1d1d1f; }
     .page-subtitle { font-size: 15px; color: #6e6e73; margin: 0 0 32px; }
     
+    /* ========================================
+       Card Component
+       ======================================== */
     .export-card {
       background: #fff;
       border-radius: 16px;
@@ -77,6 +87,9 @@
       margin-bottom: 10px;
     }
     
+    /* ========================================
+       Form Elements
+       ======================================== */
     .incident-select-wrapper { position: relative; }
     
     .incident-select {
@@ -108,6 +121,9 @@
       color: #86868b;
     }
     
+    /* ========================================
+       Info Box
+       ======================================== */
     .info-box {
       background: #f0f7ff;
       border: 1px solid #b3d4fc;
@@ -120,14 +136,10 @@
     
     .info-box svg { width: 20px; height: 20px; color: #0b4da2; flex-shrink: 0; margin-top: 1px; }
     .info-box p { margin: 0; font-size: 14px; color: #1d1d1f; }
-    .info-box code {
-      background: rgba(11, 77, 162, 0.1);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-family: 'SF Mono', Monaco, 'Courier New', monospace;
-      font-size: 13px;
-    }
     
+    /* ========================================
+       Export Button
+       ======================================== */
     .export-btn {
       width: 100%;
       padding: 16px 24px;
@@ -152,6 +164,7 @@
     .export-btn:disabled { background: #d2d2d7; box-shadow: none; cursor: not-allowed; }
     .export-btn svg { width: 22px; height: 22px; }
     
+    /* Loading spinner */
     .spinner {
       width: 22px;
       height: 22px;
@@ -163,6 +176,9 @@
     
     @keyframes spin { to { transform: rotate(360deg); } }
     
+    /* ========================================
+       Status Messages
+       ======================================== */
     .status-msg {
       text-align: center;
       padding: 16px;
@@ -177,6 +193,9 @@
     .status-msg.error { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
     .status-msg.loading { background: #fff8e1; color: #f57c00; border: 1px solid #ffe082; }
     
+    /* ========================================
+       Feature Count & Zone List
+       ======================================== */
     .feature-count { font-size: 14px; color: #6e6e73; margin-top: 10px; display: none; }
     .feature-count.show { display: block; }
     .feature-count strong { color: #1d1d1f; }
@@ -207,6 +226,7 @@
       gap: 6px;
     }
     
+    /* Zone status chips */
     .zone-chip {
       display: inline-flex;
       align-items: center;
@@ -230,6 +250,9 @@
       color: #2e7d32;
     }
     
+    /* ========================================
+       Navigation & Footer
+       ======================================== */
     .back-link {
       display: inline-flex;
       align-items: center;
@@ -257,11 +280,17 @@
     .page-footer a { color: #fff; text-decoration: none; }
     .page-footer a:hover { text-decoration: underline; }
     
+    /* ========================================
+       Empty State
+       ======================================== */
     .empty-state { text-align: center; padding: 40px 20px; color: #6e6e73; }
     .empty-state svg { width: 48px; height: 48px; color: #d2d2d7; margin-bottom: 16px; }
     .empty-state h3 { margin: 0 0 8px; color: #1d1d1f; font-size: 18px; }
     .empty-state p { margin: 0; font-size: 14px; }
     
+    /* ========================================
+       Responsive Design
+       ======================================== */
     @media (max-width: 480px) {
       .brand-banner { padding: 12px 16px; gap: 12px; }
       .header-logo { height: 40px; }
@@ -277,14 +306,21 @@
 <body>
   <div class="page-shell">
     
+    <!-- Header -->
     <header class="brand-banner">
-      <img src="https://cms9files.revize.com/laplata/_assets_/images/logo.png" alt="La Plata County Logo" class="header-logo" width="180" height="auto" loading="eager">
+      <img src="https://cms9files.revize.com/laplata/_assets_/images/logo.png" 
+           alt="La Plata County Logo" 
+           class="header-logo" 
+           width="180" 
+           height="auto" 
+           loading="eager">
       <div class="brand-text">
         <div class="site-name">ReadyLaPlata</div>
         <div class="site-subtitle">La Plata County Evacuation Viewer</div>
       </div>
     </header>
     
+    <!-- Main Content -->
     <main class="content-wrapper">
       
       <a href="index.html" class="back-link">
@@ -294,11 +330,13 @@
         Back to Home
       </a>
       
-      <h1 class="page-title">Export CodeRED Shapefile</h1>
-      <p class="page-subtitle">Download evacuation zone data as a shapefile for use in CodeRED.</p>
+      <h1 class="page-title">Export for CodeRED</h1>
+      <p class="page-subtitle">Export evacuation zones as a dissolved KML boundary for CodeRED notifications.</p>
       
+      <!-- Export Card -->
       <div id="exportCard" class="export-card">
         
+        <!-- Incident Selector -->
         <div class="card-section">
           <div class="section-label">Select Incident</div>
           <div class="incident-select-wrapper">
@@ -316,6 +354,7 @@
           </div>
         </div>
         
+        <!-- Info Box -->
         <div class="card-section">
           <div class="info-box">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -324,11 +363,12 @@
               <line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
             <p>
-              Exports as <strong>KML</strong> for use in CodeRED
+              Exports as <strong>KML</strong> with all zones dissolved into a single boundary for CodeRED
             </p>
           </div>
         </div>
         
+        <!-- Export Button -->
         <div class="card-section">
           <button id="exportBtn" class="export-btn" disabled>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -338,12 +378,12 @@
             </svg>
             <span id="btnText">Export KML</span>
           </button>
-          
           <div id="statusMsg" class="status-msg"></div>
         </div>
         
       </div>
       
+      <!-- Empty State (shown when no incidents available) -->
       <div id="emptyState" class="export-card empty-state" style="display: none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
@@ -356,26 +396,54 @@
       
     </main>
     
+    <!-- Footer -->
     <footer class="page-footer">
-      <a href="https://www.co.laplata.co.us/government/departments/emergency_management/index.php">La Plata County Office of Emergency Management</a>
+      <a href="https://www.co.laplata.co.us/government/departments/emergency_management/index.php">
+        La Plata County Office of Emergency Management
+      </a>
     </footer>
     
   </div>
   
-  <!-- ArcGIS JS API -->
+  <!-- ArcGIS JavaScript API -->
   <script src="https://js.arcgis.com/4.31/"></script>
   
   <script>
+    /**
+     * CodeRED KML Export Tool
+     * 
+     * This tool exports evacuation zones from ArcGIS Feature Layer as KML files
+     * for use in CodeRED emergency notification system.
+     * 
+     * Features:
+     * - Queries evacuation zones by incident from ArcGIS Online
+     * - Dissolves multiple zones into a single convex hull boundary
+     * - Generates KML file compatible with CodeRED
+     * 
+     * Security Considerations:
+     * - SQL injection prevented via parameterized escaping of incident names
+     * - XSS prevented via XML entity escaping in KML output
+     * - No user data stored; all processing client-side
+     * - Feature layer URL is read-only public data
+     */
+    
+    'use strict';
+    
+    // ========================================
     // Configuration
+    // ========================================
     var CONFIG = {
+      // ArcGIS Feature Layer URL (read-only public layer)
       featureLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0',
-      outSR: 4326 // WGS84 for KML
+      // Output spatial reference (WGS84 for KML compatibility)
+      outSR: 4326
     };
     
-    // DOM Elements
+    // ========================================
+    // DOM Element References
+    // ========================================
     var incidentSelect = document.getElementById('incidentSelect');
     var exportBtn = document.getElementById('exportBtn');
-    var btnText = document.getElementById('btnText');
     var statusMsg = document.getElementById('statusMsg');
     var featureCountEl = document.getElementById('featureCount');
     var zoneListEl = document.getElementById('zoneList');
@@ -383,21 +451,38 @@
     var emptyState = document.getElementById('emptyState');
     var exportCard = document.getElementById('exportCard');
     
-    // State
+    // ========================================
+    // Application State
+    // ========================================
     var featureLayer = null;
-    var incidentFeatureCounts = {};
-    var incidentZones = {}; // Store zone details per incident
+    var incidentFeatureCounts = {};  // Count of zones per incident
+    var incidentZones = {};          // Zone details per incident
     
-    // Utility functions
+    // ========================================
+    // UI Helper Functions
+    // ========================================
+    
+    /**
+     * Display a status message to the user
+     * @param {string} message - Message to display
+     * @param {string} type - Message type: 'success', 'error', or 'loading'
+     */
     function showStatus(message, type) {
       statusMsg.textContent = message;
       statusMsg.className = 'status-msg show ' + type;
     }
     
+    /**
+     * Hide the status message
+     */
     function hideStatus() {
       statusMsg.className = 'status-msg';
     }
     
+    /**
+     * Set the export button loading state
+     * @param {boolean} loading - Whether the button should show loading state
+     */
     function setButtonLoading(loading) {
       if (loading) {
         exportBtn.disabled = true;
@@ -408,6 +493,19 @@
       }
     }
     
+    // ========================================
+    // Data Helper Functions
+    // ========================================
+    
+    /**
+     * Get attribute value with case-insensitive fallback
+     * Handles inconsistent field name casing from ArcGIS
+     * @param {Object} attrs - Feature attributes object
+     * @param {string} key1 - Primary key to check
+     * @param {string} key2 - Secondary key to check
+     * @param {string} key3 - Tertiary key to check
+     * @returns {*} Attribute value or null
+     */
     function getAttr(attrs, key1, key2, key3) {
       if (attrs[key1] !== undefined) return attrs[key1];
       if (attrs[key2] !== undefined) return attrs[key2];
@@ -417,7 +515,11 @@
       return null;
     }
     
-    // Convert ArcGIS geometry to GeoJSON
+    /**
+     * Convert ArcGIS feature to GeoJSON format
+     * @param {Object} feature - ArcGIS feature object
+     * @returns {Object|null} GeoJSON feature or null if invalid
+     */
     function arcgisToGeoJSON(feature) {
       var geom = feature.geometry;
       var attrs = feature.attributes;
@@ -426,6 +528,7 @@
       
       var geometry = null;
       
+      // Handle polygon geometry (rings)
       if (geom.rings) {
         geometry = {
           type: 'Polygon',
@@ -433,33 +536,33 @@
             return ring.map(function(pt) { return [pt[0], pt[1]]; });
           })
         };
-      } else if (geom.paths) {
-        geometry = {
-          type: geom.paths.length === 1 ? 'LineString' : 'MultiLineString',
-          coordinates: geom.paths.length === 1 
-            ? geom.paths[0].map(function(pt) { return [pt[0], pt[1]]; })
-            : geom.paths.map(function(path) { return path.map(function(pt) { return [pt[0], pt[1]]; }); })
-        };
-      } else if (geom.x !== undefined && geom.y !== undefined) {
-        geometry = { type: 'Point', coordinates: [geom.x, geom.y] };
       }
       
       if (!geometry) return null;
       
-      // Truncate field names to 10 chars for shapefile
+      // Copy attributes to properties
       var props = {};
       for (var key in attrs) {
-        props[key.substring(0, 10)] = attrs[key];
+        if (attrs.hasOwnProperty(key)) {
+          props[key] = attrs[key];
+        }
       }
       
       return { type: 'Feature', geometry: geometry, properties: props };
     }
     
     // ========================================
-    // Convex Hull - creates single boundary from all points
+    // Geometry Functions
     // ========================================
+    
+    /**
+     * Compute convex hull of a set of points using gift wrapping algorithm
+     * Creates a single boundary polygon that encompasses all input points
+     * @param {Array} points - Array of [x, y] coordinate pairs
+     * @returns {Array} Array of [x, y] coordinates forming the convex hull (closed ring)
+     */
     function convexHull(points) {
-      // Remove duplicates
+      // Remove duplicate points
       var unique = [];
       var seen = {};
       points.forEach(function(pt) {
@@ -471,9 +574,10 @@
       });
       points = unique;
       
+      // Need at least 3 points for a polygon
       if (points.length < 3) return points;
       
-      // Find leftmost point
+      // Find leftmost point as starting point
       var start = 0;
       for (var i = 1; i < points.length; i++) {
         if (points[i][0] < points[start][0]) {
@@ -485,107 +589,45 @@
       var current = start;
       var next;
       
+      // Gift wrapping algorithm
       do {
         hull.push(points[current]);
         next = 0;
         
-        for (var i = 1; i < points.length; i++) {
+        for (var j = 1; j < points.length; j++) {
           if (next === current) {
-            next = i;
+            next = j;
             continue;
           }
           
           // Cross product to determine turn direction
-          var cross = (points[i][0] - points[current][0]) * (points[next][1] - points[current][1]) -
-                      (points[i][1] - points[current][1]) * (points[next][0] - points[current][0]);
+          // Positive = counter-clockwise turn (point is more left)
+          var cross = (points[j][0] - points[current][0]) * (points[next][1] - points[current][1]) -
+                      (points[j][1] - points[current][1]) * (points[next][0] - points[current][0]);
           
           if (cross > 0) {
-            next = i;
+            next = j;
           }
         }
         
         current = next;
       } while (current !== start && hull.length < points.length);
       
-      // Close the ring
+      // Close the ring (first point = last point)
       hull.push(hull[0]);
       
       return hull;
     }
     
     // ========================================
-    // KML Writer - Single merged feature
+    // KML Generation
     // ========================================
-    function generateKML(geojson, incidentName) {
-      var kml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-      kml += '<kml xmlns="http://www.opengis.net/kml/2.2">\n';
-      kml += '  <Document>\n';
-      kml += '    <name>' + escapeXml(incidentName) + '</name>\n';
-      
-      // Style for evacuation zones
-      kml += '    <Style id="evacuationStyle">\n';
-      kml += '      <PolyStyle><color>7f0000ff</color><outline>1</outline></PolyStyle>\n';
-      kml += '      <LineStyle><color>ff0000cc</color><width>2</width></LineStyle>\n';
-      kml += '    </Style>\n';
-      
-      // Create a separate Placemark for each feature
-      geojson.features.forEach(function(feature) {
-        var props = feature.properties || {};
-        var zoneName = props.name || props.zonename || props.ZONENAME || props.Zonename || props.zone || 'Zone';
-        var description = props.zones || props.STATUS || props.status || props.Status || '';
-        
-        kml += '    <Placemark>\n';
-        kml += '      <name>' + escapeXml(zoneName) + '</name>\n';
-        if (description) {
-          kml += '      <description>' + escapeXml(description) + '</description>\n';
-        }
-        kml += '      <styleUrl>#evacuationStyle</styleUrl>\n';
-        
-        if (feature.geometry.type === 'Polygon') {
-          kml += '      <Polygon>\n';
-          kml += '        <outerBoundaryIs><LinearRing><coordinates>\n';
-          kml += '          ' + feature.geometry.coordinates[0].map(function(pt) {
-            return pt[0] + ',' + pt[1] + ',0';
-          }).join(' ') + '\n';
-          kml += '        </coordinates></LinearRing></outerBoundaryIs>\n';
-          for (var i = 1; i < feature.geometry.coordinates.length; i++) {
-            kml += '        <innerBoundaryIs><LinearRing><coordinates>\n';
-            kml += '          ' + feature.geometry.coordinates[i].map(function(pt) {
-              return pt[0] + ',' + pt[1] + ',0';
-            }).join(' ') + '\n';
-            kml += '        </coordinates></LinearRing></innerBoundaryIs>\n';
-          }
-          kml += '      </Polygon>\n';
-        } else if (feature.geometry.type === 'MultiPolygon') {
-          kml += '      <MultiGeometry>\n';
-          feature.geometry.coordinates.forEach(function(polygon) {
-            kml += '        <Polygon>\n';
-            kml += '          <outerBoundaryIs><LinearRing><coordinates>\n';
-            kml += '            ' + polygon[0].map(function(pt) {
-              return pt[0] + ',' + pt[1] + ',0';
-            }).join(' ') + '\n';
-            kml += '          </coordinates></LinearRing></outerBoundaryIs>\n';
-            for (var j = 1; j < polygon.length; j++) {
-              kml += '          <innerBoundaryIs><LinearRing><coordinates>\n';
-              kml += '            ' + polygon[j].map(function(pt) {
-                return pt[0] + ',' + pt[1] + ',0';
-              }).join(' ') + '\n';
-              kml += '          </coordinates></LinearRing></innerBoundaryIs>\n';
-            }
-            kml += '        </Polygon>\n';
-          });
-          kml += '      </MultiGeometry>\n';
-        }
-        
-        kml += '    </Placemark>\n';
-      });
-      
-      kml += '  </Document>\n';
-      kml += '</kml>';
-      
-      return kml;
-    }
     
+    /**
+     * Escape special XML characters to prevent XSS
+     * @param {string} str - String to escape
+     * @returns {string} Escaped string safe for XML
+     */
     function escapeXml(str) {
       return String(str)
         .replace(/&/g, '&amp;')
@@ -595,22 +637,74 @@
         .replace(/'/g, '&apos;');
     }
     
+    /**
+     * Generate KML document from GeoJSON
+     * @param {Object} geojson - GeoJSON FeatureCollection with single dissolved feature
+     * @param {string} incidentName - Name of the incident for the KML document
+     * @returns {string} KML document as string
+     */
+    function generateKML(geojson, incidentName) {
+      var feature = geojson.features[0];
+      var props = feature.properties || {};
+      
+      var kml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+      kml += '<kml xmlns="http://www.opengis.net/kml/2.2">\n';
+      kml += '  <Document>\n';
+      kml += '    <name>' + escapeXml(incidentName) + '</name>\n';
+      
+      // Define style for evacuation zone polygon
+      kml += '    <Style id="evacuationStyle">\n';
+      kml += '      <PolyStyle><color>7f0000ff</color><outline>1</outline></PolyStyle>\n';
+      kml += '      <LineStyle><color>ff0000cc</color><width>2</width></LineStyle>\n';
+      kml += '    </Style>\n';
+      
+      // Create placemark with polygon
+      kml += '    <Placemark>\n';
+      kml += '      <name>' + escapeXml(props.name || incidentName) + '</name>\n';
+      if (props.zones) {
+        kml += '      <description>' + escapeXml(props.zones) + '</description>\n';
+      }
+      kml += '      <styleUrl>#evacuationStyle</styleUrl>\n';
+      
+      // Output polygon coordinates
+      if (feature.geometry.type === 'Polygon') {
+        kml += '      <Polygon>\n';
+        kml += '        <outerBoundaryIs><LinearRing><coordinates>\n';
+        kml += '          ' + feature.geometry.coordinates[0].map(function(pt) {
+          return pt[0] + ',' + pt[1] + ',0';
+        }).join(' ') + '\n';
+        kml += '        </coordinates></LinearRing></outerBoundaryIs>\n';
+        kml += '      </Polygon>\n';
+      }
+      
+      kml += '    </Placemark>\n';
+      kml += '  </Document>\n';
+      kml += '</kml>';
+      
+      return kml;
+    }
     
     // ========================================
-    // Initialize with ArcGIS API
+    // ArcGIS Integration
     // ========================================
+    
     require(['esri/layers/FeatureLayer'], function(FeatureLayer) {
       
+      // Initialize feature layer connection
       featureLayer = new FeatureLayer({ url: CONFIG.featureLayerUrl });
       
-      // Load incidents
+      // Load available incidents on page load
       loadIncidents();
       
+      /**
+       * Load all incidents from the feature layer
+       * Groups zones by incident name and populates the dropdown
+       */
       function loadIncidents() {
         var query = featureLayer.createQuery();
-        query.where = '1=1';
+        query.where = '1=1';  // Get all features
         query.outFields = ['*'];
-        query.returnGeometry = false;
+        query.returnGeometry = false;  // Don't need geometry for listing
         
         featureLayer.queryFeatures(query).then(function(result) {
           var incidents = {};
@@ -637,6 +731,7 @@
           
           var incidentList = Object.keys(incidents).sort();
           
+          // Show empty state if no incidents
           if (incidentList.length === 0) {
             exportCard.style.display = 'none';
             emptyState.style.display = 'block';
@@ -668,7 +763,14 @@
         });
       }
       
-      // Handle selection change
+      // ========================================
+      // Event Handlers
+      // ========================================
+      
+      /**
+       * Handle incident selection change
+       * Updates the zone list display and enables/disables export button
+       */
       incidentSelect.addEventListener('change', function() {
         var selected = this.value;
         hideStatus();
@@ -676,10 +778,10 @@
         if (selected) {
           exportBtn.disabled = false;
           var count = incidentFeatureCounts[selected] || 0;
-          featureCountEl.innerHTML = '<strong>' + count + '</strong> evacuation zone' + (count !== 1 ? 's' : '') + ' will be exported';
+          featureCountEl.innerHTML = '<strong>' + count + '</strong> evacuation zone' + (count !== 1 ? 's' : '') + ' will be dissolved into single boundary';
           featureCountEl.classList.add('show');
           
-          // Show zone list
+          // Display zone chips
           var zones = incidentZones[selected] || [];
           if (zones.length > 0) {
             zoneListItemsEl.innerHTML = '';
@@ -705,33 +807,26 @@
         }
       });
       
-      // Handle export
+      /**
+       * Handle export button click
+       * Queries features, dissolves into convex hull, and generates KML download
+       */
       exportBtn.addEventListener('click', function() {
         var incident = incidentSelect.value;
         if (!incident) return;
         
         setButtonLoading(true);
         hideStatus();
-        
         showStatus('Querying features...', 'loading');
         
+        // Build query with escaped incident name to prevent SQL injection
         var query = featureLayer.createQuery();
         query.where = "incident = '" + incident.replace(/'/g, "''") + "'";
         query.outFields = ['*'];
         query.returnGeometry = true;
         query.outSpatialReference = { wkid: CONFIG.outSR };
         
-        console.log('Export query WHERE clause:', query.where);
-        
         featureLayer.queryFeatures(query).then(function(result) {
-          console.log('=== EXPORT QUERY RESULTS ===');
-          console.log('Query returned', result.features ? result.features.length : 0, 'features');
-          
-          if (result.features && result.features.length > 0) {
-            console.log('Feature OBJECTIDs:', result.features.map(function(f) { 
-              return f.attributes.OBJECTID || f.attributes.objectid || 'no-id'; 
-            }).join(', '));
-          }
           
           if (!result.features || result.features.length === 0) {
             showStatus('No features found for this incident.', 'error');
@@ -741,22 +836,16 @@
           
           showStatus('Converting ' + result.features.length + ' features...', 'loading');
           
+          // Convert to GeoJSON
           var geoJSONFeatures = result.features
             .map(function(f) { return arcgisToGeoJSON(f); })
             .filter(function(f) { return f !== null; });
           
-          console.log('Converted to', geoJSONFeatures.length, 'GeoJSON features');
-          if (geoJSONFeatures.length > 0) {
-            console.log('First feature:', JSON.stringify(geoJSONFeatures[0]).substring(0, 500));
-          }
-          
           if (geoJSONFeatures.length === 0) {
-            showStatus('Could not convert features to GeoJSON.', 'error');
+            showStatus('Could not convert features.', 'error');
             setButtonLoading(false);
             return;
           }
-          
-          var geoJSON = { type: 'FeatureCollection', features: geoJSONFeatures };
           
           // Generate filename: first 3 letters of incident + datetime
           var prefix = incident.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase();
@@ -772,8 +861,8 @@
           try {
             showStatus('Dissolving ' + geoJSONFeatures.length + ' zones into single boundary...', 'loading');
             
-            // Collect all outer ring coordinates from all polygons
-            var allRings = [];
+            // Collect all points from all polygon outer rings
+            var allPoints = [];
             var zoneNames = [];
             
             geoJSONFeatures.forEach(function(feature) {
@@ -783,22 +872,11 @@
               zoneNames.push(zoneName + (status ? ' (' + status + ')' : ''));
               
               if (feature.geometry.type === 'Polygon') {
-                // Get outer ring (first ring)
-                allRings.push(feature.geometry.coordinates[0]);
-              } else if (feature.geometry.type === 'MultiPolygon') {
-                feature.geometry.coordinates.forEach(function(poly) {
-                  allRings.push(poly[0]);
+                // Get outer ring points (first ring)
+                feature.geometry.coordinates[0].forEach(function(pt) {
+                  allPoints.push(pt);
                 });
               }
-            });
-            
-            // Combine all points into a single polygon boundary (convex hull approach)
-            // Collect all points from all rings
-            var allPoints = [];
-            allRings.forEach(function(ring) {
-              ring.forEach(function(pt) {
-                allPoints.push(pt);
-              });
             });
             
             // Compute convex hull to create single dissolved boundary
@@ -819,12 +897,11 @@
             
             var dissolvedGeoJSON = { type: 'FeatureCollection', features: [dissolvedFeature] };
             
+            // Generate KML
             var kmlContent = generateKML(dissolvedGeoJSON, incident);
-            console.log('Generated KML length:', kmlContent.length);
-            console.log('KML content:', kmlContent);
             
+            // Create download
             var blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml' });
-            
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url;
