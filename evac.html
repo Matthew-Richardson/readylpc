@@ -314,7 +314,7 @@
   (function() {
     'use strict';
 
-    const { $, escHTML, escapeQuery, createChip, sortIncidents, getIncidentParam, formatTimestamp, initCoderedOverlay, initCallerIdOverlay, initDrillBanner, initAnnouncement, BRAND } = ReadyLaPlata;
+    const { $, escHTML, escapeQuery, createChip, sortIncidents, getIncidentParam, formatTimestamp, initCoderedOverlay, initCallerIdOverlay, initDrillBanner, initAnnouncement, initScrollIndicator, BRAND } = ReadyLaPlata;
 
     // Configuration
     const CONFIG = {
@@ -758,6 +758,7 @@
     initCallerIdTabs();
     initDrillBanner(DOM);
     initAnnouncement(DOM);
+    initScrollIndicator();
     initMapControls();
     loadEvacuationZones();
     loadIncidentStatus();
