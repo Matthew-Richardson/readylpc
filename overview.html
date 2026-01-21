@@ -353,7 +353,7 @@
   (function() {
     'use strict';
 
-    const { $, escHTML, createChip, formatTimestamp, updateTimestamp, initCoderedOverlay, initCallerIdOverlay, initDrillBanner, initAnnouncement, BRAND } = ReadyLaPlata;
+    const { $, escHTML, createChip, formatTimestamp, updateTimestamp, initCoderedOverlay, initCallerIdOverlay, initDrillBanner, initAnnouncement, initScrollIndicator, BRAND } = ReadyLaPlata;
 
     // Map view reference for controls
     let mapView = null;
@@ -658,6 +658,7 @@
     initCallerIdTabs();
     initDrillBanner(DOM);
     initAnnouncement(DOM);
+    initScrollIndicator();
     initMapControls();
     initMap();
     loadPastIncidents();
