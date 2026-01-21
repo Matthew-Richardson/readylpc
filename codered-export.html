@@ -3,62 +3,108 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Incident Shapefile Export (NAD83 4269)</title>
+  <title>CodeRED Incident Shapefile Export (NAD83 4269)</title>
   <style>
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; max-width: 980px; margin: 40px auto; padding: 0 16px; }
+    h1 { margin: 0 0 12px; }
     .card { border: 1px solid #ddd; border-radius: 14px; padding: 16px; }
     .row { display:flex; gap:12px; flex-wrap: wrap; align-items: end; }
     label { display:block; font-weight: 650; margin-bottom: 6px; }
-    select, button { padding: 10px 12px; font-size: 16px; }
+    select, input, button { padding: 10px 12px; font-size: 16px; }
     button { cursor:pointer; }
-    .status { margin-top: 12px; white-space: pre-wrap; }
-    .small { color:#555; font-size: 13px; margin-top: 8px; }
-    .pill { display:inline-block; padding:2px 10px; border:1px solid #ddd; border-radius:999px; font-size:12px; margin-left:8px; color:#444; }
+    select { min-width: 340px; max-width: 100%; }
+    input { min-width: 260px; }
+    .status { margin-top: 12px; white-space: pre-wrap; line-height: 1.35; }
+    .small { color:#555; font-size: 13px; margin-top: 10px; }
+    .pill { display:inline-block; padding:2px 10px; border:1px solid #ddd; border-radius:999px; font-size:12px; margin-left:8px; color:#444; vertical-align: middle; }
+    .muted { color:#666; }
+    .divider { height: 1px; background: #eee; margin: 12px 0; }
+    .danger { color:#8a1f11; }
   </style>
 </head>
 <body>
-  <h1>Incident Shapefile Export <span class="pill">NAD83 (WKID 4269)</span></h1>
+  <h1>
+    CodeRED Incident Shapefile Export
+    <span class="pill">NAD83 (WKID 4269)</span>
+  </h1>
 
   <div class="card">
     <div class="row">
       <div>
-        <label for="incident">Incident</label>
-        <select id="incident" style="min-width: 320px;"></select>
+        <label for="filter">Filter incidents</label>
+        <input id="filter" type="text" placeholder="Type to filter…" />
       </div>
 
-      <button id="exportBtn">Export Shapefile (.zip)</button>
+      <div>
+        <label for="incident">Incident</label>
+        <select id="incident"></select>
+      </div>
+
       <button id="previewBtn">Preview Count</button>
+      <button id="exportBtn">Export Shapefile (.zip)</button>
     </div>
 
     <div class="status" id="status"></div>
+
+    <div class="divider"></div>
+
     <div class="small">
-      Exports features from LPC_Evac_Zones_View filtered by <code>incident</code>. Data is requested from ArcGIS already in outSR=4269.
+      Source layer:
+      <span class="muted">LPC_Evac_Zones_View (FeatureServer/0)</span><br/>
+      Filters by field: <code>incident</code><br/>
+      Export is requested from ArcGIS already in NAD83 via: <code>outSR=4269</code>
     </div>
   </div>
 
-  <!-- Client-side shapefile + download libs (served via CDN) -->
+  <!-- Client-side download + shapefile ZIP -->
   <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
   <script src="https://unpkg.com/@mapbox/shp-write@0.4.3/shpwrite.js"></script>
 
   <script>
-    const FEATURE_LAYER = "https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0";
+    // === CONFIG ===
+    const FEATURE_LAYER =
+      "https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0";
     const INCIDENT_FIELD = "incident";
     const OUT_SR = 4269;
 
+    // Browser stability guardrails
+    const HARD_STOP_FEATURES = 50000;   // stop huge exports (tab stability)
+    const DEFAULT_FALLBACK_PAGE = 2000; // typical ArcGIS maxRecordCount
+
+    // === UI HOOKS ===
     const incidentEl = document.getElementById('incident');
-    const statusEl = document.getElementById('status');
-    const exportBtn = document.getElementById('exportBtn');
+    const filterEl   = document.getElementById('filter');
+    const statusEl   = document.getElementById('status');
+    const exportBtn  = document.getElementById('exportBtn');
     const previewBtn = document.getElementById('previewBtn');
+
+    let allIncidents = [];
 
     function setStatus(msg) { statusEl.textContent = msg; }
 
-    // ArcGIS Hosted FS typically has maxRecordCount (often 2000)
-    // We'll detect it from layer metadata so paging is correct.
-    async function getLayerInfo() {
-      const url = `${FEATURE_LAYER}?f=pjson`;
+    function escapeSqlString(v) {
+      // ArcGIS SQL string escape for single quotes
+      return String(v).replace(/'/g, "''");
+    }
+
+    function safeBaseName(name) {
+      const cleaned = String(name || "")
+        .trim()
+        .replace(/[^\w\-]+/g, "_")
+        .replace(/_+/g, "_")
+        .replace(/^_+|_+$/g, "")
+        .slice(0, 40);
+      return cleaned || "incident";
+    }
+
+    async function fetchJson(url) {
       const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error(`Layer info failed (${res.status})`);
+      if (!res.ok) throw new Error(`Request failed (${res.status})`);
       return await res.json();
+    }
+
+    async function getLayerInfo() {
+      return await fetchJson(`${FEATURE_LAYER}?f=pjson`);
     }
 
     async function loadIncidents() {
@@ -73,9 +119,7 @@
         `&orderByFields=${encodeURIComponent(INCIDENT_FIELD)}` +
         `&f=pjson`;
 
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error(`Incidents query failed (${res.status})`);
-      const data = await res.json();
+      const data = await fetchJson(url);
 
       const vals = [];
       (data.features || []).forEach(f => {
@@ -83,15 +127,25 @@
         if (v !== null && v !== undefined && String(v).trim() !== "") vals.push(String(v).trim());
       });
 
-      const incidents = [...new Set(vals)].sort((a,b)=>a.localeCompare(b));
-      incidentEl.innerHTML = incidents.map(x => `<option value="${encodeURIComponent(x)}">${x}</option>`).join("");
+      allIncidents = [...new Set(vals)].sort((a,b)=>a.localeCompare(b));
+      renderIncidents("");
 
-      setStatus(incidents.length ? `Loaded ${incidents.length} incidents.` : "No incidents found.");
+      setStatus(allIncidents.length
+        ? `Loaded ${allIncidents.length} incidents.`
+        : "No incidents found.");
     }
 
-    function escapeSqlString(v) {
-      // ArcGIS SQL string escape for single quotes
-      return String(v).replace(/'/g, "''");
+    function renderIncidents(filterText) {
+      const ft = (filterText || "").trim().toLowerCase();
+      const list = ft
+        ? allIncidents.filter(x => x.toLowerCase().includes(ft))
+        : allIncidents;
+
+      incidentEl.innerHTML = list.map(x => `<option value="${encodeURIComponent(x)}">${x}</option>`).join("");
+
+      if (!list.length) {
+        incidentEl.innerHTML = `<option value="">No matches</option>`;
+      }
     }
 
     async function fetchObjectIds(where) {
@@ -101,14 +155,11 @@
         `&returnIdsOnly=true` +
         `&f=pjson`;
 
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error(`returnIdsOnly failed (${res.status})`);
-      const data = await res.json();
+      const data = await fetchJson(url);
       return (data.objectIds || []).map(Number).filter(Number.isFinite).sort((a,b)=>a-b);
     }
 
-    async function fetchGeoJSONByObjectIds(objectIds, outFields = "*") {
-      // Use f=geojson so we can feed directly into shp-write
+    async function fetchGeoJsonByObjectIds(objectIds, outFields="*") {
       const url =
         `${FEATURE_LAYER}/query` +
         `?objectIds=${encodeURIComponent(objectIds.join(","))}` +
@@ -117,9 +168,7 @@
         `&outSR=${OUT_SR}` +
         `&f=geojson`;
 
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error(`geojson query failed (${res.status})`);
-      return await res.json();
+      return await fetchJson(url);
     }
 
     async function previewCount() {
@@ -127,10 +176,10 @@
       if (!incident) return;
 
       const where = `${INCIDENT_FIELD} = '${escapeSqlString(incident)}'`;
-      setStatus(`Counting features for "${incident}"…`);
+      setStatus(`Counting features for:\n"${incident}"\n\nFetching objectIds…`);
 
       const objectIds = await fetchObjectIds(where);
-      setStatus(`"${incident}": ${objectIds.length} features`);
+      setStatus(`"${incident}"\nFeature count: ${objectIds.length}`);
     }
 
     async function exportShapefile() {
@@ -142,72 +191,84 @@
 
       try {
         const layerInfo = await getLayerInfo();
-        const maxRecordCount = Number(layerInfo.maxRecordCount) || 2000;
+        const pageSize = Number(layerInfo.maxRecordCount) || DEFAULT_FALLBACK_PAGE;
 
         const where = `${INCIDENT_FIELD} = '${escapeSqlString(incident)}'`;
-        setStatus(`Preparing export for "${incident}"…\nFetching objectIds…`);
 
+        setStatus(`Preparing export for:\n"${incident}"\n\nFetching objectIds…`);
         const objectIds = await fetchObjectIds(where);
 
-        if (objectIds.length === 0) {
-          setStatus(`No features found for "${incident}".`);
+        if (!objectIds.length) {
+          setStatus(`No features found for:\n"${incident}"`);
           return;
         }
 
-        // Safety: very large exports can crash the tab
-        const HARD_STOP = 50000;
-        if (objectIds.length > HARD_STOP) {
-          setStatus(`Too many features (${objectIds.length}). Limit is ${HARD_STOP} to keep browser export stable.`);
+        if (objectIds.length > HARD_STOP_FEATURES) {
+          setStatus(
+            `Too many features for a browser-only export.\n\n` +
+            `Count: ${objectIds.length}\n` +
+            `Limit: ${HARD_STOP_FEATURES}\n\n` +
+            `Tip: If you truly need exports this large, you’ll want a small server endpoint to stream the ZIP.`
+          );
           return;
         }
 
-        setStatus(`Found ${objectIds.length} features.\nFetching GeoJSON in batches of ${maxRecordCount}…`);
+        setStatus(
+          `Found ${objectIds.length} features.\n` +
+          `Downloading GeoJSON in batches of ${pageSize}…`
+        );
 
-        // Build one combined FeatureCollection
         const combined = { type: "FeatureCollection", features: [] };
 
-        for (let i = 0; i < objectIds.length; i += maxRecordCount) {
-          const batch = objectIds.slice(i, i + maxRecordCount);
-          setStatus(`Downloading ${Math.min(i + maxRecordCount, objectIds.length)} / ${objectIds.length}…`);
+        for (let i = 0; i < objectIds.length; i += pageSize) {
+          const batch = objectIds.slice(i, i + pageSize);
+          setStatus(
+            `Downloading… ${Math.min(i + pageSize, objectIds.length)} / ${objectIds.length}\n` +
+            `(This may take a minute for large incidents.)`
+          );
 
-          const fc = await fetchGeoJSONByObjectIds(batch, "*");
+          const fc = await fetchGeoJsonByObjectIds(batch, "*");
           if (fc?.features?.length) combined.features.push(...fc.features);
         }
 
-        setStatus(`Downloaded ${combined.features.length} features.\nBuilding shapefile ZIP…`);
+        setStatus(
+          `Downloaded ${combined.features.length} features.\n` +
+          `Building shapefile ZIP (NAD83 / 4269)…`
+        );
 
-        // shp-write expects GeoJSON; it will generate .shp/.shx/.dbf and zip.
-        // Note: Shapefile field names are limited (10 chars) and will be truncated.
-        const safeName = incident
-          .trim()
-          .replace(/[^\w\-]+/g, "_")
-          .replace(/_+/g, "_")
-          .slice(0, 40) || "incident";
+        const base = safeBaseName(incident);
 
-        // shpwrite.download triggers a browser download itself.
-        // To control filename more explicitly, use shpwrite.zip and FileSaver.
+        // Create ZIP bytes in-memory. shp-write may split by geometry type.
         const zipArrayBuffer = shpwrite.zip(combined, {
-          folder: safeName,
-          types: { point: `${safeName}_pts`, polygon: `${safeName}_poly`, line: `${safeName}_line` }
+          folder: base,
+          types: { point: `${base}_pts`, polygon: `${base}_poly`, line: `${base}_line` }
         });
 
         const blob = new Blob([zipArrayBuffer], { type: "application/zip" });
-        saveAs(blob, `${safeName}_NAD83_4269.zip`);
+        saveAs(blob, `${base}_NAD83_4269.zip`);
 
-        setStatus(`Done.\nSaved: ${safeName}_NAD83_4269.zip`);
+        setStatus(`Done.\nSaved: ${base}_NAD83_4269.zip`);
       } catch (err) {
         console.error(err);
-        setStatus(`Error: ${err.message || err}`);
+        const msg = (err && err.message) ? err.message : String(err);
+        setStatus(`Error:\n${msg}\n\nIf this looks like a CORS error, the service must allow cross-origin requests from your IIS domain for pure HTML/JS exports to work.`);
+        statusEl.classList.add("danger");
       } finally {
         exportBtn.disabled = false;
         previewBtn.disabled = false;
       }
     }
 
+    // Events
+    filterEl.addEventListener('input', () => renderIncidents(filterEl.value));
     previewBtn.addEventListener('click', () => previewCount());
     exportBtn.addEventListener('click', () => exportShapefile());
 
-    loadIncidents().catch(err => setStatus(`Error: ${err.message || err}`));
+    // Init
+    loadIncidents().catch(err => {
+      console.error(err);
+      setStatus(`Error loading incidents:\n${err.message || err}\n\nIf this is CORS-related, the ArcGIS service must permit your site origin.`);
+    });
   </script>
 </body>
 </html>
