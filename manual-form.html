@@ -528,6 +528,9 @@
   </div>
 
   <script>
+    // ============ CONFIGURATION ============
+    const ARCGIS_URL = 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0/query';
+    
     // ============ DATA STORE ============
     let incidents = [];
 
@@ -540,66 +543,156 @@
     const toast = document.getElementById('toast');
     const toastMessage = document.getElementById('toastMessage');
 
+    // ============ FETCH ACTIVE INCIDENTS FROM ARCGIS ============
+    async function fetchActiveIncidents() {
+      try {
+        const params = new URLSearchParams({
+          where: '1=1',
+          outFields: 'incident',
+          returnDistinctValues: 'true',
+          returnGeometry: 'false',
+          f: 'json'
+        });
+        
+        const response = await fetch(`${ARCGIS_URL}?${params}`);
+        if (!response.ok) return [];
+        
+        const data = await response.json();
+        if (!data.features) return [];
+        
+        // Extract unique incident names
+        const incidentNames = data.features
+          .map(f => f.attributes.incident || f.attributes.Incident || f.attributes.INCIDENT)
+          .filter(name => name && String(name).trim())
+          .map(name => String(name).trim());
+        
+        // Return unique names
+        return [...new Set(incidentNames)];
+      } catch (err) {
+        console.warn('Could not fetch active incidents from ArcGIS:', err);
+        return [];
+      }
+    }
+
+    // ============ CREATE BLANK INCIDENT TEMPLATE ============
+    function createBlankIncident(name) {
+      return {
+        name: name,
+        statusLink: 'lpcgov.org',
+        checkIn: '',
+        checkInAddr: '',
+        shelters: '',
+        sheltersAddr: '',
+        road: '',
+        smallAnimals: '',
+        smallAnimalsAddr: '',
+        largeAnimals: '',
+        largeAnimalsAddr: ''
+      };
+    }
+
+    // ============ MERGE ACTIVE INCIDENTS ============
+    function mergeActiveIncidents(existingIncidents, activeNames) {
+      const existingNames = existingIncidents.map(inc => inc.name);
+      const newIncidents = [...existingIncidents];
+      let addedCount = 0;
+      
+      activeNames.forEach(name => {
+        if (!existingNames.includes(name)) {
+          newIncidents.push(createBlankIncident(name));
+          addedCount++;
+        }
+      });
+      
+      return { merged: newIncidents, addedCount };
+    }
+
     // ============ LOAD CURRENT FILE ============
     async function loadCurrentFile() {
       showStatus('Loading...', 'loading');
       
       try {
-        const response = await fetch('incident.json', { cache: 'no-store' });
+        // Fetch both in parallel
+        const [jsonResponse, activeNames] = await Promise.all([
+          fetch('incident.json', { cache: 'no-store' }).catch(() => null),
+          fetchActiveIncidents()
+        ]);
         
-        if (!response.ok) {
-          if (response.status === 404) {
-            showStatus('incident.json not found in this folder', 'error');
-          } else {
-            showStatus(`Failed to load: HTTP ${response.status}`, 'error');
+        let existingIncidents = [];
+        let jsonStatus = '';
+        
+        // Parse existing JSON
+        if (jsonResponse && jsonResponse.ok) {
+          const text = await jsonResponse.text();
+          if (text && text.trim()) {
+            try {
+              const data = JSON.parse(text);
+              if (Array.isArray(data)) {
+                existingIncidents = data;
+              }
+            } catch (e) {
+              showStatus('incident.json contains invalid JSON', 'error');
+              return;
+            }
           }
-          return;
         }
         
-        const text = await response.text();
+        // Merge with active incidents from ArcGIS
+        const { merged, addedCount } = mergeActiveIncidents(existingIncidents, activeNames);
+        incidents = merged;
         
-        // Handle blank/empty file
-        if (!text || text.trim() === '') {
-          incidents = [];
-          renderIncidents();
-          updateOutput();
-          showStatus('incident.json is blank — no incidents defined', 'success');
-          return;
+        renderIncidents();
+        updateOutput();
+        
+        // Build status message
+        const parts = [];
+        if (existingIncidents.length > 0) {
+          parts.push(`${existingIncidents.length} from JSON`);
+        }
+        if (addedCount > 0) {
+          parts.push(`${addedCount} new from ArcGIS`);
         }
         
-        const data = JSON.parse(text);
-        
-        if (Array.isArray(data)) {
-          incidents = data;
-          renderIncidents();
-          updateOutput();
-          
-          if (incidents.length === 0) {
-            showStatus('incident.json is empty — no incidents defined', 'success');
-          } else {
-            showStatus(`Loaded ${incidents.length} incident(s) from incident.json`, 'success');
-          }
+        if (parts.length > 0) {
+          showStatus(`Loaded ${incidents.length} incident(s) (${parts.join(', ')})`, 'success');
+        } else if (incidents.length === 0) {
+          showStatus('No incidents found in JSON or ArcGIS', 'success');
         } else {
-          showStatus('Invalid JSON format — expected an array', 'error');
+          showStatus(`Loaded ${incidents.length} incident(s)`, 'success');
         }
+        
+        // Highlight newly added incidents
+        if (addedCount > 0) {
+          showToast(`${addedCount} active incident(s) added from ArcGIS — fill in details`);
+        }
+        
       } catch (err) {
-        if (err instanceof SyntaxError) {
-          showStatus('incident.json contains invalid JSON', 'error');
-        } else {
-          showStatus(`Failed to load: ${err.message}`, 'error');
-        }
+        showStatus(`Failed to load: ${err.message}`, 'error');
       }
     }
 
     // ============ START NEW ============
-    function startNew() {
+    async function startNew() {
       if (incidents.length > 0 && !confirm('This will clear all current incidents. Continue?')) {
         return;
       }
-      incidents = [];
-      renderIncidents();
-      updateOutput();
-      showStatus('Started with blank data', 'success');
+      
+      showStatus('Loading active incidents from ArcGIS...', 'loading');
+      
+      const activeNames = await fetchActiveIncidents();
+      
+      if (activeNames.length > 0) {
+        incidents = activeNames.map(name => createBlankIncident(name));
+        renderIncidents();
+        updateOutput();
+        showStatus(`Started fresh with ${incidents.length} active incident(s) from ArcGIS`, 'success');
+        showToast(`${incidents.length} active incident(s) loaded — fill in details`);
+      } else {
+        incidents = [];
+        renderIncidents();
+        updateOutput();
+        showStatus('Started with blank data (no active incidents in ArcGIS)', 'success');
+      }
     }
 
     // ============ STATUS DISPLAY ============
