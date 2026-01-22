@@ -556,7 +556,18 @@
           return;
         }
         
-        const data = await response.json();
+        const text = await response.text();
+        
+        // Handle blank/empty file
+        if (!text || text.trim() === '') {
+          incidents = [];
+          renderIncidents();
+          updateOutput();
+          showStatus('incident.json is blank — no incidents defined', 'success');
+          return;
+        }
+        
+        const data = JSON.parse(text);
         
         if (Array.isArray(data)) {
           incidents = data;
