@@ -548,7 +548,12 @@
         const response = await fetch('incident.json', { cache: 'no-store' });
         
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
+          if (response.status === 404) {
+            showStatus('incident.json not found in this folder', 'error');
+          } else {
+            showStatus(`Failed to load: HTTP ${response.status}`, 'error');
+          }
+          return;
         }
         
         const data = await response.json();
@@ -557,12 +562,21 @@
           incidents = data;
           renderIncidents();
           updateOutput();
-          showStatus(`Loaded ${incidents.length} incident(s) from incident.json`, 'success');
+          
+          if (incidents.length === 0) {
+            showStatus('incident.json is empty — no incidents defined', 'success');
+          } else {
+            showStatus(`Loaded ${incidents.length} incident(s) from incident.json`, 'success');
+          }
         } else {
-          throw new Error('Invalid JSON format');
+          showStatus('Invalid JSON format — expected an array', 'error');
         }
       } catch (err) {
-        showStatus(`Failed to load: ${err.message}`, 'error');
+        if (err instanceof SyntaxError) {
+          showStatus('incident.json contains invalid JSON', 'error');
+        } else {
+          showStatus(`Failed to load: ${err.message}`, 'error');
+        }
       }
     }
 
@@ -645,7 +659,7 @@
           <div class="form-grid">
             <div class="form-group full-width">
               <label>Incident Name</label>
-              <textarea onchange="updateField(${index}, 'name', this.value)">${escapeHtml(incident.name || '')}</textarea>
+              <input type="text" value="${escapeHtml(incident.name || '')}" onchange="updateField(${index}, 'name', this.value)">
             </div>
             
             <div class="form-group">
@@ -656,46 +670,55 @@
             <div class="form-group">
               <label>Check-In Location</label>
               <textarea onchange="updateField(${index}, 'checkIn', this.value)">${escapeHtml(incident.checkIn || '')}</textarea>
+              <span class="hint">Use line breaks for multiple lines</span>
             </div>
             
             <div class="form-group">
               <label>Check-In Address</label>
               <textarea onchange="updateField(${index}, 'checkInAddr', this.value)">${escapeHtml(incident.checkInAddr || '')}</textarea>
+              <span class="hint">Use line breaks for multiple addresses</span>
             </div>
             
             <div class="form-group">
               <label>Shelters</label>
               <textarea onchange="updateField(${index}, 'shelters', this.value)">${escapeHtml(incident.shelters || '')}</textarea>
+              <span class="hint">Use line breaks for multiple shelters</span>
             </div>
             
             <div class="form-group">
               <label>Shelters Address</label>
               <textarea onchange="updateField(${index}, 'sheltersAddr', this.value)">${escapeHtml(incident.sheltersAddr || '')}</textarea>
+              <span class="hint">Use line breaks for multiple addresses</span>
             </div>
             
             <div class="form-group">
               <label>Road Closures</label>
               <textarea onchange="updateField(${index}, 'road', this.value)">${escapeHtml(incident.road || '')}</textarea>
+              <span class="hint">Use line breaks for multiple roads</span>
             </div>
             
             <div class="form-group">
               <label>Small Animals</label>
               <textarea onchange="updateField(${index}, 'smallAnimals', this.value)">${escapeHtml(incident.smallAnimals || '')}</textarea>
+              <span class="hint">Use line breaks for multiple locations</span>
             </div>
             
             <div class="form-group">
               <label>Small Animals Address</label>
               <textarea onchange="updateField(${index}, 'smallAnimalsAddr', this.value)">${escapeHtml(incident.smallAnimalsAddr || '')}</textarea>
+              <span class="hint">Use line breaks for multiple addresses</span>
             </div>
             
             <div class="form-group">
               <label>Large Animals</label>
               <textarea onchange="updateField(${index}, 'largeAnimals', this.value)">${escapeHtml(incident.largeAnimals || '')}</textarea>
+              <span class="hint">Use line breaks for multiple locations</span>
             </div>
             
             <div class="form-group">
               <label>Large Animals Address</label>
               <textarea onchange="updateField(${index}, 'largeAnimalsAddr', this.value)">${escapeHtml(incident.largeAnimalsAddr || '')}</textarea>
+              <span class="hint">Use line breaks for multiple addresses</span>
             </div>
           </div>
         </div>
