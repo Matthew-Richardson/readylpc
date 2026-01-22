@@ -617,7 +617,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 Examples
               </div>
-              <p><code>MES-1</code> · <code>MES-2</code> · <code>ANI-1</code> · <code>HWY-1</code></p>
+              <p><code>MES-1</code> · <code>MES-2</code> · <code>ANI-3</code> · <code>HWY-4</code></p>
             </div>
             <div class="info-box warning">
               <div class="info-box-title">
@@ -909,12 +909,12 @@
             
             <div class="info-box warning" style="margin-bottom: 16px;">
               <div class="info-box-title">Zones not appearing on map</div>
-              <p><strong>Check:</strong> Is the zone's <code>status</code> attribute set? Zones without a status (GO, SET, or EVAC) won't display. Also verify the <code>Ession</code> field matches the active incident name.</p>
+              <p><strong>Check:</strong> Is the zone's <code>status</code> attribute set? Zones without a status ('Go', 'Set') won't display. Also verify the <code>incident</code> field matches the active incident name.</p>
             </div>
             
             <div class="info-box warning" style="margin-bottom: 16px;">
               <div class="info-box-title">Incident info not showing</div>
-              <p><strong>Check:</strong> Verify <code>incident.json</code> is valid JSON and the incident <code>name</code> exactly matches what's in the GIS layer's <code>Ession</code> field.</p>
+              <p><strong>Check:</strong> Verify <code>incident.json</code> is valid JSON and the incident <code>name</code> exactly matches what's in the GIS layer's <code>incident</code> field.</p>
             </div>
             
             <div class="info-box warning" style="margin-bottom: 16px;">
