@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Guide — ReadyLaPlata</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      color: #1e293b;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    
+    /* ========== HEADER ========== */
+    .header {
+      background: linear-gradient(135deg, #0b4da2 0%, #083d82 100%);
+      padding: 28px 20px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(11,77,162,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-title {
+      color: #fff;
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 4px;
+      letter-spacing: -0.3px;
+    }
+    
+    .header-subtitle {
+      color: rgba(255,255,255,0.85);
+      font-size: 13px;
+      margin: 0;
+    }
+    
+    /* ========== LAYOUT ========== */
+    .page-layout {
+      display: flex;
+      max-width: 1400px;
+      margin: 0 auto;
+      min-height: calc(100vh - 100px);
+    }
+    
+    /* ========== SIDEBAR NAV ========== */
+    .sidebar {
+      width: 260px;
+      background: #fff;
+      border-right: 1px solid #e2e8f0;
+      padding: 24px 0;
+      position: sticky;
+      top: 100px;
+      height: fit-content;
+      max-height: calc(100vh - 124px);
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    
+    .nav-section {
+      margin-bottom: 8px;
+    }
+    
+    .nav-section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .nav-section-title:hover {
+      color: #0b4da2;
+      background: rgba(11,77,162,0.04);
+    }
+    
+    .nav-section-title svg {
+      width: 18px;
+      height: 18px;
+    }
+    
+    .nav-section-title.general svg { color: #6366f1; }
+    .nav-section-title.oem svg { color: #0b4da2; }
+    .nav-section-title.pio svg { color: #059669; }
+    .nav-section-title.gis svg { color: #d97706; }
+    
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .nav-link {
+      padding: 8px 20px 8px 48px;
+      font-size: 14px;
+      color: #475569;
+      text-decoration: none;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+    }
+    
+    .nav-link:hover {
+      color: #0b4da2;
+      background: rgba(11,77,162,0.04);
+      border-left-color: #0b4da2;
+    }
+    
+    /* ========== MAIN CONTENT ========== */
+    .main-content {
+      flex: 1;
+      padding: 32px 40px 60px;
+      max-width: 900px;
+    }
+    
+    /* ========== SECTIONS ========== */
+    .section {
+      margin-bottom: 48px;
+    }
+    
+    .section-anchor {
+      display: block;
+      position: relative;
+      top: -120px;
+      visibility: hidden;
+    }
+    
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .section-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .section-icon svg {
+      width: 22px;
+      height: 22px;
+      color: #fff;
+    }
+    
+    .section-icon.general { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+    .section-icon.oem { background: linear-gradient(135deg, #0b4da2, #083d82); }
+    .section-icon.pio { background: linear-gradient(135deg, #059669, #047857); }
+    .section-icon.gis { background: linear-gradient(135deg, #d97706, #b45309); }
+    
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0;
+    }
+    
+    /* ========== CARDS ========== */
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    
+    .card-header {
+      padding: 16px 20px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0;
+    }
+    
+    .card-body {
+      padding: 20px;
+    }
+    
+    .card-body p {
+      margin: 0 0 12px;
+    }
+    
+    .card-body p:last-child {
+      margin-bottom: 0;
+    }
+    
+    /* ========== INFO BOX ========== */
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+    
+    .info-box.warning {
+      background: #fef3c7;
+      border-color: #fcd34d;
+    }
+    
+    .info-box.success {
+      background: #dcfce7;
+      border-color: #86efac;
+    }
+    
+    .info-box-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .info-box-title svg {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .info-box p {
+      margin: 0;
+      font-size: 14px;
+    }
+    
+    /* ========== CODE/PATH STYLING ========== */
+    code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+      font-size: 13px;
+      color: #0f172a;
+    }
+    
+    .path-block {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 14px 16px;
+      border-radius: 8px;
+      font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+      font-size: 13px;
+      margin: 12px 0;
+      overflow-x: auto;
+    }
+    
+    /* ========== LINKS ========== */
+    a {
+      color: #0b4da2;
+      text-decoration: none;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+    
+    .link-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      margin: 10px 0;
+      transition: all 0.15s;
+      text-decoration: none;
+      color: inherit;
+    }
+    
+    .link-card:hover {
+      border-color: #0b4da2;
+      background: rgba(11,77,162,0.04);
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    .link-card svg {
+      width: 20px;
+      height: 20px;
+      color: #0b4da2;
+      flex-shrink: 0;
+    }
+    
+    .link-card-content {
+      flex: 1;
+    }
+    
+    .link-card-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: #0f172a;
+    }
+    
+    .link-card-desc {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    
+    /* ========== RESOURCE LIST ========== */
+    .resource-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .resource-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px;
+    }
+    
+    .resource-item-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    
+    .resource-item-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .resource-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: #e0f2fe;
+      color: #0369a1;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .resource-link:hover {
+      background: #bae6fd;
+      text-decoration: none;
+    }
+    
+    .resource-link svg {
+      width: 12px;
+      height: 12px;
+    }
+    
+    /* ========== STEPS ========== */
+    .steps {
+      counter-reset: step;
+    }
+    
+    .step {
+      position: relative;
+      padding-left: 48px;
+      margin-bottom: 20px;
+    }
+    
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 32px;
+      height: 32px;
+      background: #0b4da2;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    
+    .step-title {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+    
+    .step-content {
+      font-size: 14px;
+      color: #475569;
+    }
+    
+    /* ========== TABLE ========== */
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    th {
+      background: #f8fafc;
+      font-weight: 700;
+      color: #475569;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    
+    td {
+      color: #1e293b;
+    }
+    
+    tr:hover td {
+      background: #f8fafc;
+    }
+    
+    /* ========== MOBILE ========== */
+    @media (max-width: 900px) {
+      .page-layout {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        max-height: none;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 16px 0;
+      }
+      
+      .nav-link {
+        padding-left: 40px;
+      }
+      
+      .main-content {
+        padding: 24px 20px 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <h1 class="header-title">ReadyLaPlata Staff Guide</h1>
+    <p class="header-subtitle">Operations Manual &amp; Quick Reference</p>
+  </header>
+
+  <div class="page-layout">
+    
+    <!-- SIDEBAR NAVIGATION -->
+    <nav class="sidebar">
+      <div class="nav-section">
+        <div class="nav-section-title general">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          General
+        </div>
+        <div class="nav-links">
+          <a href="#how-it-works" class="nav-link">How the Site Works</a>
+          <a href="#incident-naming" class="nav-link">Incident Naming</a>
+          <a href="#zone-naming" class="nav-link">Zone Naming</a>
+        </div>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-title oem">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+          OEM
+        </div>
+        <div class="nav-links">
+          <a href="#codered-kml" class="nav-link">CodeRED KML Generator</a>
+        </div>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-title pio">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+          </svg>
+          PIO
+        </div>
+        <div class="nav-links">
+          <a href="#incident-form" class="nav-link">Incident Form Guide</a>
+        </div>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-title gis">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+          </svg>
+          GIS
+        </div>
+        <div class="nav-links">
+          <a href="#map-resources" class="nav-link">Layer List / Map Resources</a>
+          <a href="#attribute-guide" class="nav-link">Attribute Guide</a>
+          <a href="#source-code" class="nav-link">Source Code Location</a>
+          <a href="#troubleshooting" class="nav-link">Troubleshooting</a>
+          <a href="#manual-json" class="nav-link">Manual JSON Editor</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      
+      <!-- ==================== GENERAL ==================== -->
+      <section class="section">
+        <span id="general" class="section-anchor"></span>
+        <div class="section-header">
+          <div class="section-icon general">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h2 class="section-title">General</h2>
+        </div>
+        
+        <!-- How It Works -->
+        <div class="card">
+          <span id="how-it-works" class="section-anchor"></span>
+          <div class="card-header">
+            <h3 class="card-title">How the Site Works</h3>
+          </div>
+          <div class="card-body">
+            <p>ReadyLaPlata is a public-facing evacuation information system that combines:</p>
+            <ul>
+              <li><strong>ArcGIS Online maps</strong> displaying real-time evacuation zones</li>
+              <li><strong>incident.json</strong> file containing incident details (shelters, check-in locations, road closures, animal services)</li>
+              <li><strong>Automatic zone status</strong> pulled from the GIS layer attributes</li>
+            </ul>
+            <p>When an incident is active, staff update the GIS layer zones and the incident.json file. The public site automatically reflects these changes.</p>
+          </div>
+        </div>
+        
+        <!-- Incident Naming -->
+        <div class="card">
+          <span id="incident-naming" class="section-anchor"></span>
+          <div class="card-header">
+            <h3 class="card-title">Incident Naming Guide</h3>
+          </div>
+          <div class="card-body">
+            <p>Use the following format for all incident names:</p>
+            <div class="path-block">[Name] + [Incident Type]</div>
+            <p><strong>Rules:</strong></p>
+            <ul>
+              <li>Capitalize the first letter of each word</li>
+              <li>Incident types: Fire, Flood, Hazmat, Mudslide, etc.</li>
+            </ul>
+            <div class="info-box success">
+              <div class="info-box-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                Examples
+              </div>
+              <p><code>Mesa Fire</code> · <code>Animas Flood</code> · <code>Highway 550 Hazmat</code></p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Zone Naming -->
+        <div class="card">
+          <span id="zone-naming" class="section-anchor"></span>
+          <div class="card-header">
+            <h3 class="card-title">Zone Naming Guide</h3>
+          </div>
+          <div class="card-body">
+            <p>Use the following format for evacuation zone names:</p>
+            <div class="path-block">[First 3 letters of incident] + "-" + [Unique #]</div>
+            <p><strong>Rules:</strong></p>
+            <ul>
+              <li>Use ALL CAPS</li>
+              <li>Numbers must be unique across <em>all active incidents</em></li>
+              <li>Keep numbering sequential within each incident</li>
+            </ul>
+            <div class="info-box success">
+              <div class="info-box-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                Examples
+              </div>
+              <p><code>MES-1</code> · <code>MES-2</code> · <code>ANI-1</code> · <code>HWY-1</code></p>
+            </div>
+            <div class="info-box warning">
+              <div class="info-box-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                Important
+              </div>
+              <p>Zone names in the GIS layer must exactly match what appears in incident.json for proper linking.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== OEM ==================== -->
+      <section class="section">
+        <span id="oem" class="section-anchor"></span>
+        <div class="section-header">
+          <div class="section-icon oem">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+          </div>
+          <h2 class="section-title">OEM</h2>
+        </div>
+        
+        <!-- CodeRED KML Generator -->
+        <div class="card">
+          <span id="codered-kml" class="section-anchor"></span>
+          <div class="card-header">
+            <h3 class="card-title">CodeRED KML Generator</h3>
+          </div>
+          <div class="card-body">
+            <p>Use this tool to export evacuation zones as KML files for CodeRED integration.</p>
+            <a href="export.html" class="link-card" target="_blank">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+              </svg>
+              <div class="link-card-content">
+                <div class="link-card-title">Open KML Export Tool</div>
+                <div class="link-card-desc">export.html — Generate KML files for CodeRED</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PIO ==================== -->
+      <section class="section">
+        <span id="pio" class="section-anchor"></span>
+        <div class="section-header">
+          <div class="section-icon pio">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+            </svg>
+          </div>
+          <h2 class="section-title">PIO</h2>
+        </div>
+        
+        <!-- Incident Form Guide -->
+        <div class="card">
+          <span id="incident-form" class="section-anchor"></span>
+          <div class="card-header">
+            <h3 class="card-title">Incident Form Fields Guide</h3>
+          </div>
+          <div class="card-body">
+            <p>The <code>incident.json</code> file contains all incident details displayed on the public site. Each field must follow the naming conventions above.</p>
+            
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>name</code></td>
+                    <td>Incident name (follow naming guide)</td>
+                    <td>Mesa Fire</td>
+                  </tr>
+                  <tr>
+                    <td><code>statusLink</code></td>
+                    <td>Link to official status page</td>
+                    <td>lpcgov.org</td>
+                  </tr>
+                  <tr>
+                    <td><code>checkIn</code></td>
+                    <td>Check-in location name(s)</td>
+                    <td>Durango High School<br>Rapid Tag 8a-4p</td>
+                  </tr>
+                  <tr>
+                    <td><code>checkInAddr</code></td>
+                    <td>Check-in address</td>
+                    <td>Durango High School</td>
+                  </tr>
+                  <tr>
+                    <td><code>shelters</code></td>
+                    <td>Shelter location name(s)</td>
+                    <td>La Plata County Fairgrounds</td>
+                  </tr>
+                  <tr>
+                    <td><code>sheltersAddr</code></td>
+                    <td>Shelter address</td>
+                    <td>2500 Main Ave, Durango, CO 81301</td>
+                  </tr>
+                  <tr>
+                    <td><code>road</code></td>
+                    <td>Road closures (one per line)</td>
+                    <td>CR 501<br>CR 502</td>
+                  </tr>
+                  <tr>
+                    <td><code>smallAnimals</code></td>
+                    <td>Small animal shelter name</td>
+                    <td>La Plata County Humane Society</td>
+                  </tr>
+                  <tr>
+                    <td><code>smallAnimalsAddr</code></td>
+                    <td>Small animal shelter address</td>
+                    <td>1111 S Camino Del Rio, Durango, CO 81303</td>
+                  </tr>
+                  <tr>
+                    <td><code>largeAnimals</code></td>
+                    <td>Large animal shelter name</td>
+                    <td>La Plata County Fairgrounds</td>
+                  </tr>
+                  <tr>
+                    <td><code>largeAnimalsAddr</code></td>
+                    <td>Large animal shelter address</td>
+                    <td>2500 Main Ave, Durango, CO 81301</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="info-box">
+              <div class="info-box-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Tip
+              </div>
+              <p>Use line breaks within fields to display multiple items. Each line will appear on a separate row in the public interface.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== GIS ==================== -->
+      <section class="section">
+        <span id="gis" class="section-anchor"></span>
+        <div class="section-header">
+          <div class="section-icon gis">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+            </svg>
+          </div>
+          <h2 class="section-title">GIS</h2>
+        </div>
+        
+        <!-- Map Resources -->
+        <div class="card">
+          <span id="map-resources" class="section-anchor"></span>
+          <div class="card-header">
+            <h3 class="card-title">Layer List / Map Resources</h3>
+          </div>
+          <div class="card-body">
+            <h4 style="font-size: 14px; color: #475569; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.3px;">Public Layers (No Login Required)</h4>
+            
+            <div class="resource-list">
+              <div class="resource-item">
+                <div class="resource-item-title">LPC Evac Zones View</div>
+                <p style="font-size: 13px; color: #64748b; margin: 0 0 10px;">Public evacuation zone layer</p>
+                <div class="resource-item-links">
+                  <a href="https://lpcgis.maps.arcgis.com/home/item.html?id=1315cd4065394aa185d874fa4e87b629" class="resource-link" target="_blank">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    AGOL
+                  </a>
+                  <a href="https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0" class="resource-link" target="_blank">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    REST
+                  </a>
+                </div>
+              </div>
+              
+              <div class="resource-item">
+                <div class="resource-item-title">Incident Map - Individual</div>
+                <p style="font-size: 13px; color: #64748b; margin: 0 0 10px;">Public webmap used in ReadyLaPlata</p>
+                <div class="resource-item-links">
+                  <a href="https://lpcgis.maps.arcgis.com/home/item.html?id=58a8bb313db64271a55e7960cb839f64" class="resource-link" target="_blank">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    AGOL
+                  </a>
+                </div>
+                <p style="font-size: 12px; color: #94a3b8; margin: 10px 0 0;"><strong>Item ID:</strong> <code>58a8bb313db64271a55e7960cb839f64</code></p>
+              </div>
+              
+              <div class="resource-item">
+                <div class="resource-item-title">EvacPOIs View - Individual</div>
+                <p style="font-size: 13px; color: #64748b; margin: 0 0 10px;">Public evacuation POIs (points and roads)</p>
+                <div class="resource-item-links">
+                  <a href="https://lpcgis.maps.arcgis.com/home/item.html?id=342fddd01ca94e5e8e2d4ee30ffe800b" class="resource-link" target="_blank">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    AGOL
+                  </a>
+                  <a href="https://services2.arcgis.com/ilLrLpXfElYxSy9y/arcgis/rest/services/EvacPOIs_view/FeatureServer" class="resource-link" target="_blank">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    REST
+                  </a>
+                </div>
+              </div>
+            </div>
+            
+            <h4 style="font-size: 14px; color: #475569; margin: 28px 0 12px; text-transform: uppercase; letter-spacing: 0.3px;">Staff Edit Resources (Credentials Required)</h4>
+            
+            <div class="resource-list">
+              <div class="resource-item">
+                <div class="resource-item-title">LPC Web Evac Editor</div>
+                <p style="font-size: 13px; color: #64748b; margin: 0 0 10px;">Basic web editor for evacuation zones</p>
+                <div class="resource-item-links">
+                  <a href="https://lpcgis.maps.arcgis.com/apps/instant/webeditor/index.html?appid=9831cc65edf04403b5e9147406c5828d" class="resource-link" target="_blank">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    Open Editor
+                  </a>
+                </div>
+              </div>
+              
+              <div class="resource-item">
+                <div class="resource-item-title">EvacPOIs (Editable)</div>
+                <div class="resource-item-links">
+                  <a href="https://lpcgis.maps.arcgis.com/home/item.html?id=0def7cf121ed482db312d2977f1cfd70" class="resource-link" target="_blank">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    AGOL
+                  </a>
+                </div>
+              </div>
+              
+              <div class="resource-item">
+                <div class="resource-item-title">Evac Zones Online (Editable)</div>
+                <div class="resource-item-links">
+                  <a href="https://lpcgis.maps.arcgis.com/home/item.html?id=f80b0518d85a4df49e68e7815a3a6fec" class="resource-link" target="_blank">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    AGOL
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Attribute Guide -->
+        <div class="card">
+          <span id="attribute-guide" class="section-anchor"></span>
+          <div class="card-header">
+            <h3 class="card-title">Attribute Information Guide</h3>
+          </div>
+          <div class="card-body">
+            <p>Detailed documentation for GIS layer attributes is available in the PDF guide:</p>
+            <a href="ReadyLaPlata_GIS_AttributeGuide.pdf" class="link-card" target="_blank">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+              </svg>
+              <div class="link-card-content">
+                <div class="link-card-title">ReadyLaPlata_GIS_AttributeGuide.pdf</div>
+                <div class="link-card-desc">Located in root folder</div>
+              </div>
+            </a>
+          </div>
+        </div>
+        
+        <!-- Source Code -->
+        <div class="card">
+          <span id="source-code" class="section-anchor"></span>
+          <div class="card-header">
+            <h3 class="card-title">Source Code Location</h3>
+          </div>
+          <div class="card-body">
+            <p>All ReadyLaPlata source files are stored on the County network:</p>
+            <div class="path-block">T:\County Departments\OEM\ReadyLPC</div>
+          </div>
+        </div>
+        
+        <!-- Troubleshooting -->
+        <div class="card">
+          <span id="troubleshooting" class="section-anchor"></span>
+          <div class="card-header">
+            <h3 class="card-title">Troubleshooting Guide</h3>
+          </div>
+          <div class="card-body">
+            <h4 style="margin: 0 0 16px; font-size: 15px;">Common Issues</h4>
+            
+            <div class="info-box warning" style="margin-bottom: 16px;">
+              <div class="info-box-title">Zones not appearing on map</div>
+              <p><strong>Check:</strong> Is the zone's <code>status</code> attribute set? Zones without a status (GO, SET, or EVAC) won't display. Also verify the <code>Ession</code> field matches the active incident name.</p>
+            </div>
+            
+            <div class="info-box warning" style="margin-bottom: 16px;">
+              <div class="info-box-title">Incident info not showing</div>
+              <p><strong>Check:</strong> Verify <code>incident.json</code> is valid JSON and the incident <code>name</code> exactly matches what's in the GIS layer's <code>Ession</code> field.</p>
+            </div>
+            
+            <div class="info-box warning" style="margin-bottom: 16px;">
+              <div class="info-box-title">Changes not appearing on public site</div>
+              <p><strong>Check:</strong> GIS layer changes may take 1-2 minutes to propagate. For incident.json changes, ensure the file was uploaded to the IIS server and clear browser cache.</p>
+            </div>
+            
+            <div class="info-box warning" style="margin-bottom: 16px;">
+              <div class="info-box-title">KML export failing</div>
+              <p><strong>Check:</strong> Ensure you have zones with valid geometries selected. The export tool requires at least one zone to be checked.</p>
+            </div>
+            
+            <div class="info-box">
+              <div class="info-box-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Still having issues?
+              </div>
+              <p>Contact GIS staff or check the browser developer console (F12) for error messages.</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Manual JSON Editor -->
+        <div class="card">
+          <span id="manual-json" class="section-anchor"></span>
+          <div class="card-header">
+            <h3 class="card-title">Manual Incident JSON Editor</h3>
+          </div>
+          <div class="card-body">
+            <p>Use this tool to create or edit incident data without manually editing JSON files.</p>
+            
+            <a href="manual-form.html" class="link-card" target="_blank">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+              <div class="link-card-content">
+                <div class="link-card-title">Open Incident JSON Editor</div>
+                <div class="link-card-desc">manual-form.html — Create and edit incident data</div>
+              </div>
+            </a>
+            
+            <h4 style="margin: 24px 0 16px; font-size: 15px;">Deploying Updated JSON to Production</h4>
+            
+            <div class="steps">
+              <div class="step">
+                <div class="step-title">Export the JSON</div>
+                <div class="step-content">Use the "Download JSON" button in the editor to save your <code>incident.json</code> file.</div>
+              </div>
+              <div class="step">
+                <div class="step-title">Navigate to the IIS folder</div>
+                <div class="step-content">
+                  Open the web server directory:
+                  <div class="path-block">C:\inetpub\wwwroot\readylpc</div>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-title">Delete the existing file</div>
+                <div class="step-content">Remove the current <code>incident.json</code> from the folder.</div>
+              </div>
+              <div class="step">
+                <div class="step-title">Copy the new file</div>
+                <div class="step-content">Paste your updated <code>incident.json</code> into the folder. Changes will be live immediately.</div>
+              </div>
+            </div>
+            
+            <div class="info-box warning">
+              <div class="info-box-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                Important
+              </div>
+              <p>Always verify changes on the live site after deploying. If the site shows errors, check that the JSON file is valid.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+</body>
+</html>
