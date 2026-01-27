@@ -10,24 +10,28 @@
     html, body {
       margin: 0;
       padding: 0;
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #f0f4f8;
       color: #1e293b;
       font-size: 16px;
       line-height: 1.5;
+      -webkit-tap-highlight-color: transparent;
     }
     
     /* ========== HEADER ========== */
     .header {
       background: linear-gradient(135deg, #0b4da2 0%, #083d82 100%);
-      padding: 24px 20px;
+      padding: 20px 16px;
       text-align: center;
       box-shadow: 0 4px 20px rgba(11,77,162,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
     
     .header-title {
       color: #fff;
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
       margin: 0 0 4px;
       letter-spacing: -0.3px;
@@ -35,7 +39,7 @@
     
     .header-subtitle {
       color: rgba(255,255,255,0.85);
-      font-size: 13px;
+      font-size: 12px;
       margin: 0;
     }
     
@@ -45,7 +49,7 @@
       color: #fff;
       padding: 4px 10px;
       border-radius: 20px;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -56,7 +60,7 @@
     .main-container {
       max-width: 900px;
       margin: 0 auto;
-      padding: 24px 16px 60px;
+      padding: 16px 12px 100px;
     }
     
     /* ========== SECTION CARDS ========== */
@@ -65,18 +69,19 @@
       border-radius: 14px;
       border: 1px solid rgba(0,0,0,0.08);
       box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       overflow: hidden;
     }
     
     .section-header {
       background: linear-gradient(135deg, #475569 0%, #334155 100%);
       color: #fff;
-      padding: 14px 18px;
+      padding: 14px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      flex-wrap: wrap;
     }
     
     .section-header h2 {
@@ -88,10 +93,11 @@
     .section-header-actions {
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
     }
     
     .section-body {
-      padding: 18px;
+      padding: 16px;
     }
     
     /* ========== STATUS BADGE ========== */
@@ -139,25 +145,37 @@
     .incidents-list {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
     }
     
     .incident-item {
       background: #f8fafc;
-      border: 1px solid #e2e8f0;
+      border: 2px solid #e2e8f0;
       border-radius: 12px;
       overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    
+    .incident-item.has-changes {
+      border-color: #fbbf24;
+      background: #fffbeb;
     }
     
     .incident-item-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 16px;
+      padding: 14px 16px;
       background: #fff;
       border-bottom: 1px solid #e2e8f0;
       cursor: pointer;
       transition: background 0.15s;
+      min-height: 56px;
+      gap: 12px;
+    }
+    
+    .incident-item.has-changes .incident-item-header {
+      background: #fef9e7;
     }
     
     .incident-item-header:hover {
@@ -171,17 +189,40 @@
       font-weight: 700;
       font-size: 15px;
       color: #0f172a;
+      flex: 1;
+      min-width: 0;
     }
     
     .incident-item-title svg {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       color: #b3261e;
+      flex-shrink: 0;
+    }
+    
+    .incident-item-title span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .unsaved-dot {
+      width: 8px;
+      height: 8px;
+      background: #f59e0b;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: none;
+    }
+    
+    .incident-item.has-changes .unsaved-dot {
+      display: block;
     }
     
     .incident-item-actions {
       display: flex;
-      gap: 6px;
+      gap: 8px;
+      flex-shrink: 0;
     }
     
     .incident-item-body {
@@ -200,14 +241,20 @@
     /* ========== FORM FIELDS ========== */
     .form-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    
+    @media (min-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr 1fr;
+      }
     }
     
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 6px;
     }
     
     .form-group.full-width {
@@ -224,14 +271,15 @@
     
     .form-group input,
     .form-group textarea {
-      padding: 10px 12px;
+      padding: 12px 14px;
       border: 1px solid #cbd5e1;
       border-radius: 8px;
       font-family: inherit;
-      font-size: 14px;
+      font-size: 16px;
       color: #1e293b;
       background: #fff;
       transition: border-color 0.15s, box-shadow 0.15s;
+      -webkit-appearance: none;
     }
     
     .form-group input:focus,
@@ -243,7 +291,7 @@
     
     .form-group textarea {
       resize: vertical;
-      min-height: 60px;
+      min-height: 80px;
     }
     
     .form-group .hint {
@@ -252,25 +300,36 @@
       margin-top: 2px;
     }
     
+    /* ========== INCIDENT FOOTER ACTIONS ========== */
+    .incident-footer {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+      flex-wrap: wrap;
+    }
+    
     /* ========== BUTTONS ========== */
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      padding: 10px 16px;
+      padding: 12px 18px;
       border: none;
       border-radius: 8px;
       font-family: inherit;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.15s;
+      min-height: 44px;
     }
     
     .btn svg {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
     }
     
     .btn-primary {
@@ -330,17 +389,20 @@
     }
     
     .btn-icon {
-      padding: 8px;
+      padding: 10px;
+      min-height: 44px;
+      min-width: 44px;
     }
     
     .btn-sm {
-      padding: 6px 10px;
-      font-size: 12px;
+      padding: 8px 14px;
+      font-size: 13px;
+      min-height: 40px;
     }
     
     .btn-sm svg {
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
     }
     
     .btn-lg {
@@ -353,7 +415,29 @@
       height: 20px;
     }
     
-    /* ========== OUTPUT SECTION ========== */
+    /* ========== JSON SECTION (COLLAPSIBLE) ========== */
+    .json-section {
+      border: 1px solid #e2e8f0;
+    }
+    
+    .json-section .section-header {
+      background: #64748b;
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .json-section .section-header:hover {
+      background: #475569;
+    }
+    
+    .json-section.collapsed .section-body {
+      display: none;
+    }
+    
+    .json-section.collapsed .expand-icon {
+      transform: rotate(-90deg);
+    }
+    
     .json-output-wrapper {
       position: relative;
     }
@@ -388,7 +472,7 @@
       flex-wrap: wrap;
     }
     
-    /* ========== SAVE SECTION ========== */
+    /* ========== SAVE SECTION (STICKY) ========== */
     .save-section {
       background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
       border: 2px solid #059669;
@@ -400,9 +484,9 @@
     
     .save-info {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 12px;
-      padding: 12px 16px;
+      padding: 12px 14px;
       background: rgba(5,150,105,0.1);
       border-radius: 8px;
       margin-bottom: 16px;
@@ -414,6 +498,7 @@
       width: 20px;
       height: 20px;
       flex-shrink: 0;
+      margin-top: 1px;
     }
     
     .save-actions {
@@ -449,8 +534,8 @@
       transform: translateX(-50%) translateY(100px);
       background: #0f172a;
       color: #fff;
-      padding: 12px 20px;
-      border-radius: 10px;
+      padding: 14px 20px;
+      border-radius: 12px;
       font-size: 14px;
       font-weight: 600;
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
@@ -459,7 +544,8 @@
       z-index: 1000;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      max-width: calc(100vw - 32px);
     }
     
     .toast.visible {
@@ -468,27 +554,49 @@
     }
     
     .toast svg {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       color: #4ade80;
+      flex-shrink: 0;
     }
     
     /* ========== LAST SAVED ========== */
     .last-saved {
       font-size: 12px;
       color: #6b7280;
-      margin-top: 8px;
+      margin-top: 10px;
+    }
+    
+    /* ========== FLOATING SAVE BUTTON ========== */
+    .floating-save {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 90;
+      box-shadow: 0 6px 24px rgba(5,150,105,0.4);
+      border-radius: 50px;
+      padding: 14px 24px;
+    }
+    
+    .floating-save.hidden {
+      display: none;
+    }
+    
+    @media (max-width: 600px) {
+      .floating-save {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        width: auto;
+        justify-content: center;
+      }
     }
     
     /* ========== RESPONSIVE ========== */
     @media (max-width: 600px) {
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-      
       .section-header {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
         gap: 10px;
       }
       
@@ -500,6 +608,14 @@
         flex: 1;
       }
       
+      .incident-item-header {
+        padding: 12px 14px;
+      }
+      
+      .incident-item-actions .btn {
+        padding: 10px;
+      }
+      
       .output-actions,
       .save-actions {
         flex-direction: column;
@@ -509,15 +625,23 @@
       .save-actions .btn {
         width: 100%;
       }
+      
+      .incident-footer {
+        flex-direction: column;
+      }
+      
+      .incident-footer .btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
 
   <header class="header">
-    <h1 class="header-title">Incident JSON Editor</h1>
-    <p class="header-subtitle">ReadyLaPlata — Staff Management Tool</p>
-    <span class="staff-badge">🔒 Authorized Access Only</span>
+    <h1 class="header-title">Incident Editor</h1>
+    <p class="header-subtitle">ReadyLaPlata Staff Tool</p>
+    <span class="staff-badge">🔒 Authorized Access</span>
   </header>
 
   <main class="main-container">
@@ -525,7 +649,7 @@
     <!-- DATA SOURCE SECTION -->
     <section class="section-card">
       <div class="section-header">
-        <h2>Data Source</h2>
+        <h2>📡 Data Source</h2>
         <div class="section-header-actions">
           <button class="btn btn-secondary btn-sm" onclick="startNew()">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -537,7 +661,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
             </svg>
-            Reload Current
+            Reload
           </button>
         </div>
       </div>
@@ -554,7 +678,7 @@
     <!-- INCIDENTS SECTION -->
     <section class="section-card">
       <div class="section-header">
-        <h2>Incidents</h2>
+        <h2>🔥 Incidents</h2>
         <div class="section-header-actions">
           <button class="btn btn-success btn-sm" onclick="addNewIncident()">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -586,37 +710,34 @@
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
-          <span>This will update the <strong>live incident.json</strong> on ReadyLaPlata. Changes will be visible to the public immediately.</span>
+          <span>Updates the <strong>live incident.json</strong>. Changes visible to public immediately. Auto-backups are created on the server.</span>
         </div>
         <div class="save-actions">
           <button class="btn btn-save btn-lg" id="saveBtn" onclick="saveToServer()">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
             </svg>
-            Save to Server
-          </button>
-          <button class="btn btn-secondary btn-lg" onclick="downloadJson()">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-            </svg>
-            Download Backup
+            Save All to Server
           </button>
         </div>
         <div class="last-saved" id="lastSaved"></div>
       </div>
     </section>
 
-    <!-- JSON PREVIEW SECTION -->
-    <section class="section-card">
-      <div class="section-header">
-        <h2>JSON Preview</h2>
-        <div class="section-header-actions">
+    <!-- JSON PREVIEW SECTION (COLLAPSED BY DEFAULT) -->
+    <section class="section-card json-section collapsed" id="jsonSection">
+      <div class="section-header" onclick="toggleJsonSection()">
+        <h2>{ } JSON Preview</h2>
+        <div class="section-header-actions" onclick="event.stopPropagation()">
           <button class="btn btn-secondary btn-sm" onclick="copyJson()">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
             </svg>
             Copy
           </button>
+          <svg class="expand-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition: transform 0.2s;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
         </div>
       </div>
       <div class="section-body">
@@ -627,6 +748,14 @@
     </section>
 
   </main>
+
+  <!-- FLOATING SAVE BUTTON -->
+  <button class="btn btn-save floating-save hidden" id="floatingSave" onclick="saveToServer()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+    </svg>
+    Save Changes
+  </button>
 
   <!-- TOAST -->
   <div class="toast" id="toast">
@@ -639,12 +768,15 @@
   <script>
     // ============ CONFIGURATION ============
     const ARCGIS_URL = 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0/query';
-    const INCIDENT_JSON_URL = '../incident.json'; // Public file in root
+    const INCIDENT_JSON_URL = '../incident.json';
     const SAVE_ENDPOINT = 'save-incident.ashx';
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY_MS = 500;
     
     // ============ DATA STORE ============
     let incidents = [];
     let hasUnsavedChanges = false;
+    let changedIncidentIndices = new Set();
 
     // ============ DOM REFERENCES ============
     const statusBadge = document.getElementById('statusBadge');
@@ -656,6 +788,8 @@
     const toastMessage = document.getElementById('toastMessage');
     const saveBtn = document.getElementById('saveBtn');
     const lastSaved = document.getElementById('lastSaved');
+    const floatingSave = document.getElementById('floatingSave');
+    const jsonSection = document.getElementById('jsonSection');
 
     // ============ WARN ON UNSAVED CHANGES ============
     window.addEventListener('beforeunload', (e) => {
@@ -664,6 +798,20 @@
         e.returnValue = '';
       }
     });
+
+    // ============ JSON SECTION TOGGLE ============
+    function toggleJsonSection() {
+      jsonSection.classList.toggle('collapsed');
+    }
+
+    // ============ FLOATING SAVE VISIBILITY ============
+    function updateFloatingSave() {
+      if (hasUnsavedChanges) {
+        floatingSave.classList.remove('hidden');
+      } else {
+        floatingSave.classList.add('hidden');
+      }
+    }
 
     // ============ FETCH ACTIVE INCIDENTS FROM ARCGIS ============
     async function fetchActiveIncidents() {
@@ -757,9 +905,11 @@
         const { merged, addedCount } = mergeActiveIncidents(existingIncidents, activeNames);
         incidents = merged;
         hasUnsavedChanges = false;
+        changedIncidentIndices.clear();
         
         renderIncidents();
         updateOutput();
+        updateFloatingSave();
         
         const parts = [];
         if (existingIncidents.length > 0) {
@@ -780,6 +930,11 @@
         if (addedCount > 0) {
           showToast(`${addedCount} active incident(s) added from ArcGIS — fill in details`);
           hasUnsavedChanges = true;
+          for (let i = existingIncidents.length; i < incidents.length; i++) {
+            changedIncidentIndices.add(i);
+          }
+          updateFloatingSave();
+          renderIncidents();
         }
         
       } catch (err) {
@@ -800,36 +955,27 @@
       if (activeNames.length > 0) {
         incidents = activeNames.map(name => createBlankIncident(name));
         hasUnsavedChanges = true;
+        changedIncidentIndices.clear();
+        incidents.forEach((_, i) => changedIncidentIndices.add(i));
         renderIncidents();
         updateOutput();
+        updateFloatingSave();
         showStatus(`Started fresh with ${incidents.length} active incident(s) from ArcGIS`, 'success');
         showToast(`${incidents.length} active incident(s) loaded — fill in details`);
       } else {
         incidents = [];
         hasUnsavedChanges = false;
+        changedIncidentIndices.clear();
         renderIncidents();
         updateOutput();
+        updateFloatingSave();
         showStatus('Started with blank data (no active incidents in ArcGIS)', 'success');
       }
     }
 
-    // ============ SAVE TO SERVER ============
-    async function saveToServer() {
-      if (!confirm('This will update the LIVE incident.json file. The public site will immediately show these changes.\n\nContinue?')) {
-        return;
-      }
-      
-      saveBtn.disabled = true;
-      saveBtn.innerHTML = `
-        <svg class="spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="animation: spin 1s linear infinite;">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
-        Saving...
-      `;
-      
+    // ============ SAVE TO SERVER WITH RETRY ============
+    async function saveWithRetry(json, attempt = 1) {
       try {
-        const json = JSON.stringify(incidents, null, 2);
-        
         const response = await fetch(SAVE_ENDPOINT, {
           method: 'POST',
           headers: {
@@ -841,24 +987,65 @@
         const result = await response.json();
         
         if (result.success) {
-          hasUnsavedChanges = false;
-          lastSaved.textContent = `Last saved: ${result.timestamp}`;
-          showToast('✅ Saved successfully! Changes are now live.');
+          return { success: true, result };
         } else {
           throw new Error(result.error || 'Unknown error');
         }
+      } catch (err) {
+        if (attempt < MAX_RETRIES) {
+          // Exponential backoff
+          const delay = RETRY_DELAY_MS * Math.pow(2, attempt - 1);
+          console.log(`Save attempt ${attempt} failed, retrying in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return saveWithRetry(json, attempt + 1);
+        }
+        throw err;
+      }
+    }
+
+    async function saveToServer() {
+      if (!confirm('This will update the LIVE incident.json file. Changes visible to public immediately.\n\nContinue?')) {
+        return;
+      }
+      
+      saveBtn.disabled = true;
+      floatingSave.disabled = true;
+      const originalBtnHtml = saveBtn.innerHTML;
+      const originalFloatHtml = floatingSave.innerHTML;
+      
+      const savingHtml = `
+        <svg class="spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="animation: spin 1s linear infinite;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Saving...
+      `;
+      saveBtn.innerHTML = savingHtml;
+      floatingSave.innerHTML = savingHtml;
+      
+      try {
+        const json = JSON.stringify(incidents, null, 2);
+        const { result } = await saveWithRetry(json);
+        
+        hasUnsavedChanges = false;
+        changedIncidentIndices.clear();
+        lastSaved.textContent = `Last saved: ${result.timestamp}`;
+        showToast('✅ Saved successfully! Changes are now live.');
+        renderIncidents();
+        updateFloatingSave();
         
       } catch (err) {
-        showToast(`❌ Save failed: ${err.message}`, true);
+        showToast(`❌ Save failed after ${MAX_RETRIES} attempts: ${err.message}`, true);
       } finally {
         saveBtn.disabled = false;
-        saveBtn.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-          </svg>
-          Save to Server
-        `;
+        floatingSave.disabled = false;
+        saveBtn.innerHTML = originalBtnHtml;
+        floatingSave.innerHTML = originalFloatHtml;
       }
+    }
+
+    // ============ SAVE SINGLE INCIDENT (saves all but triggered from one) ============
+    async function saveFromIncident(index) {
+      await saveToServer();
     }
 
     // ============ STATUS DISPLAY ============
@@ -902,6 +1089,9 @@
     function createIncidentItem(incident, index) {
       const div = document.createElement('div');
       div.className = 'incident-item';
+      if (changedIncidentIndices.has(index)) {
+        div.classList.add('has-changes');
+      }
       div.dataset.index = index;
       
       div.innerHTML = `
@@ -912,6 +1102,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"/>
             </svg>
             <span>${escapeHtml(incident.name) || 'Unnamed Incident'}</span>
+            <span class="unsaved-dot" title="Unsaved changes"></span>
           </div>
           <div class="incident-item-actions">
             <button class="btn btn-danger btn-icon btn-sm" onclick="event.stopPropagation(); deleteIncident(${index})" title="Delete">
@@ -919,7 +1110,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
               </svg>
             </button>
-            <svg class="expand-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition: transform 0.2s;">
+            <svg class="expand-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#64748b" style="transition: transform 0.2s;">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
           </div>
@@ -931,7 +1122,7 @@
               <input type="text" value="${escapeHtml(incident.name || '')}" onchange="updateField(${index}, 'name', this.value)">
             </div>
             
-            <div class="form-group">
+            <div class="form-group full-width">
               <label>Status Link</label>
               <input type="text" value="${escapeHtml(incident.statusLink || '')}" onchange="updateField(${index}, 'statusLink', this.value)">
             </div>
@@ -939,56 +1130,71 @@
             <div class="form-group">
               <label>Check-In Location</label>
               <textarea onchange="updateField(${index}, 'checkIn', this.value)">${escapeHtml(incident.checkIn || '')}</textarea>
-              <span class="hint">Use line breaks for multiple lines</span>
+              <span class="hint">Line breaks for multiple</span>
             </div>
             
             <div class="form-group">
               <label>Check-In Address</label>
               <textarea onchange="updateField(${index}, 'checkInAddr', this.value)">${escapeHtml(incident.checkInAddr || '')}</textarea>
-              <span class="hint">Use line breaks for multiple addresses</span>
+              <span class="hint">Line breaks for multiple</span>
             </div>
             
             <div class="form-group">
               <label>Shelters</label>
               <textarea onchange="updateField(${index}, 'shelters', this.value)">${escapeHtml(incident.shelters || '')}</textarea>
-              <span class="hint">Use line breaks for multiple shelters</span>
+              <span class="hint">Line breaks for multiple</span>
             </div>
             
             <div class="form-group">
               <label>Shelters Address</label>
               <textarea onchange="updateField(${index}, 'sheltersAddr', this.value)">${escapeHtml(incident.sheltersAddr || '')}</textarea>
-              <span class="hint">Use line breaks for multiple addresses</span>
+              <span class="hint">Line breaks for multiple</span>
             </div>
             
-            <div class="form-group">
+            <div class="form-group full-width">
               <label>Road Closures</label>
               <textarea onchange="updateField(${index}, 'road', this.value)">${escapeHtml(incident.road || '')}</textarea>
-              <span class="hint">Use line breaks for multiple roads</span>
+              <span class="hint">Line breaks for multiple roads</span>
             </div>
             
             <div class="form-group">
               <label>Small Animals</label>
               <textarea onchange="updateField(${index}, 'smallAnimals', this.value)">${escapeHtml(incident.smallAnimals || '')}</textarea>
-              <span class="hint">Use line breaks for multiple locations</span>
+              <span class="hint">Line breaks for multiple</span>
             </div>
             
             <div class="form-group">
               <label>Small Animals Address</label>
               <textarea onchange="updateField(${index}, 'smallAnimalsAddr', this.value)">${escapeHtml(incident.smallAnimalsAddr || '')}</textarea>
-              <span class="hint">Use line breaks for multiple addresses</span>
+              <span class="hint">Line breaks for multiple</span>
             </div>
             
             <div class="form-group">
               <label>Large Animals</label>
               <textarea onchange="updateField(${index}, 'largeAnimals', this.value)">${escapeHtml(incident.largeAnimals || '')}</textarea>
-              <span class="hint">Use line breaks for multiple locations</span>
+              <span class="hint">Line breaks for multiple</span>
             </div>
             
             <div class="form-group">
               <label>Large Animals Address</label>
               <textarea onchange="updateField(${index}, 'largeAnimalsAddr', this.value)">${escapeHtml(incident.largeAnimalsAddr || '')}</textarea>
-              <span class="hint">Use line breaks for multiple addresses</span>
+              <span class="hint">Line breaks for multiple</span>
             </div>
+          </div>
+          
+          <div class="incident-footer">
+            <button class="btn btn-save" onclick="saveFromIncident(${index})">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+              </svg>
+              Save to Server
+            </button>
+            <button class="btn btn-danger" onclick="deleteIncident(${index})">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+              Delete Incident
+            </button>
           </div>
         </div>
       `;
@@ -1021,10 +1227,12 @@
       
       incidents.push(newIncident);
       hasUnsavedChanges = true;
+      const newIndex = incidents.length - 1;
+      changedIncidentIndices.add(newIndex);
       renderIncidents();
       updateOutput();
+      updateFloatingSave();
       
-      const newIndex = incidents.length - 1;
       setTimeout(() => {
         const item = document.querySelector(`.incident-item[data-index="${newIndex}"]`);
         if (item) {
@@ -1038,8 +1246,16 @@
       if (confirm('Are you sure you want to delete this incident?')) {
         incidents.splice(index, 1);
         hasUnsavedChanges = true;
+        // Rebuild changed indices set
+        const newChanged = new Set();
+        changedIncidentIndices.forEach(i => {
+          if (i < index) newChanged.add(i);
+          else if (i > index) newChanged.add(i - 1);
+        });
+        changedIncidentIndices = newChanged;
         renderIncidents();
         updateOutput();
+        updateFloatingSave();
         showToast('Incident deleted');
       }
     }
@@ -1047,11 +1263,15 @@
     function updateField(index, field, value) {
       incidents[index][field] = value;
       hasUnsavedChanges = true;
+      changedIncidentIndices.add(index);
       
-      if (field === 'name') {
-        const item = document.querySelector(`.incident-item[data-index="${index}"]`);
-        if (item) {
-          const titleSpan = item.querySelector('.incident-item-title span');
+      // Update the has-changes class
+      const item = document.querySelector(`.incident-item[data-index="${index}"]`);
+      if (item) {
+        item.classList.add('has-changes');
+        
+        if (field === 'name') {
+          const titleSpan = item.querySelector('.incident-item-title span:not(.unsaved-dot)');
           if (titleSpan) {
             titleSpan.textContent = value || 'Unnamed Incident';
           }
@@ -1059,6 +1279,7 @@
       }
       
       updateOutput();
+      updateFloatingSave();
     }
 
     // ============ OUTPUT ============
@@ -1079,20 +1300,6 @@
       }).catch(() => {
         showToast('Failed to copy', true);
       });
-    }
-
-    function downloadJson() {
-      const json = JSON.stringify(incidents, null, 2);
-      const blob = new Blob([json], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'incident_backup_' + new Date().toISOString().slice(0,10) + '.json';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showToast('Backup downloaded!');
     }
 
     // ============ TOAST ============
