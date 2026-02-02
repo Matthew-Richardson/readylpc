@@ -171,10 +171,15 @@ html, body {
 /* Nav buttons */
 .banner-nav {
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.nav-buttons {
+  display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
 }
 
 .banner-nav .nav-btn {
@@ -211,28 +216,29 @@ html, body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 6px;
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-  color: #fff;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(0,0,0,0.12);
+  color: #475569;
   font-size: 12px;
   font-weight: 600;
   text-decoration: none;
-  box-shadow: 0 1px 4px rgba(30,64,175,0.2);
   transition: all 0.2s;
-  flex-basis: 100%;
-  justify-content: flex-end;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .call-center-link:hover {
-  box-shadow: 0 2px 8px rgba(30,64,175,0.3);
+  background: #fff;
+  border-color: rgba(0,0,0,0.2);
+  color: #334155;
 }
 
 .call-center-link svg {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   flex-shrink: 0;
+  opacity: 0.7;
 }
 
 .call-center-link .call-label {
@@ -301,6 +307,11 @@ html, body {
 
   .banner-nav {
     width: 100%;
+    align-items: stretch;
+  }
+
+  .nav-buttons {
+    width: 100%;
   }
 
   .banner-nav .nav-btn {
@@ -316,10 +327,9 @@ html, body {
   }
 
   .banner-nav .call-center-link {
-    flex-basis: 100%;
+    width: 100%;
     justify-content: center;
     padding: 8px 12px;
-    margin-top: 6px;
   }
 }
 
