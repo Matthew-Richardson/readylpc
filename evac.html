@@ -18,10 +18,8 @@
   <meta name="twitter:title" content="ReadyLaPlata — La Plata County Evacuation Viewer">
   <meta name="twitter:description" content="Official evacuation information for La Plata County, Colorado.">
 
-  <link rel="dns-prefetch" href="//js.arcgis.com">
-  <link rel="dns-prefetch" href="//services2.arcgis.com">
-  <link rel="preconnect" href="https://js.arcgis.com" crossorigin>
-  <link rel="preconnect" href="https://services2.arcgis.com" crossorigin>
+  <!-- Leaflet CSS - much smaller than ArcGIS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 
   <style>
     *,*::before,*::after{box-sizing:border-box}
@@ -53,13 +51,37 @@
     #incidentsActive.has-incidents{display:block}
     #noIncidentsMsg{display:none}
     #noIncidentsMsg.is-visible{display:block}
+    
+    /* Leaflet custom controls styling */
+    .leaflet-control-locate{border:none!important;border-radius:8px!important;box-shadow:0 2px 6px rgba(0,0,0,0.15)!important}
+    .leaflet-control-locate a{width:34px!important;height:34px!important;line-height:34px!important;border-radius:8px!important;background:#fff!important}
+    .leaflet-control-locate a:hover{background:#f5f5f5!important}
+    .leaflet-control-zoom{border:none!important;border-radius:8px!important;box-shadow:0 2px 6px rgba(0,0,0,0.15)!important;overflow:hidden}
+    .leaflet-control-zoom a{width:34px!important;height:34px!important;line-height:34px!important;font-size:18px!important;color:#333!important;border:none!important}
+    .leaflet-control-zoom a:hover{background:#f5f5f5!important}
+    .leaflet-control-zoom-in{border-radius:8px 8px 0 0!important}
+    .leaflet-control-zoom-out{border-radius:0 0 8px 8px!important}
+    
+    /* Custom locate button */
+    .leaflet-locate-btn{background:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.15);width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .leaflet-locate-btn:hover{background:#f5f5f5}
+    .leaflet-locate-btn svg{width:18px;height:18px;color:#333}
+    .leaflet-locate-btn.locating svg{animation:pulse 1s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+    
+    /* Geocoder/Search control */
+    .leaflet-control-geocoder{border:none!important;border-radius:8px!important;box-shadow:0 2px 6px rgba(0,0,0,0.15)!important;overflow:hidden}
+    .leaflet-control-geocoder-form input{height:34px!important;font-size:14px!important;padding:0 10px!important;border:none!important}
+    .leaflet-control-geocoder-icon{width:34px!important;height:34px!important;background-size:18px!important}
+    
+    /* Popup styling to match site design */
+    .leaflet-popup-content-wrapper{border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.15)}
+    .leaflet-popup-content{margin:12px 14px;font-size:14px;line-height:1.5}
+    .leaflet-popup-content strong{color:#0b4da2}
   </style>
 
   <link rel="stylesheet" href="shared-styles.css" media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="shared-styles.css"></noscript>
-
-  <link rel="stylesheet" href="https://js.arcgis.com/4.31/esri/themes/light/main.css" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="https://js.arcgis.com/4.31/esri/themes/light/main.css"></noscript>
 </head>
 
 <body>
@@ -327,7 +349,11 @@
     </div>
   </div>
 
-  <script src="https://js.arcgis.com/4.31/" defer></script>
+  <!-- Leaflet JS - much smaller than ArcGIS (~40KB vs ~2MB) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Esri Leaflet - connects Leaflet to ArcGIS services (~15KB) -->
+  <script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
+  
   <script src="shared.js"></script>
   <script>
   (function() {
@@ -337,11 +363,15 @@
 
     // Configuration
     const CONFIG = {
+      // ArcGIS WebMap portal item (we'll extract layers from it)
       webmapId: '58a8bb313db64271a55e7960cb839f64',
       incidentLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0',
       statusJsonUrl: 'incident.json',
       incidentField: 'incident',
-      statusValues: { SET: 'Set', GO: 'Go' }
+      statusValues: { SET: 'Set', GO: 'Go' },
+      // La Plata County center coordinates
+      defaultCenter: [37.28, -107.87],
+      defaultZoom: 10
     };
 
     const STATUS_DATA = {
@@ -617,114 +647,215 @@
       }
     }
 
-    // Map view reference for fullscreen toggle
-    let mapView = null;
+    // Map references
+    let map = null;
     let incidentExtent = null;
+    let touchPanEnabled = true;
 
-    // Map Initialization
+    // Leaflet Map Initialization
     function initMap() {
-      if (typeof require === 'undefined') {
-        setTimeout(initMap, 100);
-        return;
+      // Create map
+      map = L.map('viewDiv', {
+        center: CONFIG.defaultCenter,
+        zoom: CONFIG.defaultZoom,
+        zoomControl: true,
+        scrollWheelZoom: true
+      });
+
+      // Add basemap - using ESRI World Topo (raster tiles, no API key needed)
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles © Esri',
+        maxZoom: 18
+      }).addTo(map);
+
+      // Disable scroll zoom on mobile when not fullscreen
+      if (window.innerWidth < 700) {
+        map.scrollWheelZoom.disable();
+        touchPanEnabled = false;
       }
 
-      require([
-        'esri/WebMap', 'esri/views/MapView', 'esri/layers/FeatureLayer',
-        'esri/widgets/Search', 'esri/widgets/Locate'
-      ], (WebMap, MapView, FeatureLayer, Search, Locate) => {
+      // Add locate control (custom button)
+      const locateControl = L.Control.extend({
+        options: { position: 'topleft' },
+        onAdd: function() {
+          const btn = L.DomUtil.create('button', 'leaflet-locate-btn');
+          btn.type = 'button';
+          btn.title = 'Find my location';
+          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg>';
+          
+          L.DomEvent.disableClickPropagation(btn);
+          L.DomEvent.on(btn, 'click', function() {
+            btn.classList.add('locating');
+            map.locate({ setView: true, maxZoom: 14 });
+          });
+          
+          map.on('locationfound', () => btn.classList.remove('locating'));
+          map.on('locationerror', () => {
+            btn.classList.remove('locating');
+            alert('Unable to find your location. Please ensure location services are enabled.');
+          });
+          
+          return btn;
+        }
+      });
+      map.addControl(new locateControl());
 
-        DOM.infoButton?.addEventListener('click', () => location.href = 'index.html');
-        DOM.overviewButton?.addEventListener('click', () => location.href = 'overview.html');
-
-        const webmap = new WebMap({ portalItem: { id: CONFIG.webmapId } });
-        const view = new MapView({
-          container: 'viewDiv',
-          map: webmap,
-          constraints: {
-            rotationEnabled: false
+      // Add evacuation zones layer from ArcGIS Feature Service
+      const evacLayer = L.esri.featureLayer({
+        url: CONFIG.incidentLayerUrl,
+        style: function(feature) {
+          const status = feature.properties.STATUS;
+          if (status === 'Go') {
+            return { color: '#16a34a', weight: 2, fillColor: '#41f56e', fillOpacity: 0.5 };
+          } else if (status === 'Set') {
+            return { color: '#ca8a04', weight: 2, fillColor: '#fff36a', fillOpacity: 0.5 };
           }
+          return { color: '#64748b', weight: 1, fillColor: '#94a3b8', fillOpacity: 0.3 };
+        },
+        onEachFeature: function(feature, layer) {
+          const props = feature.properties;
+          if (props.zonename) {
+            layer.bindPopup(`
+              <strong>${escHTML(props.zonename)}</strong><br>
+              Status: ${escHTML(props.STATUS || 'Unknown')}<br>
+              ${props.incident ? `Incident: ${escHTML(props.incident)}` : ''}
+            `);
+          }
+        }
+      }).addTo(map);
+
+      // Nav buttons
+      DOM.infoButton?.addEventListener('click', () => location.href = 'index.html');
+      DOM.overviewButton?.addEventListener('click', () => location.href = 'overview.html');
+
+      // Load incidents and populate chips
+      loadIncidents(evacLayer);
+    }
+
+    // Load incidents from feature layer
+    async function loadIncidents(evacLayer) {
+      try {
+        const params = new URLSearchParams({
+          where: '1=1',
+          outFields: CONFIG.incidentField,
+          returnDistinctValues: 'true',
+          orderByFields: CONFIG.incidentField,
+          f: 'json'
         });
 
-        // Store reference for fullscreen toggle
-        mapView = view;
+        const res = await fetch(`${CONFIG.incidentLayerUrl}/query?${params}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
 
-        if (window.innerWidth < 700 && view.navigation) {
-          view.navigation.mouseWheelZoomEnabled = false;
-          view.navigation.browserTouchPanEnabled = false;
+        const names = (data.features || [])
+          .map(f => f.attributes[CONFIG.incidentField])
+          .filter(Boolean);
+
+        DOM.countBadge.textContent = names.length;
+        DOM.incidentPlural.textContent = names.length === 1 ? '' : 's';
+
+        if (!names.length) {
+          DOM.incidentsActive.classList.remove('has-incidents');
+          DOM.noIncidentsMsg.classList.add('is-visible');
+          return;
         }
 
-        const incidentLayer = new FeatureLayer({
-          url: CONFIG.incidentLayerUrl,
-          outFields: ['*'],
-          visible: false,
-          listMode: 'hide'
+        DOM.incidentsActive.classList.add('has-incidents');
+        DOM.noIncidentsMsg.classList.remove('is-visible');
+
+        sortIncidents(names, INCIDENT);
+
+        const frag = document.createDocumentFragment();
+        for (const name of names) {
+          frag.appendChild(createChip(name, () => {
+            const url = new URL(location.href);
+            url.searchParams.set('incident', name);
+            location.href = url;
+          }));
+        }
+        DOM.chipsEl.appendChild(frag);
+
+        if (INCIDENT) {
+          const match = DOM.chipsEl.querySelector(`[data-incident="${INCIDENT}"]`);
+          if (match) {
+            match.classList.add('active');
+            zoomToIncident(INCIDENT);
+          }
+        }
+      } catch (err) {
+        console.error('Error loading incidents:', err);
+        DOM.countBadge.textContent = '0';
+      }
+    }
+
+    // Zoom to incident extent
+    async function zoomToIncident(incidentName) {
+      try {
+        const where = `${CONFIG.incidentField} = '${escapeQuery(incidentName)}'`;
+        const params = new URLSearchParams({
+          where,
+          returnExtentOnly: 'true',
+          f: 'json'
         });
-        webmap.add(incidentLayer);
 
-        const zoomToIncident = name => {
-          incidentLayer.queryExtent({ where: `${CONFIG.incidentField} = '${escapeQuery(name)}'` })
-            .then(res => {
-              if (res.extent) {
-                incidentExtent = res.extent.expand(1.2);
-                view.goTo(incidentExtent);
-              }
-            })
-            .catch(console.error);
-        };
+        const res = await fetch(`${CONFIG.incidentLayerUrl}/query?${params}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
 
-        view.when()
-          .then(() => {
-            // Add widgets - only Locate and Search
-            view.ui.add(new Locate({ view }), 'top-left');
-            view.ui.add(new Search({ view, includeDefaultSources: true }), 'top-right');
-            return incidentLayer.when();
-          })
-          .then(() => incidentLayer.queryFeatures({
-            where: '1=1',
-            outFields: [CONFIG.incidentField],
-            returnDistinctValues: true,
-            orderByFields: [CONFIG.incidentField]
-          }))
-          .then(fs => {
-            const names = (fs.features || []).map(f => f.attributes[CONFIG.incidentField]).filter(Boolean);
-
-            DOM.countBadge.textContent = names.length;
-            DOM.incidentPlural.textContent = names.length === 1 ? '' : 's';
+        if (data.extent) {
+          const ext = data.extent;
+          // Convert ArcGIS extent to Leaflet bounds
+          // ArcGIS uses [xmin, ymin, xmax, ymax] in Web Mercator
+          // Need to convert to lat/lng
+          const sw = L.latLng(ext.ymin, ext.xmin);
+          const ne = L.latLng(ext.ymax, ext.xmax);
+          
+          // If coordinates are in Web Mercator (large numbers), we need to reproject
+          if (Math.abs(ext.xmin) > 180) {
+            // Web Mercator - use alternative query with returnGeometry
+            const geoParams = new URLSearchParams({
+              where,
+              outFields: '*',
+              returnGeometry: 'true',
+              outSR: '4326', // Request WGS84
+              f: 'json'
+            });
             
-            if (!names.length) {
-              DOM.incidentsActive.classList.remove('has-incidents');
-              DOM.noIncidentsMsg.classList.add('is-visible');
-              return;
-            }
+            const geoRes = await fetch(`${CONFIG.incidentLayerUrl}/query?${geoParams}`);
+            const geoData = await geoRes.json();
             
-            DOM.incidentsActive.classList.add('has-incidents');
-            DOM.noIncidentsMsg.classList.remove('is-visible');
-
-            sortIncidents(names, INCIDENT);
-
-            const frag = document.createDocumentFragment();
-            for (const name of names) {
-              frag.appendChild(createChip(name, () => {
-                const url = new URL(location.href);
-                url.searchParams.set('incident', name);
-                location.href = url;
-              }));
-            }
-            DOM.chipsEl.appendChild(frag);
-
-            if (INCIDENT) {
-              const match = DOM.chipsEl.querySelector(`[data-incident="${INCIDENT}"]`);
-              if (match) {
-                match.classList.add('active');
-                zoomToIncident(INCIDENT);
+            if (geoData.features?.length) {
+              // Calculate bounds from all features
+              let bounds = null;
+              geoData.features.forEach(f => {
+                if (f.geometry?.rings) {
+                  f.geometry.rings.forEach(ring => {
+                    ring.forEach(coord => {
+                      const latlng = L.latLng(coord[1], coord[0]);
+                      if (!bounds) {
+                        bounds = L.latLngBounds(latlng, latlng);
+                      } else {
+                        bounds.extend(latlng);
+                      }
+                    });
+                  });
+                }
+              });
+              
+              if (bounds) {
+                incidentExtent = bounds.pad(0.1);
+                map.fitBounds(incidentExtent);
               }
             }
-          })
-          .catch(err => {
-            console.error('Error loading incidents:', err);
-            DOM.countBadge.textContent = '0';
-          });
-      });
+          } else {
+            // Already in WGS84
+            incidentExtent = L.latLngBounds(sw, ne).pad(0.1);
+            map.fitBounds(incidentExtent);
+          }
+        }
+      } catch (err) {
+        console.error('Error zooming to incident:', err);
+      }
     }
 
     // Fullscreen toggle and map reset
@@ -737,24 +868,26 @@
       const label = $('fullscreenLabel');
       if (!btn || !viewDiv) return;
 
+      const expandIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+      const collapseIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+
       const enterFullscreen = () => {
         viewDiv.classList.add('map-is-fullscreen');
         document.body.style.overflow = 'hidden';
-        if (mapView && mapView.navigation) {
-          mapView.navigation.browserTouchPanEnabled = true;
+        if (map) {
+          map.scrollWheelZoom.enable();
+          setTimeout(() => map.invalidateSize(), 100);
         }
       };
 
       const exitFullscreen = () => {
         viewDiv.classList.remove('map-is-fullscreen');
         document.body.style.overflow = '';
-        if (mapView && mapView.navigation) {
-          mapView.navigation.browserTouchPanEnabled = false;
+        if (map && window.innerWidth < 700) {
+          map.scrollWheelZoom.disable();
         }
+        setTimeout(() => map?.invalidateSize(), 100);
       };
-
-      const expandIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
-      const collapseIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
 
       btn.addEventListener('click', () => {
         const isFullscreen = viewDiv.classList.toggle('map-is-fullscreen');
@@ -762,8 +895,13 @@
         if (label) label.textContent = isFullscreen ? 'Exit Full Screen' : 'Full Screen';
         document.body.style.overflow = isFullscreen ? 'hidden' : '';
         
-        if (mapView && mapView.navigation) {
-          mapView.navigation.browserTouchPanEnabled = isFullscreen;
+        if (map) {
+          if (isFullscreen) {
+            map.scrollWheelZoom.enable();
+          } else if (window.innerWidth < 700) {
+            map.scrollWheelZoom.disable();
+          }
+          setTimeout(() => map.invalidateSize(), 100);
         }
       });
 
@@ -776,8 +914,8 @@
 
       // Reset buttons - zoom back to incident extent
       const doReset = () => {
-        if (mapView && incidentExtent) {
-          mapView.goTo(incidentExtent);
+        if (map && incidentExtent) {
+          map.fitBounds(incidentExtent);
         }
       };
       resetBtn?.addEventListener('click', doReset);
