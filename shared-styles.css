@@ -215,6 +215,7 @@ html, body {
 .call-center-link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   padding: 7px 14px;
   border-radius: 8px;
@@ -225,6 +226,7 @@ html, body {
   font-weight: 600;
   text-decoration: none;
   transition: all 0.2s;
+  width: 100%;
 }
 
 .call-center-link:hover {
