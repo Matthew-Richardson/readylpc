@@ -74,6 +74,27 @@
     .leaflet-control-geocoder-form input{height:34px!important;font-size:14px!important;padding:0 10px!important;border:none!important}
     .leaflet-control-geocoder-icon{width:34px!important;height:34px!important;background-size:18px!important}
     
+    /* Custom search control */
+    .leaflet-search-control{background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.15);overflow:hidden;display:flex;align-items:center}
+    .leaflet-search-control.expanded{width:240px}
+    .leaflet-search-control.collapsed{width:34px}
+    .leaflet-search-btn{background:#fff;border:none;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .leaflet-search-btn:hover{background:#f5f5f5}
+    .leaflet-search-btn svg{width:18px;height:18px;color:#333}
+    .leaflet-search-input{border:none;outline:none;height:34px;padding:0 10px;font-size:14px;flex:1;min-width:0;display:none}
+    .leaflet-search-control.expanded .leaflet-search-input{display:block}
+    .leaflet-search-results{position:absolute;top:100%;left:0;right:0;background:#fff;border-radius:0 0 8px 8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);max-height:200px;overflow-y:auto;z-index:1000;margin-top:2px}
+    .leaflet-search-result{padding:10px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #f0f0f0}
+    .leaflet-search-result:hover{background:#f5f5f5}
+    .leaflet-search-result:last-child{border-bottom:none}
+    .leaflet-search-result-name{font-weight:600;color:#333}
+    .leaflet-search-result-address{color:#666;font-size:12px;margin-top:2px}
+    
+    /* Zone labels */
+    .zone-label{background:rgba(255,255,255,0.95);border:1px solid rgba(0,0,0,0.2);border-radius:4px;padding:2px 6px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.15)}
+    .zone-label-go{background:rgba(65,245,110,0.9);border-color:rgba(22,163,74,0.5);color:#065f23}
+    .zone-label-set{background:rgba(255,243,106,0.9);border-color:rgba(202,138,4,0.5);color:#854d0e}
+    
     /* Popup styling to match site design */
     .leaflet-popup-content-wrapper{border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.15)}
     .leaflet-popup-content{margin:12px 14px;font-size:14px;line-height:1.5}
@@ -724,6 +745,146 @@
         }
       }).addTo(map);
 
+      // Store zone labels layer group
+      const zoneLabels = L.layerGroup().addTo(map);
+
+      // Add zone labels when features load
+      evacLayer.on('load', function() {
+        zoneLabels.clearLayers();
+        evacLayer.eachFeature(function(layer) {
+          const props = layer.feature.properties;
+          if (props.zonename && props.STATUS) {
+            // Get the center of the polygon
+            const center = layer.getBounds().getCenter();
+            const statusClass = props.STATUS === 'Go' ? 'zone-label-go' : props.STATUS === 'Set' ? 'zone-label-set' : '';
+            
+            const label = L.marker(center, {
+              icon: L.divIcon({
+                className: 'zone-label ' + statusClass,
+                html: escHTML(props.zonename),
+                iconSize: null,
+                iconAnchor: [0, 0]
+              })
+            });
+            zoneLabels.addLayer(label);
+          }
+        });
+      });
+
+      // Add search control (address geocoding using ESRI)
+      const searchControl = L.Control.extend({
+        options: { position: 'topright' },
+        onAdd: function() {
+          const container = L.DomUtil.create('div', 'leaflet-search-control collapsed');
+          
+          const btn = L.DomUtil.create('button', 'leaflet-search-btn', container);
+          btn.type = 'button';
+          btn.title = 'Search address';
+          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+          
+          const input = L.DomUtil.create('input', 'leaflet-search-input', container);
+          input.type = 'text';
+          input.placeholder = 'Search address...';
+          
+          const results = L.DomUtil.create('div', 'leaflet-search-results', container);
+          results.style.display = 'none';
+          
+          let searchTimeout = null;
+          
+          L.DomEvent.disableClickPropagation(container);
+          L.DomEvent.disableScrollPropagation(container);
+          
+          // Toggle expanded state
+          L.DomEvent.on(btn, 'click', function(e) {
+            e.stopPropagation();
+            if (container.classList.contains('collapsed')) {
+              container.classList.remove('collapsed');
+              container.classList.add('expanded');
+              input.focus();
+            } else if (input.value === '') {
+              container.classList.remove('expanded');
+              container.classList.add('collapsed');
+              results.style.display = 'none';
+            }
+          });
+          
+          // Search on input
+          L.DomEvent.on(input, 'input', function() {
+            clearTimeout(searchTimeout);
+            const query = input.value.trim();
+            
+            if (query.length < 3) {
+              results.style.display = 'none';
+              return;
+            }
+            
+            searchTimeout = setTimeout(async () => {
+              try {
+                // Use ESRI World Geocoding Service
+                const params = new URLSearchParams({
+                  f: 'json',
+                  text: query,
+                  maxLocations: 5,
+                  location: '-107.87,37.28', // Bias toward La Plata County
+                  distance: 80000 // 80km radius
+                });
+                
+                const res = await fetch(`https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?${params}`);
+                const data = await res.json();
+                
+                results.innerHTML = '';
+                
+                if (data.candidates?.length) {
+                  data.candidates.forEach(candidate => {
+                    const item = L.DomUtil.create('div', 'leaflet-search-result', results);
+                    item.innerHTML = `
+                      <div class="leaflet-search-result-name">${escHTML(candidate.address)}</div>
+                    `;
+                    L.DomEvent.on(item, 'click', function() {
+                      const loc = candidate.location;
+                      map.setView([loc.y, loc.x], 15);
+                      L.marker([loc.y, loc.x]).addTo(map)
+                        .bindPopup(escHTML(candidate.address))
+                        .openPopup();
+                      results.style.display = 'none';
+                      input.value = '';
+                      container.classList.remove('expanded');
+                      container.classList.add('collapsed');
+                    });
+                  });
+                  results.style.display = 'block';
+                } else {
+                  results.style.display = 'none';
+                }
+              } catch (err) {
+                console.error('Search error:', err);
+                results.style.display = 'none';
+              }
+            }, 300);
+          });
+          
+          // Close results when clicking outside
+          L.DomEvent.on(input, 'blur', function() {
+            setTimeout(() => {
+              results.style.display = 'none';
+            }, 200);
+          });
+          
+          // Handle enter key
+          L.DomEvent.on(input, 'keydown', function(e) {
+            if (e.key === 'Escape') {
+              input.value = '';
+              results.style.display = 'none';
+              container.classList.remove('expanded');
+              container.classList.add('collapsed');
+            }
+          });
+          
+          return container;
+        }
+      });
+      map.addControl(new searchControl());
+
       // Nav buttons
       DOM.infoButton?.addEventListener('click', () => location.href = 'index.html');
       DOM.overviewButton?.addEventListener('click', () => location.href = 'overview.html');
@@ -735,10 +896,13 @@
     // Load incidents from feature layer
     async function loadIncidents(evacLayer) {
       try {
+        // Query for distinct incident names
+        // ArcGIS requires returnGeometry=false with returnDistinctValues=true
         const params = new URLSearchParams({
           where: '1=1',
           outFields: CONFIG.incidentField,
           returnDistinctValues: 'true',
+          returnGeometry: 'false',
           orderByFields: CONFIG.incidentField,
           f: 'json'
         });
@@ -747,9 +911,13 @@
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
-        const names = (data.features || [])
-          .map(f => f.attributes[CONFIG.incidentField])
-          .filter(Boolean);
+        // Extract unique incident names (fallback deduplication in case service doesn't support distinct)
+        const uniqueNames = new Set();
+        (data.features || []).forEach(f => {
+          const name = f.attributes[CONFIG.incidentField];
+          if (name) uniqueNames.add(name);
+        });
+        const names = Array.from(uniqueNames);
 
         DOM.countBadge.textContent = names.length;
         DOM.incidentPlural.textContent = names.length === 1 ? '' : 's';
