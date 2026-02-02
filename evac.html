@@ -78,7 +78,7 @@
         <div class="brand-banner">
           <div class="brand-row">
             <div class="brand-group">
-              <img src="https://cms9files.revize.com/laplata/_assets_/images/logo.png" alt="La Plata County Logo" class="header-logo" width="160" height="auto" loading="eager" fetchpriority="high" decoding="async">
+              <img src="logo.png" alt="La Plata County Logo" class="header-logo" width="160" height="auto" loading="eager" fetchpriority="high" decoding="async">
               <div class="brand-text">
                 <div class="site-name">ReadyLaPlata</div>
                 <div class="site-subtitle">La Plata County Evacuation Viewer</div>
@@ -141,7 +141,12 @@
           </div>
 
           <div class="card-divider"></div>
-          <div id="viewDiv"></div>
+          <div id="viewDiv">
+            <div id="mapLoading" class="map-loading">
+              <div class="map-loading-spinner"></div>
+              <div class="map-loading-text">Loading evacuation map...</div>
+            </div>
+          </div>
 
           <div id="mapControls" class="map-controls">
             <button id="mapResetBtn" class="map-control-btn" type="button" aria-label="Reset map extent">
@@ -194,9 +199,19 @@
     </div>
 
     <main>
-      <div id="evacRow" class="evac-row">Loading evacuation information…</div>
+      <div id="evacRow" class="evac-row">
+        <div class="loading-placeholder">
+          <div class="loading-placeholder-spinner"></div>
+          <div class="loading-placeholder-text">Loading evacuation zones...</div>
+        </div>
+      </div>
       <div class="incident-panel">
-        <div id="incidentPanel">Loading incident status…</div>
+        <div id="incidentPanel">
+          <div class="loading-placeholder">
+            <div class="loading-placeholder-spinner"></div>
+            <div class="loading-placeholder-text">Loading incident status...</div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
@@ -674,6 +689,10 @@
 
         view.when()
           .then(() => {
+            // Hide loading state
+            const mapLoading = $('mapLoading');
+            if (mapLoading) mapLoading.classList.add('is-hidden');
+            
             // Add widgets - only Locate and Search
             view.ui.add(new Locate({ view }), 'top-left');
             view.ui.add(new Search({ view, includeDefaultSources: true }), 'top-right');
