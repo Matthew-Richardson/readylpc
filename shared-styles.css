@@ -173,6 +173,8 @@ html, body {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .banner-nav .nav-btn {
@@ -208,43 +210,43 @@ html, body {
 .call-center-link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  border-radius: 8px;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
   background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
   color: #fff;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
   text-decoration: none;
-  box-shadow: 0 2px 8px rgba(30,64,175,0.25);
+  box-shadow: 0 1px 4px rgba(30,64,175,0.2);
   transition: all 0.2s;
+  flex-basis: 100%;
+  justify-content: flex-end;
+  margin-top: 4px;
 }
 
 .call-center-link:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(30,64,175,0.35);
+  box-shadow: 0 2px 8px rgba(30,64,175,0.3);
 }
 
 .call-center-link svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 .call-center-link .call-label {
-  font-size: 9px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  opacity: 0.9;
-  display: block;
-  line-height: 1;
+  display: none;
 }
 
 .call-center-link .call-number {
-  font-size: 13px;
-  font-weight: 700;
-  display: block;
-  line-height: 1.2;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.call-center-link .call-number::before {
+  content: 'Call Center: ';
 }
 
 /* Content section below header */
@@ -314,20 +316,10 @@ html, body {
   }
 
   .banner-nav .call-center-link {
-    width: 100%;
+    flex-basis: 100%;
     justify-content: center;
-    padding: 10px 14px;
-    margin-top: 4px;
-    flex: none;
-  }
-
-  .banner-nav .call-center-link .call-label {
-    display: none;
-  }
-
-  .banner-nav .call-center-link .call-number::before {
-    content: 'Call Center: ';
-    font-weight: 600;
+    padding: 8px 12px;
+    margin-top: 6px;
   }
 }
 
