@@ -204,6 +204,49 @@ html, body {
   opacity: 0.7;
 }
 
+/* Call Center Link */
+.call-center-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(30,64,175,0.25);
+  transition: all 0.2s;
+}
+
+.call-center-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30,64,175,0.35);
+}
+
+.call-center-link svg {
+  width: 16px;
+  height: 16px;
+}
+
+.call-center-link .call-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.9;
+  display: block;
+  line-height: 1;
+}
+
+.call-center-link .call-number {
+  font-size: 13px;
+  font-weight: 700;
+  display: block;
+  line-height: 1.2;
+}
+
 /* Content section below header */
 .content-overlap {
   background: #fff;
@@ -268,6 +311,23 @@ html, body {
   .banner-nav .nav-icon {
     width: 14px;
     height: 14px;
+  }
+
+  .banner-nav .call-center-link {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 14px;
+    margin-top: 4px;
+    flex: none;
+  }
+
+  .banner-nav .call-center-link .call-label {
+    display: none;
+  }
+
+  .banner-nav .call-center-link .call-number::before {
+    content: 'Call Center: ';
+    font-weight: 600;
   }
 }
 
