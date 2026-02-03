@@ -154,6 +154,8 @@ html, body {
 .brand-text {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
 }
 
 .site-name {
@@ -294,7 +296,6 @@ html, body {
 
   .brand-group {
     gap: 12px;
-    flex: none;
   }
 
   .header-logo {
