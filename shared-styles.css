@@ -144,7 +144,7 @@ html, body {
 }
 
 .header-logo {
-  width: 160px;
+  width: 200px;
   height: auto;
   display: block;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));
@@ -153,8 +153,7 @@ html, body {
 .brand-text {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-width: 0;
+  margin-left: auto;
 }
 
 .site-name {
