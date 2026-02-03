@@ -132,6 +132,7 @@ html, body {
 .brand-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 20px;
 }
 
@@ -139,12 +140,10 @@ html, body {
   display: flex;
   align-items: center;
   gap: 14px;
-  flex: 1;
-  min-width: 0;
 }
 
 .header-logo {
-  width: 200px;
+  width: 180px;
   height: auto;
   display: block;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));
@@ -153,18 +152,17 @@ html, body {
 .brand-text {
   display: flex;
   flex-direction: column;
-  margin-left: auto;
 }
 
 .site-name {
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 800;
   line-height: 1.1;
   color: #0b4da2;
 }
 
 .site-subtitle {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   margin-top: 2px;
   color: #64748b;
