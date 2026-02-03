@@ -140,10 +140,12 @@ html, body {
   display: flex;
   align-items: center;
   gap: 14px;
+  padding-right: 24px;
+  border-right: 1px solid rgba(0,0,0,0.1);
 }
 
 .header-logo {
-  width: 180px;
+  width: 200px;
   height: auto;
   display: block;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));
@@ -155,14 +157,14 @@ html, body {
 }
 
 .site-name {
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 800;
   line-height: 1.1;
   color: #0b4da2;
 }
 
 .site-subtitle {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   margin-top: 2px;
   color: #64748b;
@@ -292,6 +294,8 @@ html, body {
 
   .brand-group {
     gap: 12px;
+    padding-right: 0;
+    border-right: none;
   }
 
   .header-logo {
