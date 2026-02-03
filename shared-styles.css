@@ -296,6 +296,19 @@ html, body {
     gap: 12px;
     padding-right: 0;
     border-right: none;
+    padding-bottom: 14px;
+    position: relative;
+    width: 100%;
+  }
+
+  .brand-group::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: rgba(0,0,0,0.1);
   }
 
   .header-logo {
