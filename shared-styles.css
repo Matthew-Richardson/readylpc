@@ -140,6 +140,8 @@ html, body {
   display: flex;
   align-items: center;
   gap: 14px;
+  flex: 1;
+  min-width: 0;
 }
 
 .header-logo {
@@ -174,6 +176,7 @@ html, body {
   flex-direction: column;
   align-items: flex-end;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .nav-buttons {
@@ -291,6 +294,7 @@ html, body {
 
   .brand-group {
     gap: 12px;
+    flex: none;
   }
 
   .header-logo {
