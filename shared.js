@@ -322,8 +322,8 @@
 
   // ========== VCARD GENERATION & DOWNLOAD ==========
   const VCARD_DATA = {
-    name: 'CodeRED Alerts',
-    org: 'La Plata County Emergency Management',
+    name: 'LPC Alerts',
+    org: 'LPC Alerts',
     voiceNumber: '+19703878700',
     textNumber: '38671'
   };
@@ -336,7 +336,7 @@
       `ORG:${VCARD_DATA.org}`,
       `TEL;TYPE=VOICE:${VCARD_DATA.voiceNumber}`,
       `TEL;TYPE=MSG:${VCARD_DATA.textNumber}`,
-      `NOTE:CodeRED emergency alert system for La Plata County. Voice calls come from (970) 387-8700 and text messages come from 386-71.`,
+      `NOTE:LPC alert system for La Plata County. Voice calls come from (970) 387-8700 and text messages come from 386-71.`,
       'END:VCARD'
     ].join('\r\n');
     return vcard;
