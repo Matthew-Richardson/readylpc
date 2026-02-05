@@ -187,7 +187,7 @@ html, body {
 
 .banner-nav .nav-btn {
   font-size: 13px;
-  padding: 7px 14px;
+  padding: 7px 16px;
   border-radius: 8px;
   border: 1px solid rgba(0,0,0,0.12);
   background: rgba(255,255,255,0.9);
@@ -199,6 +199,7 @@ html, body {
   gap: 6px;
   box-shadow: none;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .banner-nav .nav-btn:hover {
@@ -1559,7 +1560,7 @@ main {
   box-shadow: 0 0 0 2px rgba(11,77,162,0.3);
 }
 
-/* ========== CODERED OVERLAY MODAL ========== */
+/* ========== LPC ALERTS OVERLAY MODAL ========== */
 
 .codered-overlay {
   position: fixed;
