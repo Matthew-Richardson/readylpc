@@ -97,7 +97,7 @@
     }
   });
 
-  // ========== CODERED OVERLAY INIT ==========
+  // ========== LPC ALERTS OVERLAY INIT ==========
   const initCoderedOverlay = (elements) => {
     const { coderedButton, coderedOverlay, coderedClose, noIncidentCodered } = elements;
     if (!coderedButton || !coderedOverlay) return;
@@ -174,7 +174,7 @@
           <button class="announcement-accordion-trigger" type="button" aria-expanded="false">
             <span class="announcement-accordion-trigger-left">
               <svg class="announcement-accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              <span class="announcement-accordion-label">${esc(data.callerId.title || 'Save CodeRED Caller ID')}</span>
+              <span class="announcement-accordion-label">${esc(data.callerId.title || 'Save LPC Alerts Caller ID')}</span>
             </span>
             <svg class="announcement-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
@@ -349,7 +349,7 @@
     
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'CodeRED-Alerts.vcf';
+    link.download = 'LPC-Alerts.vcf';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -395,7 +395,7 @@
     }
   };
 
-  // ========== CODERED CALLER ID OVERLAY INIT ==========
+  // ========== LPC ALERTS CALLER ID OVERLAY INIT ==========
   const initCallerIdOverlay = (elements) => {
     const { callerIdButton, callerIdOverlay, callerIdClose } = elements;
     if (!callerIdButton || !callerIdOverlay) return;
