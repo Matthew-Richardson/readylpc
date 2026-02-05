@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodeRED KML Export — ReadyLaPlata</title>
-  <meta name="description" content="Export evacuation zones as KML for CodeRED notifications.">
+  <title>LPC Alerts KML Export — ReadyLaPlata</title>
+  <meta name="description" content="Export evacuation zones as KML for LPC Alert notifications.">
   <meta name="theme-color" content="#0b4da2">
   
   <!-- Performance: DNS prefetch for external resources -->
@@ -321,7 +321,7 @@
     
     <!-- Header -->
     <header class="header">
-      <h1 class="header-title">CodeRED KML Export</h1>
+      <h1 class="header-title">LPC Alerts KML Export</h1>
       <p class="header-subtitle">ReadyLaPlata — Evacuation Zone Export Tool</p>
     </header>
     
@@ -335,8 +335,8 @@
         Back to Home
       </a>
       
-      <h1 class="page-title">Export for CodeRED</h1>
-      <p class="page-subtitle">Export evacuation zones as a dissolved KML boundary for CodeRED notifications.</p>
+      <h1 class="page-title">Export for LPC Alerts</h1>
+      <p class="page-subtitle">Export evacuation zones as a dissolved KML boundary for LPC Alert notifications.</p>
       
       <!-- Export Card -->
       <div id="exportCard" class="export-card">
@@ -368,7 +368,7 @@
               <line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
             <p>
-              Exports as <strong>KML</strong> with all zones dissolved into a single boundary for CodeRED
+              Exports as <strong>KML</strong> with all zones dissolved into a single boundary for LPC Alerts
             </p>
           </div>
         </div>
@@ -557,7 +557,7 @@
       kml += '<kml xmlns="http://www.opengis.net/kml/2.2">\n';
       kml += '  <Document>\n';
       kml += '    <name>' + escapeXml(incidentName) + ' - Evacuation Boundary</name>\n';
-      kml += '    <description>Dissolved evacuation zone boundary for CodeRED</description>\n';
+      kml += '    <description>Dissolved evacuation zone boundary for LPC Alerts</description>\n';
       
       // Style for the boundary
       kml += '    <Style id="evacStyle">\n';
