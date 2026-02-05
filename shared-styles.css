@@ -174,9 +174,10 @@ html, body {
 .banner-nav {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: flex-end;
   gap: 6px;
-  flex-shrink: 0;
+  flex: 1;
+  min-width: 0;
 }
 
 .nav-buttons {
@@ -184,7 +185,6 @@ html, body {
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
-  min-width: 280px;
 }
 
 .banner-nav .nav-btn {
@@ -232,7 +232,6 @@ html, body {
   font-weight: 600;
   text-decoration: none;
   transition: all 0.2s;
-  width: 100%;
 }
 
 .call-center-link:hover {
@@ -328,12 +327,12 @@ html, body {
 
   .banner-nav {
     width: 100%;
+    flex: none;
     align-items: stretch;
   }
 
   .nav-buttons {
     width: 100%;
-    min-width: 0;
   }
 
   .banner-nav .nav-btn {
