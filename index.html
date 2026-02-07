@@ -135,54 +135,44 @@
 
                 <div class="stage-subhead">Ready, Set, Go! System</div>
 
-                <div id="stageTimeline" class="stage-timeline">
-                  <svg id="triangleLines" class="triangle-lines" aria-hidden="true">
-                    <defs>
-                      <linearGradient id="grad-ready-set" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#b33a3a"/><stop offset="100%" stop-color="#a68f00"/></linearGradient>
-                      <linearGradient id="grad-ready-go" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#b33a3a"/><stop offset="100%" stop-color="#0a7c25"/></linearGradient>
-                      <linearGradient id="grad-set-go" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#a68f00"/><stop offset="100%" stop-color="#0a7c25"/></linearGradient>
-                    </defs>
-                    <line id="line-ready-set" stroke="url(#grad-ready-set)" stroke-width="4" stroke-linecap="round"/>
-                    <line id="line-ready-go" stroke="url(#grad-ready-go)" stroke-width="4" stroke-linecap="round"/>
-                    <line id="line-set-go" stroke="url(#grad-set-go)" stroke-width="4" stroke-linecap="round"/>
-                  </svg>
-
-                  <div class="stage-item stage-item-ready">
-                    <div id="pinReady" class="stage-pin stage-pin-ready"></div>
-                    <div class="stage-card stage-card-ready">
-                      <h2 class="stage-title">READY</h2>
-                      <div class="stage-subtitle">Be READY, Stay SAFE</div>
-                      <div class="stage-body">
-                        <p><strong>Stay Informed:</strong> Sign-up for LPC Alerts, ensure Gov't Alerts are enabled on your cell phone, and use apps like Watch Duty.</p>
-                        <p><strong>Arrangements:</strong> Make a plan and practice your evacuation; People, Pets, Photos, Papers and Pills.</p>
-                        <p><strong>Fire Ready:</strong> Fire Mitigation and last minute safety measures, "Go Kit" with Protective Clothing and masks.</p>
-                        <p><strong>Evacuate:</strong> Don't hesitate or ignore evacuation orders. Know multiple ways out.</p>
+                <div class="rsg-layout">
+                  <div class="rsg-card rsg-card--ready">
+                    <div class="rsg-stripe rsg-stripe--ready"></div>
+                    <div class="rsg-content">
+                      <div class="rsg-header">
+                        <h2 class="rsg-title">Ready</h2>
+                        <span class="rsg-label">Be Ready, Stay Safe</span>
                       </div>
+                      <ul class="rsg-bullets">
+                        <li><strong>Stay Informed</strong> — Sign up for LPC Alerts, enable Gov't Alerts, use Watch Duty</li>
+                        <li><strong>Make a Plan</strong> — People, Pets, Photos, Papers, and Pills</li>
+                        <li><strong>Fire Ready</strong> — Mitigation, "Go Kit" with protective clothing and masks</li>
+                        <li><strong>Know Your Routes</strong> — Don't hesitate on evacuation orders, know multiple ways out</li>
+                      </ul>
                     </div>
                   </div>
-
-                  <div class="stage-bottom-row">
-                    <div class="stage-item stage-item-set">
-                      <div id="pinSet" class="stage-pin stage-pin-set"></div>
-                      <div class="stage-card stage-card-set">
-                        <h2 class="stage-title">SET</h2>
-                        <div class="stage-subtitle">Pre-Evacuation</div>
-                        <div class="stage-body stage-body-center">
-                          <p><strong>SET - Pre-Evacuation</strong></p>
-                          <p>Voluntary Evacuation; Evacuation orders are likely.</p>
+                  <div class="rsg-pair">
+                    <div class="rsg-card rsg-card--set">
+                      <div class="rsg-stripe rsg-stripe--set"></div>
+                      <div class="rsg-content">
+                        <div class="rsg-header">
+                          <h2 class="rsg-title">Set</h2>
+                          <span class="rsg-label">Pre-Evacuation</span>
+                        </div>
+                        <div class="rsg-body">
+                          <p>Voluntary evacuation. Evacuation orders are likely — be prepared to leave at a moment's notice.</p>
                         </div>
                       </div>
                     </div>
-
-                    <div class="stage-item stage-item-go">
-                      <div id="pinGo" class="stage-pin stage-pin-go"></div>
-                      <div class="stage-card stage-card-go">
-                        <h2 class="stage-title">GO</h2>
-                        <div class="stage-subtitle">Evacuate Now</div>
-                        <div class="stage-body stage-body-center">
-                          <p><strong>GO - Evacuate Now</strong></p>
-                          <p>LEAVE NOW. Immediate threat to life.</p>
-                          <p>This area is closed to public access.</p>
+                    <div class="rsg-card rsg-card--go">
+                      <div class="rsg-stripe rsg-stripe--go"></div>
+                      <div class="rsg-content">
+                        <div class="rsg-header">
+                          <h2 class="rsg-title">Go</h2>
+                          <span class="rsg-label">Evacuate Now</span>
+                        </div>
+                        <div class="rsg-body">
+                          <p>Leave immediately. Imminent threat to life. Area is closed to public access.</p>
                         </div>
                       </div>
                     </div>
