@@ -379,8 +379,8 @@ html, body {
 }
 
 .incident-box--alert {
-  border: 1.5px solid rgba(179,38,30,0.25);
-  background: linear-gradient(135deg, #fef5f5 0%, #fef3eb 100%);
+  border: 1.5px solid rgba(11,77,162,0.3);
+  background: linear-gradient(135deg, #eff6ff 0%, #e8f0fe 100%);
 }
 
 .incident-box--calm {
@@ -394,17 +394,17 @@ html, body {
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  border-bottom: 1px solid rgba(179,38,30,0.15);
+  border-bottom: 1px solid rgba(11,77,162,0.15);
 }
 
 .incident-box-header--alert {
-  background: rgba(179,38,30,0.08);
+  background: rgba(11,77,162,0.08);
 }
 
 .incident-box-header-icon {
   width: 16px;
   height: 16px;
-  color: #b3261e;
+  color: #0b4da2;
   flex-shrink: 0;
 }
 
@@ -413,7 +413,7 @@ html, body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #991b1b;
+  color: #0a3d7e;
 }
 
 .incident-box-body {
@@ -423,7 +423,7 @@ html, body {
 .incident-box-body .incident-tip {
   margin: 0 0 10px;
   font-size: 14px;
-  color: rgba(120,40,30,0.7);
+  color: rgba(11,77,162,0.6);
 }
 
 .incident-box-content-row {
@@ -534,7 +534,7 @@ html, body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #b3261e;
+  color: #0b4da2;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -786,7 +786,7 @@ html, body {
 .incident-chip {
   border-radius: 10px;
   padding: 12px 16px;
-  border: 1.5px solid rgba(179,38,30,0.25);
+  border: 1.5px solid rgba(11,77,162,0.25);
   background: #fff;
   font-size: 16px;
   font-weight: 600;
@@ -802,19 +802,19 @@ html, body {
 
 @keyframes chipGlow {
   0%, 100% {
-    box-shadow: 0 2px 10px rgba(179,38,30,0.08);
+    box-shadow: 0 2px 10px rgba(11,77,162,0.08);
   }
   50% {
-    box-shadow: 0 2px 16px rgba(179,38,30,0.2), 0 0 0 2px rgba(179,38,30,0.08);
+    box-shadow: 0 2px 16px rgba(11,77,162,0.2), 0 0 0 2px rgba(11,77,162,0.08);
   }
 }
 
-/* Red ! warning icon */
+/* Blue ! warning icon */
 .incident-chip-icon {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: #b3261e;
+  background: #0b4da2;
   color: #fff;
   font-size: 13px;
   font-weight: 800;
@@ -822,29 +822,29 @@ html, body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(179,38,30,0.3);
+  box-shadow: 0 2px 6px rgba(11,77,162,0.3);
 }
 
 /* Hover: lift and emphasize */
 .incident-chip:hover {
-  background: #fef5f5;
-  border-color: rgba(179,38,30,0.4);
-  box-shadow: 0 4px 12px rgba(179,38,30,0.12);
+  background: #f0f6ff;
+  border-color: rgba(11,77,162,0.4);
+  box-shadow: 0 4px 12px rgba(11,77,162,0.12);
   transform: translateY(-1px);
 }
 
 .incident-chip.active {
-  background: linear-gradient(135deg, #b3261e 0%, #9a1f18 100%);
-  border-color: #b3261e;
+  background: linear-gradient(135deg, #0b4da2 0%, #0a3d7e 100%);
+  border-color: #0b4da2;
   color: #fff;
   font-weight: 700;
-  box-shadow: 0 4px 14px rgba(179,38,30,0.3);
+  box-shadow: 0 4px 14px rgba(11,77,162,0.3);
   animation: none;
 }
 
 .incident-chip.active .incident-chip-icon {
   background: #fff;
-  color: #b3261e;
+  color: #0b4da2;
   box-shadow: none;
 }
 
