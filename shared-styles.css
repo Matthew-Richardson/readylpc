@@ -2454,7 +2454,7 @@ main {
 }
 
 .stage-header-main .stage-body {
-  font-size: 14px;
+  font-size: 15px;
   color: #111827;
 }
 
@@ -2463,13 +2463,13 @@ main {
 .rsg-layout {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .rsg-pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 14px;
 }
 
 .rsg-card {
@@ -2480,7 +2480,7 @@ main {
 }
 
 .rsg-stripe {
-  width: 7px;
+  width: 8px;
   flex-shrink: 0;
 }
 
@@ -2504,19 +2504,19 @@ main {
 }
 
 .rsg-content {
-  padding: 16px 20px;
+  padding: 20px 24px;
   flex: 1;
 }
 
 .rsg-header {
   display: flex;
   align-items: baseline;
-  gap: 10px;
-  margin-bottom: 8px;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .rsg-card .rsg-title {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -2528,19 +2528,19 @@ main {
 .rsg-card--go .rsg-title { color: #15803d; }
 
 .rsg-card .rsg-label {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: #64748b;
 }
 
 .rsg-card .rsg-body {
-  font-size: 13.5px;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.55;
   color: #374151;
 }
 
 .rsg-card .rsg-body p {
-  margin: 0 0 4px;
+  margin: 0 0 6px;
 }
 
 .rsg-card .rsg-body p:last-child {
@@ -2553,14 +2553,14 @@ main {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .rsg-bullets li {
-  font-size: 13.5px;
-  line-height: 1.45;
+  font-size: 15px;
+  line-height: 1.5;
   color: #374151;
-  padding-left: 16px;
+  padding-left: 18px;
   position: relative;
 }
 
@@ -2568,9 +2568,9 @@ main {
   content: '';
   position: absolute;
   left: 0;
-  top: 7px;
-  width: 6px;
-  height: 6px;
+  top: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
 }
 
@@ -2583,21 +2583,25 @@ main {
   }
 
   .rsg-content {
-    padding: 14px 16px;
+    padding: 16px 18px;
   }
 
   .rsg-card .rsg-title {
-    font-size: 17px;
+    font-size: 20px;
+  }
+
+  .rsg-card .rsg-label {
+    font-size: 13px;
   }
 
   .rsg-card .rsg-body,
   .rsg-bullets li {
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .rsg-header {
     gap: 8px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
 
   .stage-headline {
