@@ -512,6 +512,24 @@ html, body {
   display: block;
 }
 
+@media (max-width: 520px) {
+  .incident-box--calm .incident-box-content-row {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .incident-box--calm .incident-none-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+
+  .incident-box--calm .incident-none-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
 /* Legacy styles kept for backward compatibility */
 .incident-strip-top {
   display: flex;
@@ -992,7 +1010,7 @@ html, body {
   }
 
   .incident-none-title {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .incident-none-body {
