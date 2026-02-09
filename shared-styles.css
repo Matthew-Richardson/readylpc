@@ -121,6 +121,50 @@ html, body {
   }
 }
 
+/* ========== ACCESSIBILITY ========== */
+
+/* Skip navigation link */
+.skip-nav {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 9999;
+  padding: 12px 20px;
+  background: #0b4da2;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 0 0 8px 8px;
+  text-decoration: none;
+  transition: top 0.2s;
+}
+
+.skip-nav:focus {
+  top: 0;
+}
+
+/* Focus visible styles for keyboard navigation */
+*:focus-visible {
+  outline: 3px solid #0b4da2;
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+a:focus-visible,
+.nav-btn:focus-visible,
+.incident-chip:focus-visible,
+.map-control-btn:focus-visible,
+.callerid-tab:focus-visible {
+  outline: 3px solid #0b4da2;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove outline for mouse clicks */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
 /* ========== BRAND BANNER ========== */
 
 .brand-banner {
@@ -161,6 +205,7 @@ html, body {
   font-weight: 800;
   line-height: 1.1;
   color: #0b4da2;
+  margin: 0;
 }
 
 .site-subtitle {
@@ -1088,7 +1133,7 @@ html, body {
 .legend-tip {
   margin-top: 10px;
   font-size: 11px;
-  color: #94a3b8;
+  color: #6b7280;
   font-style: italic;
 }
 
@@ -1443,7 +1488,7 @@ main {
 }
 
 .no-data {
-  color: #94a3b8;
+  color: #6b7280;
   font-style: italic;
 }
 
@@ -3008,7 +3053,7 @@ main {
 .callerid-download-divider span {
   font-size: 12px;
   font-weight: 600;
-  color: #94a3b8;
+  color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -3032,7 +3077,7 @@ main {
 .callerid-manual-divider span {
   font-size: 12px;
   font-weight: 600;
-  color: #94a3b8;
+  color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -3304,7 +3349,7 @@ main {
 
 .map-loading-subtext {
   font-size: 12px;
-  color: #94a3b8;
+  color: #6b7280;
   margin-top: -8px;
 }
 
