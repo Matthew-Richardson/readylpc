@@ -2485,22 +2485,22 @@ main {
 }
 
 .rsg-stripe--ready { background: #c62828; }
-.rsg-stripe--set { background: #b8960a; }
-.rsg-stripe--go { background: #1a8a35; }
+.rsg-stripe--set { background: #b09200; }
+.rsg-stripe--go { background: #007800; }
 
 .rsg-card--ready {
   background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
-  border-color: rgba(198,40,40,0.15);
+  border-color: rgba(198,40,40,0.2);
 }
 
 .rsg-card--set {
-  background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
-  border-color: rgba(184,150,10,0.15);
+  background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+  border-color: rgba(176,146,0,0.2);
 }
 
 .rsg-card--go {
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-  border-color: rgba(26,138,53,0.15);
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: rgba(0,120,0,0.2);
 }
 
 .rsg-content {
@@ -2524,8 +2524,8 @@ main {
 }
 
 .rsg-card--ready .rsg-title { color: #b91c1c; }
-.rsg-card--set .rsg-title { color: #92400e; }
-.rsg-card--go .rsg-title { color: #15803d; }
+.rsg-card--set .rsg-title { color: #8a7000; }
+.rsg-card--go .rsg-title { color: #007800; }
 
 .rsg-card .rsg-label {
   font-size: 14px;
