@@ -1015,18 +1015,6 @@ html, body {
 
 /* ========== MAP CONTAINER & LEGEND ========== */
 
-#viewDiv {
-  width: 100%;
-  height: clamp(400px, 55vh, 550px);
-  contain: strict;
-}
-
-@media (max-width: 600px) {
-  #viewDiv {
-    height: clamp(480px, 66vh, 660px);
-  }
-}
-
 .map-key-merged {
   padding: 14px 18px 16px;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
@@ -1889,13 +1877,6 @@ main {
 
 .announcement-content strong {
   color: #111827;
-}
-
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 14px 16px;
-  margin-top: 16px;
 }
 
 .announcement-contact-title {
