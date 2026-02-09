@@ -449,6 +449,10 @@
     callerIdButton.addEventListener('click', () => toggle(true));
     callerIdClose?.addEventListener('click', () => toggle(false));
     callerIdOverlay.addEventListener('click', e => { if (e.target === callerIdOverlay) toggle(false); });
+
+    // Dismiss button inside overlay
+    const dismiss = callerIdOverlay.querySelector('#callerIdDismiss');
+    dismiss?.addEventListener('click', () => toggle(false));
   };
 
   // ========== SCROLL INDICATOR ==========
