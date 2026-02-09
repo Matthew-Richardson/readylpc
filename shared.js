@@ -70,15 +70,54 @@
   // ========== OVERLAY FACTORY ==========
   // Track active overlays for unified escape handling
   const activeOverlays = new Set();
+  let previousFocusElement = null;
+
+  // Focus trap helper for modal dialogs
+  const trapFocus = (container) => {
+    const focusable = container.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    const handler = (e) => {
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+    container.addEventListener('keydown', handler);
+    container._focusTrapHandler = handler;
+    first.focus();
+  };
+
+  const releaseFocusTrap = (container) => {
+    if (container._focusTrapHandler) {
+      container.removeEventListener('keydown', container._focusTrapHandler);
+      delete container._focusTrapHandler;
+    }
+  };
 
   const createOverlayToggle = (overlay) => {
     const toggle = (open) => {
       overlay.classList.toggle('is-open', open);
       overlay.setAttribute('aria-hidden', String(!open));
       if (open) {
+        previousFocusElement = document.activeElement;
         activeOverlays.add(overlay);
+        const dialog = overlay.querySelector('[role="dialog"]');
+        if (dialog) requestAnimationFrame(() => trapFocus(dialog));
       } else {
         activeOverlays.delete(overlay);
+        const dialog = overlay.querySelector('[role="dialog"]');
+        if (dialog) releaseFocusTrap(dialog);
+        if (previousFocusElement && previousFocusElement.focus) {
+          previousFocusElement.focus();
+          previousFocusElement = null;
+        }
       }
     };
     return toggle;
@@ -87,12 +126,17 @@
   // Single global escape handler for all overlays
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && activeOverlays.size > 0) {
-      // Close the most recently opened overlay
       const overlay = Array.from(activeOverlays).pop();
       if (overlay) {
         overlay.classList.remove('is-open');
         overlay.setAttribute('aria-hidden', 'true');
+        const dialog = overlay.querySelector('[role="dialog"]');
+        if (dialog) releaseFocusTrap(dialog);
         activeOverlays.delete(overlay);
+        if (previousFocusElement && previousFocusElement.focus) {
+          previousFocusElement.focus();
+          previousFocusElement = null;
+        }
       }
     }
   });
