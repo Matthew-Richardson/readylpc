@@ -335,7 +335,7 @@ a:focus-visible,
 /* Mobile styles */
 @media (max-width: 600px) {
   .brand-banner {
-    padding: 14px 16px;
+    padding: 16px 18px;
   }
 
   .brand-row {
@@ -364,15 +364,15 @@ a:focus-visible,
   }
 
   .header-logo {
-    width: 120px;
+    width: 140px;
   }
 
   .site-name {
-    font-size: 20px;
+    font-size: 22px;
   }
 
   .site-subtitle {
-    font-size: 13px;
+    font-size: 14px;
     white-space: normal;
   }
 
@@ -389,20 +389,21 @@ a:focus-visible,
   .banner-nav .nav-btn {
     flex: 1;
     justify-content: center;
-    font-size: 12px;
-    padding: 8px 10px;
+    font-size: 13px;
+    padding: 10px 12px;
     min-width: 0;
   }
 
   .banner-nav .nav-icon {
-    width: 14px;
-    height: 14px;
+    width: 15px;
+    height: 15px;
   }
 
   .banner-nav .call-center-link {
     width: 100%;
     justify-content: center;
-    padding: 8px 12px;
+    padding: 10px 14px;
+    font-size: 13px;
   }
 }
 
