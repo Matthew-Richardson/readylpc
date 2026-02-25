@@ -1716,7 +1716,7 @@ main {
 .codered-actions {
   padding: 0 20px 18px;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 10px;
 }
 
@@ -1795,7 +1795,7 @@ main {
 
   .codered-actions {
     padding: 0 16px 16px;
-    flex-direction: column;
+    flex-wrap: wrap;
   }
 
   .codered-actions .primary-pill,
