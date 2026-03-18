@@ -2,33 +2,26 @@
   "enabled": false,
   "autoOpen": true,
   "title": "2026 LPC Alerts Update",
-  "subtitle": "Important information about your managed account",
-  "keyMessage": "<strong>We recommend all LPC Alert account holders update their password</strong> to help keep your information secure.",
+  "subtitle": "Important information about LPC Alerts",
+  "keyMessage": "<strong>LPC Alerts has moved to a new platform.</strong> Please re-register to continue receiving emergency notifications.",
   "primaryButton": {
-    "text": "Manage My LPC Alerts Account",
-    "url": "https://accountportal.onsolve.net/lpcalerts"
+    "text": "Sign Up for LPC Alerts",
+    "url": "https://embeds.regroupcloud.com/orgs/LPCAlerts/channels/lpc-alerts-channel/signup_embed"
   },
   "accordion": {
     "why": {
       "title": "Why am I seeing this?",
       "paragraphs": [
-        "Out of an abundance of caution, we are recommending that all LPC Alert users with an online account update their password. This helps ensure your information remains secure and protected."
+        "La Plata County has transitioned to a new emergency alerting platform. All residents need to re-register to continue receiving LPC Alerts about wildfires, floods, evacuations, and other emergencies."
       ]
     },
     "noAccount": {
       "title": "I'm not sure if I have an account",
       "paragraphs": [
-        "Some individuals receive LPC Alerts without having an online account. If you're one of these legacy users, <strong>we highly recommened creating an account</strong>.",
-        "Creating an account allows you to review and update your contact information, manage alert preferences, and ensure your information stays current."
+        "If you previously received LPC Alerts, <strong>you will need to sign up again</strong> on the new platform to continue receiving notifications.",
+        "Signing up ensures you receive critical alerts by phone, text, and email during emergencies in La Plata County."
       ]
     }
-  },
-  "callerId": {
-    "enabled": true,
-    "title": "Save LPC Alerts Caller ID",
-    "description": "Add these numbers to your contacts so alerts aren't marked as spam:",
-    "textNumber": "386-71",
-    "voiceNumber": "(970) 385-8700"
   },
   "contact": {
     "title": "Need help?",
