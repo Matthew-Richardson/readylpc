@@ -1645,13 +1645,16 @@ main {
 }
 
 .codered-dialog {
-  max-width: 480px;
+  max-width: 540px;
   width: 100%;
+  max-height: 90vh;
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 18px 45px rgba(15,23,42,0.5);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .codered-header {
@@ -1662,6 +1665,7 @@ main {
   padding-right: 48px;
   background: linear-gradient(135deg, #f0f6ff 0%, #e8f0fe 100%);
   border-bottom: 1px solid rgba(11,77,162,0.1);
+  flex-shrink: 0;
 }
 
 .codered-header::before {
@@ -1699,10 +1703,13 @@ main {
 }
 
 .codered-body {
-  padding: 16px 20px;
+  padding: 12px 20px;
   font-size: 14px;
   line-height: 1.6;
   color: #374151;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .codered-body p {
@@ -1714,11 +1721,15 @@ main {
 }
 
 .codered-embed {
-  margin-top: 12px;
+  margin-top: 8px;
   border-radius: 8px;
   overflow: hidden;
   background: #f9fafb;
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.codered-embed iframe {
+  display: block;
 }
 
 .codered-actions {
@@ -1726,6 +1737,7 @@ main {
   display: flex;
   flex-wrap: nowrap;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .codered-actions .primary-pill,
@@ -1776,8 +1788,17 @@ main {
 }
 
 @media (max-width: 480px) {
+  .codered-overlay {
+    padding: 8px;
+  }
+
+  .codered-dialog {
+    max-height: 95vh;
+    border-radius: 12px;
+  }
+
   .codered-header {
-    padding: 12px 16px;
+    padding: 10px 16px;
     padding-right: 44px;
     gap: 10px;
   }
@@ -1798,11 +1819,11 @@ main {
   }
 
   .codered-body {
-    padding: 14px 16px;
+    padding: 10px 16px;
   }
 
   .codered-actions {
-    padding: 0 16px 16px;
+    padding: 0 16px 12px;
     flex-wrap: wrap;
   }
 
