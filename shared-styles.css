@@ -1713,6 +1713,14 @@ main {
   margin-bottom: 0;
 }
 
+.codered-embed {
+  margin-top: 12px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f9fafb;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
 .codered-actions {
   padding: 0 20px 18px;
   display: flex;
