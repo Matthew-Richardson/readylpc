@@ -143,15 +143,30 @@
 
   // ========== LPC ALERTS OVERLAY INIT ==========
   const initCoderedOverlay = (elements) => {
-    const { coderedButton, coderedOverlay, coderedClose, noIncidentCodered } = elements;
+    const { coderedButton, coderedOverlay, coderedClose } = elements;
     if (!coderedButton || !coderedOverlay) return;
 
     const toggle = createOverlayToggle(coderedOverlay);
 
     coderedButton.addEventListener('click', () => toggle(true));
     coderedClose?.addEventListener('click', () => toggle(false));
-    noIncidentCodered?.addEventListener('click', e => { e.preventDefault(); toggle(true); });
     coderedOverlay.addEventListener('click', e => { if (e.target === coderedOverlay) toggle(false); });
+  };
+
+  // ========== LPC ALERTS CALLER ID OVERLAY INIT ==========
+  const initCallerIdOverlay = (elements) => {
+    const { callerIdButton, callerIdOverlay, callerIdClose } = elements;
+    if (!callerIdButton || !callerIdOverlay) return;
+
+    const toggle = createOverlayToggle(callerIdOverlay);
+
+    callerIdButton.addEventListener('click', () => toggle(true));
+    callerIdClose?.addEventListener('click', () => toggle(false));
+    callerIdOverlay.addEventListener('click', e => { if (e.target === callerIdOverlay) toggle(false); });
+
+    // Dismiss button inside overlay
+    const dismiss = callerIdOverlay.querySelector('#callerIdDismiss');
+    dismiss?.addEventListener('click', () => toggle(false));
   };
 
   // ========== ANNOUNCEMENT OVERLAY INIT ==========
@@ -211,38 +226,7 @@
         </div>`);
     }
 
-    // Section 3: Caller ID
-    if (data.callerId?.enabled) {
-      accordionSections.push(`
-        <div class="announcement-accordion-item">
-          <button class="announcement-accordion-trigger" type="button" aria-expanded="false">
-            <span class="announcement-accordion-trigger-left">
-              <svg class="announcement-accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              <span class="announcement-accordion-label">${esc(data.callerId.title || 'Save LPC Alerts Caller ID')}</span>
-            </span>
-            <svg class="announcement-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="announcement-accordion-content">
-            ${data.callerId.description ? `<p class="announcement-accordion-text">${esc(data.callerId.description)}</p>` : ''}
-            <div class="announcement-accordion-callerid-cards">
-              ${data.callerId.textNumber ? `<div class="announcement-accordion-callerid-card">
-                <div class="announcement-accordion-callerid-label">Text Alerts</div>
-                <div class="announcement-accordion-callerid-value">${esc(data.callerId.textNumber)}</div>
-              </div>` : ''}
-              ${data.callerId.voiceNumber ? `<div class="announcement-accordion-callerid-card">
-                <div class="announcement-accordion-callerid-label">Voice Calls</div>
-                <div class="announcement-accordion-callerid-value">${esc(data.callerId.voiceNumber)}</div>
-              </div>` : ''}
-            </div>
-            <button type="button" class="announcement-accordion-download-btn" data-action="download-vcard">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Download Contact Card
-            </button>
-          </div>
-        </div>`);
-    }
-
-    // Section 4: Need help / Contact
+    // Section 3: Need help / Contact
     if (data.contact) {
       accordionSections.push(`
         <div class="announcement-accordion-item">
@@ -301,9 +285,6 @@
         trigger.setAttribute('aria-expanded', !isOpen);
       });
     });
-
-    // Event delegation for download vcard button
-    document.querySelector('[data-action="download-vcard"]')?.addEventListener('click', downloadVCard);
   };
 
   const initAnnouncement = async (elements, jsonUrl = 'announcement.json') => {
@@ -369,7 +350,7 @@
     name: 'LPC Alerts',
     org: 'LPC Alerts',
     voiceNumber: '+19703858700',
-    textNumber: '38671'
+    textNumber: '58339'
   };
 
   const generateVCard = () => {
@@ -380,7 +361,7 @@
       `ORG:${VCARD_DATA.org}`,
       `TEL;TYPE=VOICE:${VCARD_DATA.voiceNumber}`,
       `TEL;TYPE=MSG:${VCARD_DATA.textNumber}`,
-      `NOTE:LPC alert system for La Plata County. Voice calls come from (970) 385-8700 and text messages come from 386-71.`,
+      `NOTE:LPC alert system for La Plata County. Voice calls come from (970) 385-8700 and text messages come from 58339.`,
       'END:VCARD'
     ].join('\r\n');
     return vcard;
@@ -437,22 +418,6 @@
       console.warn('Drill banner not loaded:', err.message);
       siteBanner.innerHTML = '';
     }
-  };
-
-  // ========== LPC ALERTS CALLER ID OVERLAY INIT ==========
-  const initCallerIdOverlay = (elements) => {
-    const { callerIdButton, callerIdOverlay, callerIdClose } = elements;
-    if (!callerIdButton || !callerIdOverlay) return;
-
-    const toggle = createOverlayToggle(callerIdOverlay);
-
-    callerIdButton.addEventListener('click', () => toggle(true));
-    callerIdClose?.addEventListener('click', () => toggle(false));
-    callerIdOverlay.addEventListener('click', e => { if (e.target === callerIdOverlay) toggle(false); });
-
-    // Dismiss button inside overlay
-    const dismiss = callerIdOverlay.querySelector('#callerIdDismiss');
-    dismiss?.addEventListener('click', () => toggle(false));
   };
 
   // ========== SCROLL INDICATOR ==========
