@@ -27,7 +27,7 @@
     if (conn) {
       var dominated = conn.effectiveType;   // 'slow-2g', '2g', '3g', '4g'
       var saveData  = conn.saveData;         // true if user enabled data saver
-      if (saveData || dominated === 'slow-2g' || dominated === '2g') {
+      if (saveData || dominated === 'slow-2g' || dominated === '2g' || dominated === '3g') {
         location.replace('evac-lite.html');
         return;
       }
