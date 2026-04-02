@@ -136,7 +136,7 @@
     </button>
     <button id="locateBtn" class="ctrl-btn" type="button" aria-label="My location">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-      Locate
+      Locate Me
     </button>
   </div>
 </div>
@@ -178,10 +178,13 @@
 
   // ========== MAP ==========
   var map = L.map('map', {
-    zoomControl: true
+    zoomControl: true,
+    center: [37.28, -107.93],
+    zoom: 9
   });
 
-  map.fitBounds(CONFIG.countyBounds);
+  // Fit to county after container is ready
+  setTimeout(function() { map.fitBounds(CONFIG.countyBounds); }, 100);
 
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri',
