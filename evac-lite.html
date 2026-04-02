@@ -204,7 +204,7 @@
   countyLayer.once('load', function() {
     var bounds = countyLayer.getBounds();
     if (bounds.isValid()) {
-      map.fitBounds(bounds, { padding: [20, 20] });
+      map.fitBounds(bounds, { paddingTopLeft: [10, 110], paddingBottomRight: [10, 130] });
       // Update default extent for reset button
       CONFIG.countyBounds = bounds;
     }
@@ -351,7 +351,7 @@
     if (allZoneBounds && allZoneBounds.isValid()) {
       map.fitBounds(allZoneBounds, { padding: [60, 40], maxZoom: 14 });
     } else if (CONFIG.countyBounds && CONFIG.countyBounds.isValid()) {
-      map.fitBounds(CONFIG.countyBounds, { padding: [20, 20] });
+      map.fitBounds(CONFIG.countyBounds, { paddingTopLeft: [10, 110], paddingBottomRight: [10, 130] });
     } else {
       map.setView(CONFIG.center, CONFIG.zoom);
     }
