@@ -197,7 +197,6 @@
   var zoneCountEl = document.getElementById('zoneCount');
   var loadingEl = document.getElementById('loadingOverlay');
   var locationMarker = null;
-  var allZoneBounds = null;
 
   // Query all active SET/GO zones with geometry
   var queryUrl = CONFIG.evacLayerUrl + '/query?' + new URLSearchParams({
@@ -296,12 +295,6 @@
           interactive: false
         }).addTo(map);
       });
-
-      // Fit map to zones
-      allZoneBounds = zonesLayer.getBounds();
-      if (allZoneBounds.isValid()) {
-        map.fitBounds(allZoneBounds);
-      }
 
       // Zone count badge
       zoneCountEl.innerHTML =
