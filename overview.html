@@ -337,10 +337,14 @@
     const { $, escHTML, createChip, formatTimestamp, updateTimestamp, initCoderedOverlay, initCallerIdOverlay, initDrillBanner, initAnnouncement, initScrollIndicator, BRAND } = ReadyLaPlata;
 
     // If the map hasn't loaded in 8 seconds, redirect to lite version
-    // This is the actual test — if the ArcGIS API is too slow, bail
     let mapLoaded = false;
-    if (!sessionStorage.getItem('preferFullSite')) {
-      setTimeout(() => { if (!mapLoaded) location.replace('evac-lite.html'); }, 8000);
+    if (!sessionStorage.getItem('redirectedToLite') && !sessionStorage.getItem('preferFullSite')) {
+      setTimeout(() => {
+        if (!mapLoaded) {
+          sessionStorage.setItem('redirectedToLite', '1');
+          location.replace('evac-lite.html');
+        }
+      }, 8000);
     }
 
     // Map view reference for controls
