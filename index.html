@@ -16,30 +16,20 @@
       if (conn.saveData) { location.replace('evac-lite.html'); return; }
       var t = conn.effectiveType;
       if (t === 'slow-2g' || t === '2g' || t === '3g') { location.replace('evac-lite.html'); return; }
-      return; // API exists and reports 4g — stay on full site
+      return;
     }
 
-    // Safari/iOS/Firefox: Network API not available, measure connection latency
-    // Two sequential HEAD requests to ArcGIS CDN — measures real round-trip time
-    // Good connection: ~100ms total. Bad cell (1-2 bars): 600ms-2s+ total.
-    var start = Date.now();
-    var xhr1 = new XMLHttpRequest();
-    xhr1.open('HEAD', 'https://js.arcgis.com/4.31/?' + Date.now(), true);
-    xhr1.onload = function() {
-      var xhr2 = new XMLHttpRequest();
-      xhr2.open('HEAD', 'https://js.arcgis.com/4.31/?' + Date.now() + 'b', true);
-      xhr2.onload = function() {
-        if (Date.now() - start > 1500) location.replace('evac-lite.html');
-      };
-      xhr2.onerror = function() { location.replace('evac-lite.html'); };
-      xhr2.timeout = 2000;
-      xhr2.ontimeout = function() { location.replace('evac-lite.html'); };
-      xhr2.send();
-    };
-    xhr1.onerror = function() { location.replace('evac-lite.html'); };
-    xhr1.timeout = 2000;
-    xhr1.ontimeout = function() { location.replace('evac-lite.html'); };
-    xhr1.send();
+    // Safari/iOS/Firefox: load a map tile image from Esri and time it
+    // ~15KB tile image. Good connection: <200ms. Bad cell: 2s+.
+    var done = false;
+    var timer = setTimeout(function() {
+      if (!done) { done = true; location.replace('evac-lite.html'); }
+    }, 1500);
+
+    var img = new Image();
+    img.onload = function() { if (!done) { done = true; clearTimeout(timer); } };
+    img.onerror = function() { if (!done) { done = true; clearTimeout(timer); location.replace('evac-lite.html'); } };
+    img.src = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/4/6/3?' + Date.now();
   })();
   </script>
 
