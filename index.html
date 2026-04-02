@@ -9,23 +9,30 @@
   <script>
   (function() {
     if (sessionStorage.getItem('preferFullSite')) return;
-    // Network Information API (Chrome, Android, Samsung Internet)
+
+    // Network Information API (Android Chrome, Samsung Internet)
     var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    if (conn) {
+    if (conn && conn.effectiveType) {
       if (conn.saveData || conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g' || conn.effectiveType === '3g') {
         location.replace('evac-lite.html');
         return;
       }
     }
-    // Fallback for Safari/Firefox: race the ArcGIS CDN
-    // If it can't respond in 5s, the full site won't be usable anyway
-    var timedOut = false;
-    var t = setTimeout(function() { timedOut = true; location.replace('evac-lite.html'); }, 5000);
-    fetch('https://js.arcgis.com/4.31/', { method: 'HEAD', mode: 'no-cors' }).then(function() {
-      if (!timedOut) clearTimeout(t);
-    }).catch(function() {
-      if (!timedOut) clearTimeout(t);
-    });
+
+    // Fallback for Safari/iOS/Firefox: time a real download from the ArcGIS CDN
+    // If it can't complete in 3s, the 1.5MB API will be unusable
+    var done = false;
+    var timer = setTimeout(function() {
+      if (!done) { done = true; location.replace('evac-lite.html'); }
+    }, 3000);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'https://js.arcgis.com/4.31/esri/css/main.css?' + Date.now(), true);
+    xhr.onload = function() { if (!done) { done = true; clearTimeout(timer); } };
+    xhr.onerror = function() { if (!done) { done = true; clearTimeout(timer); location.replace('evac-lite.html'); } };
+    xhr.ontimeout = function() { if (!done) { done = true; clearTimeout(timer); location.replace('evac-lite.html'); } };
+    xhr.timeout = 3000;
+    xhr.send();
   })();
   </script>
 
