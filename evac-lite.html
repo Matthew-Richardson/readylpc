@@ -150,8 +150,8 @@
     evacLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0',
     countyBoundaryUrl: 'https://gis.lpcgov.org/arcgis/rest/services/JS_website/Map_Pro/MapServer/83',
     bannerUrl: 'drill-banner.json',
-    center: [37.28, -107.84],
-    zoom: 10
+    // La Plata County bounding box (SW corner, NE corner)
+    countyBounds: L.latLngBounds([36.993, -108.379], [37.567, -107.482])
   };
 
   var COLORS = {
@@ -177,38 +177,38 @@
   }).catch(function() {});
 
   // ========== MAP ==========
+  // Helper: calculate padding from actual header/bottom bar heights
+  function getMapPadding() {
+    var topBar = document.querySelector('.top-bar');
+    var bottomBar = document.querySelector('.bottom-bar');
+    var top = topBar ? topBar.offsetHeight + 10 : 20;
+    var bottom = bottomBar ? bottomBar.offsetHeight + 10 : 20;
+    return { paddingTopLeft: [10, top], paddingBottomRight: [10, bottom] };
+  }
+
   var map = L.map('map', {
-    center: CONFIG.center,
-    zoom: CONFIG.zoom,
     zoomControl: true
   });
+
+  // Fit to county immediately
+  map.fitBounds(CONFIG.countyBounds, getMapPadding());
+
+  // Re-fit after DOM settles (banner may load async and change header height)
+  setTimeout(function() { map.fitBounds(CONFIG.countyBounds, getMapPadding()); }, 500);
 
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri',
     maxZoom: 18
   }).addTo(map);
 
-  // Offset zoom control below header
-  // (handled via CSS margin-top on .leaflet-control-zoom)
-
   // ========== COUNTY BOUNDARY ==========
-  var countyLayer = L.esri.featureLayer({
+  L.esri.featureLayer({
     url: CONFIG.countyBoundaryUrl,
     style: function() {
       return { color: 'rgba(11,77,162,0.5)', weight: 2, fill: true, fillColor: 'rgba(11,77,162,0.04)', fillOpacity: 1 };
     },
     interactive: false
   }).addTo(map);
-
-  // Fit map to county boundary once it loads
-  countyLayer.once('load', function() {
-    var bounds = countyLayer.getBounds();
-    if (bounds.isValid()) {
-      map.fitBounds(bounds, { paddingTopLeft: [10, 110], paddingBottomRight: [10, 130] });
-      // Update default extent for reset button
-      CONFIG.countyBounds = bounds;
-    }
-  });
 
   // ========== EVACUATION ZONES ==========
   var zoneCountEl = document.getElementById('zoneCount');
@@ -317,7 +317,7 @@
       // Fit map to zones
       allZoneBounds = zonesLayer.getBounds();
       if (allZoneBounds.isValid()) {
-        map.fitBounds(allZoneBounds, { padding: [60, 40], maxZoom: 14 });
+        map.fitBounds(allZoneBounds, getMapPadding());
       }
 
       // Zone count badge
@@ -337,23 +337,31 @@
 
   // Position zone count badge below header
   function positionZoneCount() {
-    var header = document.querySelector('.top-bar');
-    if (header && zoneCountEl) {
-      zoneCountEl.style.top = (header.offsetHeight + 14) + 'px';
+    var topBar = document.querySelector('.top-bar');
+    if (topBar && zoneCountEl) {
+      zoneCountEl.style.top = (topBar.offsetHeight + 10) + 'px';
     }
   }
   window.addEventListener('resize', positionZoneCount);
+  window.addEventListener('resize', function() {
+    map.invalidateSize();
+    if (allZoneBounds && allZoneBounds.isValid()) {
+      map.fitBounds(allZoneBounds, getMapPadding());
+    } else {
+      map.fitBounds(CONFIG.countyBounds, getMapPadding());
+    }
+  });
+  // Re-position after banner may have loaded
+  setTimeout(positionZoneCount, 600);
 
   // ========== CONTROLS ==========
 
-  // Reset — if zones loaded, fit to them; otherwise go to county default
+  // Reset — if zones loaded, fit to them; otherwise fit to county
   document.getElementById('resetBtn').addEventListener('click', function() {
     if (allZoneBounds && allZoneBounds.isValid()) {
-      map.fitBounds(allZoneBounds, { padding: [60, 40], maxZoom: 14 });
-    } else if (CONFIG.countyBounds && CONFIG.countyBounds.isValid()) {
-      map.fitBounds(CONFIG.countyBounds, { paddingTopLeft: [10, 110], paddingBottomRight: [10, 130] });
+      map.fitBounds(allZoneBounds, getMapPadding());
     } else {
-      map.setView(CONFIG.center, CONFIG.zoom);
+      map.fitBounds(CONFIG.countyBounds, getMapPadding());
     }
   });
 
