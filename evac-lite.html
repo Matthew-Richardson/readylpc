@@ -177,30 +177,11 @@
   }).catch(function() {});
 
   // ========== MAP ==========
-  // Helper: calculate padding from actual header/bottom bar heights
-  function getMapPadding() {
-    var topBar = document.querySelector('.top-bar');
-    var bottomBar = document.querySelector('.bottom-bar');
-    var top = topBar ? topBar.offsetHeight + 10 : 20;
-    var bottom = bottomBar ? bottomBar.offsetHeight + 10 : 20;
-    return { paddingTopLeft: [10, top], paddingBottomRight: [10, bottom] };
-  }
-
   var map = L.map('map', {
     zoomControl: true
   });
 
-  // Fit to county immediately
-  map.fitBounds(CONFIG.countyBounds, getMapPadding());
-
-  // Re-fit after DOM settles (banner may load async and change header height)
-  // Then store the exact center/zoom as the "home" view for reset
-  var homeCenter, homeZoom;
-  setTimeout(function() {
-    map.fitBounds(CONFIG.countyBounds, getMapPadding());
-    homeCenter = map.getCenter();
-    homeZoom = map.getZoom();
-  }, 500);
+  map.fitBounds(CONFIG.countyBounds);
 
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri',
@@ -323,7 +304,7 @@
       // Fit map to zones
       allZoneBounds = zonesLayer.getBounds();
       if (allZoneBounds.isValid()) {
-        map.fitBounds(allZoneBounds, getMapPadding());
+        map.fitBounds(allZoneBounds);
       }
 
       // Zone count badge
@@ -349,26 +330,13 @@
     }
   }
   window.addEventListener('resize', positionZoneCount);
-  window.addEventListener('resize', function() {
-    map.invalidateSize();
-    if (allZoneBounds && allZoneBounds.isValid()) {
-      map.fitBounds(allZoneBounds, getMapPadding());
-    } else {
-      map.fitBounds(CONFIG.countyBounds, getMapPadding());
-    }
-  });
-  // Re-position after banner may have loaded
   setTimeout(positionZoneCount, 600);
 
   // ========== CONTROLS ==========
 
-  // Reset — replay the exact initial view
+  // Reset — zoom back to county
   document.getElementById('resetBtn').addEventListener('click', function() {
-    if (homeCenter && homeZoom) {
-      map.setView(homeCenter, homeZoom);
-    } else {
-      map.fitBounds(CONFIG.countyBounds, getMapPadding());
-    }
+    map.fitBounds(CONFIG.countyBounds);
   });
 
   // My Location
