@@ -20,18 +20,20 @@
       if (etype === '4g' && typeof conn.downlink === 'number' && conn.downlink < 2.0) { location.replace('evac-lite.html'); return; }
     }
 
-    // Fallback for Safari/iOS/Firefox: time a download from the ArcGIS CDN
+    // Fallback for Safari/iOS/Firefox and DevTools throttling:
+    // Fetch a ~200KB CSS file from the ArcGIS CDN. If it takes >2s,
+    // the full 1.5MB API would take 15s+ which is unusable.
     var done = false;
     var timer = setTimeout(function() {
       if (!done) { done = true; location.replace('evac-lite.html'); }
-    }, 3000);
+    }, 2000);
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', 'https://js.arcgis.com/4.31/esri/css/main.css?' + Date.now(), true);
     xhr.onload = function() { if (!done) { done = true; clearTimeout(timer); } };
     xhr.onerror = function() { if (!done) { done = true; clearTimeout(timer); location.replace('evac-lite.html'); } };
     xhr.ontimeout = function() { if (!done) { done = true; clearTimeout(timer); location.replace('evac-lite.html'); } };
-    xhr.timeout = 3000;
+    xhr.timeout = 2000;
     xhr.send();
   })();
   </script>
