@@ -19,17 +19,15 @@
       return;
     }
 
-    // Safari/iOS/Firefox: load a map tile image from Esri and time it
-    // ~15KB tile image. Good connection: <200ms. Bad cell: 2s+.
-    var done = false;
-    var timer = setTimeout(function() {
-      if (!done) { done = true; location.replace('evac-lite.html'); }
-    }, 1500);
-
-    var img = new Image();
-    img.onload = function() { if (!done) { done = true; clearTimeout(timer); } };
-    img.onerror = function() { if (!done) { done = true; clearTimeout(timer); location.replace('evac-lite.html'); } };
-    img.src = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/4/6/3?' + Date.now();
+    // Safari/iOS/Firefox: measure how long this page took to load
+    // If index.html (a small page) took >800ms to arrive, the 1.5MB ArcGIS API will be painful
+    window.addEventListener('load', function() {
+      var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+      if (nav && nav.responseEnd && nav.requestStart) {
+        var pageTime = nav.responseEnd - nav.requestStart;
+        if (pageTime > 800) { location.replace('evac-lite.html'); return; }
+      }
+    });
   })();
   </script>
 
