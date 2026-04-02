@@ -1,25 +1,28 @@
 {
-  "enabled": false,
+  "enabled": true,
   "autoOpen": true,
-  "title": "2026 LPC Alerts Update",
-  "subtitle": "Important information about LPC Alerts",
-  "keyMessage": "<strong>LPC Alerts has moved to a new platform.</strong> Please re-register to continue receiving emergency notifications.",
+  "title": "Fire Ready! Exercise & Expo",
+  "subtitle": "May 4–9, 2026 — La Plata County",
+  "keyMessage": "<strong>The 6th Annual Fire Ready! Exercise begins May 4.</strong> You may receive drill notifications from LPC Alerts — use them to practice your plan!",
   "primaryButton": {
     "text": "Sign Up for LPC Alerts",
     "url": "https://embeds.regroupcloud.com/orgs/LPCAlerts/channels/lpc-alerts-channel/signup_embed"
   },
   "accordion": {
     "why": {
-      "title": "Why am I seeing this?",
+      "title": "What is the Fire Ready! Exercise?",
       "paragraphs": [
-        "La Plata County has transitioned to a new emergency alerting platform. All residents need to re-register to continue receiving LPC Alerts about wildfires, floods, evacuations, and other emergencies."
+        "A week-long, multi-agency fire training exercise to prepare agencies and the public for wildfire season. Activities include simulated wildfire incidents, EOC activation, Incident Management Team training, and drill notifications sent to LPC Alerts subscribers.",
+        "<strong>May 2:</strong> Live IPAWS Test Alert at 12:00 p.m.",
+        "<strong>May 4–8:</strong> Simulated wildfire exercise with LPC Alerts drill notifications, LPEA Public Safety Power Shutdown <em>(drill only)</em>, and Rapid Evac Tag check-in.",
+        "<strong>May 9:</strong> Fire Ready! Expo at La Plata County Fairgrounds, 10 AM – 3 PM. Free, family-friendly event with expert panels, workshops, and demonstrations."
       ]
     },
     "noAccount": {
-      "title": "I'm not sure if I have an account",
+      "title": "Not signed up for LPC Alerts?",
       "paragraphs": [
-        "If you previously received LPC Alerts, <strong>you will need to sign up again</strong> on the new platform to continue receiving notifications.",
-        "Signing up ensures you receive critical alerts by phone, text, and email during emergencies in La Plata County."
+        "LPC Alerts is La Plata County's emergency notification system, replacing the former CodeRED system. <strong>All residents need to sign up</strong> to receive alerts about wildfires, evacuations, floods, and other emergencies.",
+        "Signing up now means you'll receive the exercise drill notifications — a great way to test that your alerts are working before fire season."
       ]
     }
   },
@@ -28,5 +31,5 @@
     "email": "oem@lpcgov.org",
     "phone": "970-382-6275"
   },
-  "dismissButton": "I'll do this later"
+  "dismissButton": "Got it"
 }
