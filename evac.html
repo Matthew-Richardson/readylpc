@@ -308,8 +308,13 @@
 
     // If the map hasn't loaded in 8 seconds, redirect to lite version
     let mapLoaded = false;
-    if (!sessionStorage.getItem('preferFullSite')) {
-      setTimeout(() => { if (!mapLoaded) location.replace('evac-lite.html'); }, 8000);
+    if (!sessionStorage.getItem('redirectedToLite') && !sessionStorage.getItem('preferFullSite')) {
+      setTimeout(() => {
+        if (!mapLoaded) {
+          sessionStorage.setItem('redirectedToLite', '1');
+          location.replace('evac-lite.html');
+        }
+      }, 8000);
     }
 
     // Configuration
