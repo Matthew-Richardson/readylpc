@@ -149,9 +149,7 @@
   var CONFIG = {
     evacLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0',
     countyBoundaryUrl: 'https://gis.lpcgov.org/arcgis/rest/services/JS_website/Map_Pro/MapServer/83',
-    bannerUrl: 'drill-banner.json',
-    // La Plata County bounding box (SW corner, NE corner)
-    countyBounds: L.latLngBounds([36.993, -108.379], [37.567, -107.482])
+    bannerUrl: 'drill-banner.json'
   };
 
   var COLORS = {
@@ -177,14 +175,9 @@
   }).catch(function() {});
 
   // ========== MAP ==========
-  var map = L.map('map', {
-    zoomControl: true,
-    center: [37.28, -107.93],
-    zoom: 9
-  });
+  var COUNTY = L.latLngBounds([36.993, -108.379], [37.567, -107.482]);
 
-  // Fit to county after container is ready
-  setTimeout(function() { map.fitBounds(CONFIG.countyBounds); }, 100);
+  var map = L.map('map').fitBounds(COUNTY);
 
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri',
@@ -339,7 +332,7 @@
 
   // Reset — zoom back to county
   document.getElementById('resetBtn').addEventListener('click', function() {
-    map.fitBounds(CONFIG.countyBounds);
+    map.fitBounds(COUNTY);
   });
 
   // My Location
