@@ -194,7 +194,13 @@
   map.fitBounds(CONFIG.countyBounds, getMapPadding());
 
   // Re-fit after DOM settles (banner may load async and change header height)
-  setTimeout(function() { map.fitBounds(CONFIG.countyBounds, getMapPadding()); }, 500);
+  // Then store the exact center/zoom as the "home" view for reset
+  var homeCenter, homeZoom;
+  setTimeout(function() {
+    map.fitBounds(CONFIG.countyBounds, getMapPadding());
+    homeCenter = map.getCenter();
+    homeZoom = map.getZoom();
+  }, 500);
 
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri',
@@ -356,10 +362,10 @@
 
   // ========== CONTROLS ==========
 
-  // Reset — if zones loaded, fit to them; otherwise fit to county
+  // Reset — replay the exact initial view
   document.getElementById('resetBtn').addEventListener('click', function() {
-    if (allZoneBounds && allZoneBounds.isValid()) {
-      map.fitBounds(allZoneBounds, getMapPadding());
+    if (homeCenter && homeZoom) {
+      map.setView(homeCenter, homeZoom);
     } else {
       map.fitBounds(CONFIG.countyBounds, getMapPadding());
     }
