@@ -328,6 +328,20 @@
     </div>
   </div>
 
+  <!-- Redirect to lite if map can't load in time -->
+  <script>
+  (function() {
+    if (sessionStorage.getItem('redirectedToLite') || sessionStorage.getItem('preferFullSite')) return;
+    window.__mapLoaded = false;
+    setTimeout(function() {
+      if (!window.__mapLoaded) {
+        sessionStorage.setItem('redirectedToLite', '1');
+        location.replace('evac-lite.html');
+      }
+    }, 8000);
+  })();
+  </script>
+
   <script src="https://js.arcgis.com/4.31/" defer></script>
   <script src="shared.js"></script>
   <script>
@@ -335,17 +349,6 @@
     'use strict';
 
     const { $, escHTML, createChip, formatTimestamp, updateTimestamp, initCoderedOverlay, initCallerIdOverlay, initDrillBanner, initAnnouncement, initScrollIndicator, BRAND } = ReadyLaPlata;
-
-    // If the map hasn't loaded in 8 seconds, redirect to lite version
-    let mapLoaded = false;
-    if (!sessionStorage.getItem('redirectedToLite') && !sessionStorage.getItem('preferFullSite')) {
-      setTimeout(() => {
-        if (!mapLoaded) {
-          sessionStorage.setItem('redirectedToLite', '1');
-          location.replace('evac-lite.html');
-        }
-      }, 8000);
-    }
 
     // Map view reference for controls
     let mapView = null;
@@ -460,7 +463,7 @@
             // Hide loading state
             const mapLoading = $('mapLoading');
             if (mapLoading) mapLoading.classList.add('is-hidden');
-            mapLoaded = true;
+            window.__mapLoaded = true;
             
             view.ui.add(new Search({ view, includeDefaultSources: true }), 'top-right');
             return incidentLayer.when();
