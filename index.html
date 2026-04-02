@@ -5,38 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ReadyLaPlata — La Plata County Evacuation Viewer</title>
 
-  <!-- Detect slow connections and redirect to lite version before anything else loads -->
-  <!-- Runs every page load. Bypassed for the session if user clicks "Full Site" on lite page. -->
+  <!-- Detect slow connections and redirect to lite version -->
   <script>
   (function() {
     if (sessionStorage.getItem('preferFullSite')) return;
 
+    // Android/Chrome: Network Information API (instant, no network request)
     var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    if (conn) {
-      // Redirect on 3g or worse, data saver, or slow 4g (under 1.5 Mbps)
+    if (conn && conn.effectiveType) {
       if (conn.saveData) { location.replace('evac-lite.html'); return; }
-      var etype = conn.effectiveType;
-      if (etype === 'slow-2g' || etype === '2g' || etype === '3g') { location.replace('evac-lite.html'); return; }
-      if (etype === '4g' && typeof conn.downlink === 'number' && conn.downlink < 2.0) { location.replace('evac-lite.html'); return; }
+      var t = conn.effectiveType;
+      if (t === 'slow-2g' || t === '2g' || t === '3g') { location.replace('evac-lite.html'); return; }
+      return; // API exists and reports 4g — stay on full site
     }
 
-    // Fallback for Safari/iOS/Firefox:
-    // Fetch the ArcGIS JS API entry point (~1.5MB). If it takes >4s,
-    // the full site will be unusable. On good connections this loads in <1s.
-    var done = false;
-    var timer = setTimeout(function() {
-      if (!done) { done = true; location.replace('evac-lite.html'); }
-    }, 4000);
-
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'https://js.arcgis.com/4.31/?' + Date.now(), true);
-    xhr.setRequestHeader('Cache-Control', 'no-cache, no-store');
-    xhr.setRequestHeader('Pragma', 'no-cache');
-    xhr.onload = function() { if (!done) { done = true; clearTimeout(timer); } };
-    xhr.onerror = function() { if (!done) { done = true; clearTimeout(timer); location.replace('evac-lite.html'); } };
-    xhr.ontimeout = function() { if (!done) { done = true; clearTimeout(timer); location.replace('evac-lite.html'); } };
-    xhr.timeout = 4000;
-    xhr.send();
+    // Safari/iOS/Firefox: Network API not available, measure connection latency
+    // Two sequential HEAD requests to ArcGIS CDN — measures real round-trip time
+    // Good connection: ~100ms total. Bad cell (1-2 bars): 600ms-2s+ total.
+    var start = Date.now();
+    var xhr1 = new XMLHttpRequest();
+    xhr1.open('HEAD', 'https://js.arcgis.com/4.31/?' + Date.now(), true);
+    xhr1.onload = function() {
+      var xhr2 = new XMLHttpRequest();
+      xhr2.open('HEAD', 'https://js.arcgis.com/4.31/?' + Date.now() + 'b', true);
+      xhr2.onload = function() {
+        if (Date.now() - start > 1500) location.replace('evac-lite.html');
+      };
+      xhr2.onerror = function() { location.replace('evac-lite.html'); };
+      xhr2.timeout = 2000;
+      xhr2.ontimeout = function() { location.replace('evac-lite.html'); };
+      xhr2.send();
+    };
+    xhr1.onerror = function() { location.replace('evac-lite.html'); };
+    xhr1.timeout = 2000;
+    xhr1.ontimeout = function() { location.replace('evac-lite.html'); };
+    xhr1.send();
   })();
   </script>
 
