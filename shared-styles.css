@@ -1080,6 +1080,158 @@ a:focus-visible,
 
 /* ========== MAP CONTAINER & LEGEND ========== */
 
+/* Map controls - centered above map key */
+.map-controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-top: 1px solid rgba(0,0,0,0.08);
+  flex-wrap: wrap;
+}
+
+.map-control-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  transition: all 0.2s;
+}
+
+.map-control-btn:hover {
+  background: #f8fafc;
+  border-color: rgba(0,0,0,0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+
+.map-control-btn:disabled {
+  cursor: default;
+  transform: none;
+}
+
+.map-control-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Fullscreen bottom bar */
+.fullscreen-bar {
+  display: none;
+}
+
+.fullscreen-bar-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(0,0,0,0.15);
+  margin: 0 8px;
+}
+
+.fullscreen-bar-key {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fullscreen-bar-key .legend-title {
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin-right: 4px;
+}
+
+.fullscreen-bar-key .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+/* Fullscreen map state */
+.map-is-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  height: 100% !important;
+  width: 100% !important;
+  border-radius: 0 !important;
+}
+
+.map-is-fullscreen ~ .map-controls,
+.map-is-fullscreen ~ .map-key-merged {
+  display: none;
+}
+
+.map-is-fullscreen ~ .fullscreen-bar {
+  display: flex;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10001;
+  background: rgba(255,255,255,0.98);
+  backdrop-filter: blur(8px);
+  padding: 12px 18px;
+  border-top: 1px solid rgba(0,0,0,0.1);
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 700px) {
+  .fullscreen-bar-divider {
+    display: none;
+  }
+
+  .fullscreen-bar-key {
+    width: 100%;
+    justify-content: center;
+    padding-top: 8px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 600px) {
+  .map-controls {
+    gap: 8px;
+    padding: 12px 12px;
+  }
+
+  .map-control-btn {
+    padding: 8px 12px;
+    gap: 6px;
+    font-size: 12px;
+  }
+
+  .map-control-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Hide other page elements when map is fullscreen */
+body.map-fullscreen-active .incident-panel,
+body.map-fullscreen-active .status-timestamp,
+body.map-fullscreen-active .announcement-alert-btn,
+body.map-fullscreen-active .site-footer {
+  display: none !important;
+}
+
+/* Map key / legend */
 .map-key-merged {
   padding: 14px 18px 16px;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
