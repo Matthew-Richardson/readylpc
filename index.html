@@ -5,6 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ReadyLaPlata — La Plata County Evacuation Viewer</title>
 
+  <!-- Detect slow connections and redirect to lite version before anything else loads -->
+  <script>
+  (function() {
+    if (sessionStorage.getItem('preferFullSite')) return;
+    // Network Information API (Chrome, Android, Samsung Internet)
+    var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (conn) {
+      if (conn.saveData || conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g' || conn.effectiveType === '3g') {
+        location.replace('evac-lite.html');
+        return;
+      }
+    }
+    // Fallback for Safari/Firefox: race the ArcGIS CDN
+    // If it can't respond in 5s, the full site won't be usable anyway
+    var timedOut = false;
+    var t = setTimeout(function() { timedOut = true; location.replace('evac-lite.html'); }, 5000);
+    fetch('https://js.arcgis.com/4.31/', { method: 'HEAD', mode: 'no-cors' }).then(function() {
+      if (!timedOut) clearTimeout(t);
+    }).catch(function() {
+      if (!timedOut) clearTimeout(t);
+    });
+  })();
+  </script>
+
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LF6VNLVXVQ"></script>
   <script>
@@ -15,34 +39,6 @@
   </script>
 
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-
-  <!-- Redirect to lite version on slow connections -->
-  <script>
-  (function() {
-    // Skip if user explicitly came back from lite (flag in sessionStorage)
-    if (sessionStorage.getItem('preferFullSite')) return;
-
-    // Method 1: Network Information API (Chrome, Android browsers)
-    var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    if (conn) {
-      var dominated = conn.effectiveType;   // 'slow-2g', '2g', '3g', '4g'
-      var saveData  = conn.saveData;         // true if user enabled data saver
-      if (saveData || dominated === 'slow-2g' || dominated === '2g' || dominated === '3g') {
-        location.replace('evac-lite.html');
-        return;
-      }
-    }
-
-    // Method 2: Timed probe — if a tiny fetch takes >3s, redirect
-    var timeout = setTimeout(function() { location.replace('evac-lite.html'); }, 4000);
-    fetch('favicon.svg', { cache: 'no-store' }).then(function() {
-      clearTimeout(timeout);
-    }).catch(function() {
-      clearTimeout(timeout);
-    });
-  })();
-  </script>
-
   <meta name="description" content="Official evacuation information and interactive maps for La Plata County, Colorado. View active incidents, evacuation zones, and sign up for emergency alerts.">
   <meta name="theme-color" content="#0b4da2">
 
