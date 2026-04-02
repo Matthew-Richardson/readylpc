@@ -15,6 +15,34 @@
   </script>
 
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Redirect to lite version on slow connections -->
+  <script>
+  (function() {
+    // Skip if user explicitly came back from lite (flag in sessionStorage)
+    if (sessionStorage.getItem('preferFullSite')) return;
+
+    // Method 1: Network Information API (Chrome, Android browsers)
+    var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (conn) {
+      var dominated = conn.effectiveType;   // 'slow-2g', '2g', '3g', '4g'
+      var saveData  = conn.saveData;         // true if user enabled data saver
+      if (saveData || dominated === 'slow-2g' || dominated === '2g') {
+        location.replace('evac-lite.html');
+        return;
+      }
+    }
+
+    // Method 2: Timed probe — if a tiny fetch takes >3s, redirect
+    var timeout = setTimeout(function() { location.replace('evac-lite.html'); }, 4000);
+    fetch('favicon.svg', { cache: 'no-store' }).then(function() {
+      clearTimeout(timeout);
+    }).catch(function() {
+      clearTimeout(timeout);
+    });
+  })();
+  </script>
+
   <meta name="description" content="Official evacuation information and interactive maps for La Plata County, Colorado. View active incidents, evacuation zones, and sign up for emergency alerts.">
   <meta name="theme-color" content="#0b4da2">
 
@@ -205,7 +233,7 @@
       <div class="codered-body">
         <p>Sign up for <strong>LPC Alerts</strong> to receive emergency notifications by text, phone, and email from La Plata County OEM.</p>
         <div class="codered-embed">
-          <iframe src="https://embeds.regroupcloud.com/orgs/LPCAlerts/channels/lpc-alerts-emergency/signup_embed" title="LPC Alerts Signup" style="width:100%;min-height:480px;border:none;"></iframe>
+          <iframe src="https://embeds.regroupcloud.com/orgs/LPCAlerts/channels/lpc-alerts-/signup_embed" title="LPC Alerts Signup" style="width:100%;min-height:480px;border:none;"></iframe>
         </div>
       </div>
       <div class="codered-actions">
