@@ -10,7 +10,7 @@
   (function() {
     if (sessionStorage.getItem('preferFullSite')) return;
 
-    // Android/Chrome: Network Information API (instant, no network request)
+    // Android/Chrome: Network Information API
     var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     if (conn && conn.effectiveType) {
       if (conn.saveData) { location.replace('evac-lite.html'); return; }
@@ -19,14 +19,14 @@
       return;
     }
 
-    // Safari/iOS/Firefox: measure how long this page took to load
-    // If index.html (a small page) took >800ms to arrive, the 1.5MB ArcGIS API will be painful
-    window.addEventListener('load', function() {
-      var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
-      if (nav && nav.responseEnd && nav.requestStart) {
-        var pageTime = nav.responseEnd - nav.requestStart;
-        if (pageTime > 800) { location.replace('evac-lite.html'); return; }
-      }
+    // All other browsers (Safari/iOS, Firefox): timed fetch
+    var controller = new AbortController();
+    var timer = setTimeout(function() { controller.abort(); location.replace('evac-lite.html'); }, 1500);
+    fetch('shared-styles.css?_=' + Date.now(), { signal: controller.signal }).then(function() {
+      clearTimeout(timer);
+    }).catch(function() {
+      clearTimeout(timer);
+      location.replace('evac-lite.html');
     });
   })();
   </script>
