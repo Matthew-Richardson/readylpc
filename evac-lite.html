@@ -4,23 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Evacuation Zones — ReadyLaPlata Lite</title>
-
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta name="description" content="Lightweight evacuation zone map for La Plata County, Colorado. Optimized for low-bandwidth and field use.">
   <meta name="theme-color" content="#0b4da2">
 
-  <!-- Leaflet core: ~40KB -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
-  <!-- esri-leaflet: ~35KB -->
   <script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
 
   <style>
     *,*::before,*::after{box-sizing:border-box}
     html,body{margin:0;padding:0;font-family:Arial,sans-serif;background:#1e293b;overflow:hidden;height:100%}
 
-    /* Drill banner */
     .site-banner{display:none;align-items:center;justify-content:center;gap:8px;padding:8px 14px;font-size:12px;font-weight:600;color:#fff;text-align:center;line-height:1.3;z-index:1000;position:relative}
     .site-banner.is-active{display:flex}
     .site-banner--warning{background:linear-gradient(135deg,#d97706 0%,#b45309 100%)}
@@ -29,11 +24,8 @@
     .site-banner--success{background:linear-gradient(135deg,#059669 0%,#047857 100%)}
     .site-banner svg{width:14px;height:14px;flex-shrink:0}
 
-    /* Full-bleed map */
     #map{position:absolute;inset:0;z-index:1}
-    body.has-banner #map{top:0}
 
-    /* Top bar overlay */
     .top-bar{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;flex-direction:column}
     .header-row{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid rgba(0,0,0,0.1)}
     .brand-lite{display:flex;align-items:center;gap:12px}
@@ -45,7 +37,6 @@
     .full-link:hover{opacity:0.85}
     .full-link svg{width:14px;height:14px}
 
-    /* Bottom controls */
     .bottom-bar{position:fixed;bottom:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-top:1px solid rgba(0,0,0,0.1);padding:12px 16px;display:flex;flex-direction:column;align-items:center;gap:8px}
     .legend-row{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
     .legend-chip{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:#334155}
@@ -56,14 +47,10 @@
     .ctrl-btn:disabled{opacity:0.5;cursor:default}
     .ctrl-btn svg{width:14px;height:14px;flex-shrink:0}
 
-    /* Zone count badge */
-    .zone-count{position:fixed;top:auto;bottom:auto;right:14px;z-index:1001;background:#fff;border:1.5px solid rgba(0,0,0,0.15);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;color:#334155;box-shadow:0 2px 10px rgba(0,0,0,0.12);display:none;text-align:center;line-height:1.3}
+    .zone-count{position:fixed;right:14px;z-index:1001;background:#fff;border:1.5px solid rgba(0,0,0,0.15);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;color:#334155;box-shadow:0 2px 10px rgba(0,0,0,0.12);display:none;text-align:center;line-height:1.3}
     .zone-count.is-active{display:block}
-    .zone-count .count{font-size:16px;font-weight:800;display:block}
-    .zone-count .count--alert{color:#0b4da2}
-    .zone-count .count--clear{color:#0b4da2;font-size:14px}
+    .zone-count .count{font-size:16px;font-weight:800;display:block;color:#0b4da2}
 
-    /* Popup override */
     .leaflet-popup-content{font-family:Arial,sans-serif;font-size:13px;line-height:1.5;min-width:160px}
     .leaflet-popup-content strong{display:block;margin-bottom:4px}
     .zone-popup-status{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em}
@@ -71,23 +58,19 @@
     .zone-popup-go{background:#41f56e;color:#14532d}
     .zone-popup-incident{margin-top:6px;font-size:12px;color:#475569}
 
-    /* Location pulse */
     .location-dot{width:16px;height:16px;background:rgba(0,122,255,0.9);border:2.5px solid #fff;border-radius:50%;box-shadow:0 0 0 6px rgba(0,122,255,0.2),0 2px 6px rgba(0,0,0,0.3)}
 
-    /* Zone labels on map */
     .zone-label{font-family:Arial,sans-serif;font-size:13px;font-weight:700;text-align:center;line-height:1.3;padding:3px 6px;border-radius:4px;white-space:nowrap;pointer-events:none}
     .zone-label--set{color:#713f12;text-shadow:0 0 3px #fff36a,0 0 3px #fff36a,0 0 6px rgba(255,255,255,0.8)}
     .zone-label--go{color:#14532d;text-shadow:0 0 3px #41f56e,0 0 3px #41f56e,0 0 6px rgba(255,255,255,0.8)}
     .zone-label--incident{font-size:14px;font-weight:800;color:#dc2626;text-shadow:0 0 4px #fff,0 0 4px #fff,0 0 8px #fff,0 0 8px #fff}
 
-    /* Loading state */
     .loading-overlay{position:fixed;inset:0;z-index:2000;background:rgba(255,255,255,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:opacity 0.3s}
     .loading-overlay.is-hidden{opacity:0;pointer-events:none}
     .loading-spinner{width:36px;height:36px;border:3px solid rgba(11,77,162,0.15);border-top-color:#0b4da2;border-radius:50%;animation:spin 0.8s linear infinite}
     .loading-text{font-size:13px;font-weight:600;color:#64748b}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* Leaflet control cleanup */
     .leaflet-control-attribution{font-size:9px!important;background:rgba(255,255,255,0.7)!important}
     .leaflet-control-zoom{margin-top:100px!important}
     body.has-banner .leaflet-control-zoom{margin-top:134px!important}
@@ -120,7 +103,6 @@
 </div>
 
 <div id="zoneCount" class="zone-count"></div>
-
 <div id="map"></div>
 
 <div class="bottom-bar">
@@ -145,211 +127,142 @@
 (function() {
   'use strict';
 
-  // ========== CONFIG ==========
-  var CONFIG = {
-    evacLayerUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0',
-    countyBoundaryUrl: 'https://gis.lpcgov.org/arcgis/rest/services/JS_website/Map_Pro/MapServer/83',
-    bannerUrl: 'drill-banner.json'
-  };
-
+  var EVAC_URL = 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0';
+  var BOUNDARY_URL = 'https://gis.lpcgov.org/arcgis/rest/services/JS_website/Map_Pro/MapServer/83';
+  var COUNTY = L.latLngBounds([36.993, -108.379], [37.567, -107.482]);
   var COLORS = {
-    Set: { fill: '#fff36a', stroke: '#b8960a', popupClass: 'zone-popup-set' },
-    Go:  { fill: '#41f56e', stroke: '#15803d', popupClass: 'zone-popup-go' }
+    Set: { fill: '#fff36a', stroke: '#b8960a', cls: 'zone-popup-set' },
+    Go:  { fill: '#41f56e', stroke: '#15803d', cls: 'zone-popup-go' }
   };
 
-  // ========== DRILL BANNER ==========
-  fetch(CONFIG.bannerUrl).then(function(r) { return r.json(); }).then(function(data) {
-    if (!data.enabled) return;
-    var banner = document.getElementById('siteBanner');
-    var variant = data.variant ? 'site-banner--' + data.variant : '';
-    banner.className = 'site-banner is-active ' + variant;
-
+  // -- Banner --
+  fetch('drill-banner.json').then(function(r) { return r.json(); }).then(function(d) {
+    if (!d.enabled) return;
+    var b = document.getElementById('siteBanner');
     var icons = {
       'alert-triangle': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
       'info': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
     };
-    var icon = icons[data.icon] || icons['alert-triangle'];
-    banner.innerHTML = icon + '<span>' + data.message + '</span>';
-
+    b.className = 'site-banner is-active' + (d.variant ? ' site-banner--' + d.variant : '');
+    b.innerHTML = (icons[d.icon] || icons['alert-triangle']) + '<span>' + d.message + '</span>';
     document.body.classList.add('has-banner');
+    positionBadge();
   }).catch(function() {});
 
-  // ========== MAP ==========
-  var COUNTY = L.latLngBounds([36.993, -108.379], [37.567, -107.482]);
-
+  // -- Map --
   var map = L.map('map').fitBounds(COUNTY);
 
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles &copy; Esri',
-    maxZoom: 18
+    attribution: 'Tiles &copy; Esri', maxZoom: 18
   }).addTo(map);
 
-  // ========== COUNTY BOUNDARY ==========
   L.esri.featureLayer({
-    url: CONFIG.countyBoundaryUrl,
-    style: function() {
-      return { color: 'rgba(11,77,162,0.5)', weight: 2, fill: true, fillColor: 'rgba(11,77,162,0.04)', fillOpacity: 1 };
-    },
+    url: BOUNDARY_URL,
+    style: function() { return { color: 'rgba(11,77,162,0.5)', weight: 2, fill: true, fillColor: 'rgba(11,77,162,0.04)', fillOpacity: 1 }; },
     interactive: false
   }).addTo(map);
 
-  // ========== EVACUATION ZONES ==========
+  // -- Zones --
   var zoneCountEl = document.getElementById('zoneCount');
   var loadingEl = document.getElementById('loadingOverlay');
   var locationMarker = null;
 
-  // Query all active SET/GO zones with geometry
-  var queryUrl = CONFIG.evacLayerUrl + '/query?' + new URLSearchParams({
-    where: "STATUS IN ('Set','Go')",
-    outFields: 'incident,STATUS,zonename',
-    returnGeometry: 'true',
-    outSR: '4326',
-    f: 'geojson'
-  }).toString();
-
-  // Use the URLSearchParams approach but fall back for older browsers
-  fetch(queryUrl)
+  fetch(EVAC_URL + '/query?' + new URLSearchParams({
+    where: "STATUS IN ('Set','Go')", outFields: 'incident,STATUS,zonename',
+    returnGeometry: 'true', outSR: '4326', f: 'geojson'
+  }))
     .then(function(r) { return r.json(); })
     .then(function(geojson) {
       var features = geojson.features || [];
-
-      // Hide loading
       loadingEl.classList.add('is-hidden');
 
       if (!features.length) {
-        zoneCountEl.innerHTML = '<span class="count count--clear">No Active Incidents</span>';
+        zoneCountEl.innerHTML = '<span class="count">No Active Incidents</span>';
         zoneCountEl.classList.add('is-active');
-        positionZoneCount();
+        positionBadge();
         return;
       }
 
-      // Count distinct incidents
-      var incidentNames = {};
-      features.forEach(function(f) {
-        var name = f.properties.incident;
-        if (name) incidentNames[name] = true;
-      });
-      var incidentCount = Object.keys(incidentNames).length;
+      var incidents = {};
+      features.forEach(function(f) { if (f.properties.incident) incidents[f.properties.incident] = true; });
+      var count = Object.keys(incidents).length;
 
-      // Add zones to map
-      var labeledIncidents = {};
-      var zonesLayer = L.geoJSON(geojson, {
-        style: function(feature) {
-          var status = feature.properties.STATUS;
-          var c = COLORS[status] || COLORS.Set;
-          return {
-            fillColor: c.fill,
-            fillOpacity: 0.55,
-            color: c.stroke,
-            weight: 2.5
-          };
+      var incidentBounds = {};
+      L.geoJSON(geojson, {
+        style: function(f) {
+          var c = COLORS[f.properties.STATUS] || COLORS.Set;
+          return { fillColor: c.fill, fillOpacity: 0.55, color: c.stroke, weight: 2.5 };
         },
-        onEachFeature: function(feature, layer) {
-          var p = feature.properties;
-          var status = p.STATUS || 'Unknown';
-          var c = COLORS[status] || COLORS.Set;
+        onEachFeature: function(f, layer) {
+          var p = f.properties;
+          var c = COLORS[p.STATUS] || COLORS.Set;
+
           layer.bindPopup(
             '<strong>' + (p.zonename || 'Unnamed Zone') + '</strong>' +
-            '<span class="zone-popup-status ' + c.popupClass + '">' + status.toUpperCase() + '</span>' +
+            '<span class="zone-popup-status ' + c.cls + '">' + (p.STATUS || '').toUpperCase() + '</span>' +
             '<div class="zone-popup-incident">' + (p.incident || '') + '</div>'
           );
 
-          // Zone name label on each polygon
-          var center = layer.getBounds().getCenter();
           if (p.zonename) {
-            var labelClass = status === 'Go' ? 'zone-label zone-label--go' : 'zone-label zone-label--set';
-            L.marker(center, {
-              icon: L.divIcon({
-                className: '',
-                html: '<div class="' + labelClass + '">' + p.zonename + '</div>',
-                iconSize: [120, 20],
-                iconAnchor: [60, 10]
-              }),
+            var cls = p.STATUS === 'Go' ? 'zone-label zone-label--go' : 'zone-label zone-label--set';
+            L.marker(layer.getBounds().getCenter(), {
+              icon: L.divIcon({ className: '', html: '<div class="' + cls + '">' + p.zonename + '</div>', iconSize: [120, 20], iconAnchor: [60, 10] }),
               interactive: false
             }).addTo(map);
           }
 
-          // Track incident bounds for group label
-          var inc = p.incident;
-          if (inc) {
-            if (!labeledIncidents[inc]) labeledIncidents[inc] = [];
-            labeledIncidents[inc].push(layer.getBounds());
+          if (p.incident) {
+            if (!incidentBounds[p.incident]) incidentBounds[p.incident] = L.latLngBounds();
+            incidentBounds[p.incident].extend(layer.getBounds());
           }
         }
       }).addTo(map);
 
-      // Add one incident name label per incident, centered over all its zones
-      Object.keys(labeledIncidents).forEach(function(incName) {
-        var combinedBounds = labeledIncidents[incName][0];
-        for (var i = 1; i < labeledIncidents[incName].length; i++) {
-          combinedBounds.extend(labeledIncidents[incName][i]);
-        }
-        var center = combinedBounds.getCenter();
-        L.marker(center, {
-          icon: L.divIcon({
-            className: '',
-            html: '<div class="zone-label zone-label--incident">' + incName + '</div>',
-            iconSize: [160, 22],
-            iconAnchor: [80, 30]
-          }),
+      Object.keys(incidentBounds).forEach(function(name) {
+        L.marker(incidentBounds[name].getCenter(), {
+          icon: L.divIcon({ className: '', html: '<div class="zone-label zone-label--incident">' + name + '</div>', iconSize: [160, 22], iconAnchor: [80, 30] }),
           interactive: false
         }).addTo(map);
       });
 
-      // Zone count badge
-      zoneCountEl.innerHTML =
-        '<span class="count count--alert">' + incidentCount + '</span>' +
-        'Active Incident' + (incidentCount === 1 ? '' : 's');
+      zoneCountEl.innerHTML = '<span class="count">' + count + '</span>Active Incident' + (count === 1 ? '' : 's');
       zoneCountEl.classList.add('is-active');
-      positionZoneCount();
+      positionBadge();
     })
     .catch(function(err) {
-      console.error('Error loading evac zones:', err);
+      console.error('Zone load error:', err);
       loadingEl.classList.add('is-hidden');
-      zoneCountEl.innerHTML = '<span class="count" style="color:#dc2626;font-size:14px;">Unable to load zones</span>';
+      zoneCountEl.innerHTML = '<span class="count" style="color:#dc2626;font-size:14px">Unable to load zones</span>';
       zoneCountEl.classList.add('is-active');
-      positionZoneCount();
+      positionBadge();
     });
 
-  // Position zone count badge below header
-  function positionZoneCount() {
-    var topBar = document.querySelector('.top-bar');
-    if (topBar && zoneCountEl) {
-      zoneCountEl.style.top = (topBar.offsetHeight + 10) + 'px';
-    }
+  // -- Badge positioning --
+  function positionBadge() {
+    var h = document.querySelector('.top-bar');
+    if (h && zoneCountEl) zoneCountEl.style.top = (h.offsetHeight + 10) + 'px';
   }
-  window.addEventListener('resize', positionZoneCount);
-  setTimeout(positionZoneCount, 600);
+  window.addEventListener('resize', positionBadge);
+  setTimeout(positionBadge, 600);
 
-  // ========== CONTROLS ==========
+  // -- Controls --
+  document.getElementById('resetBtn').addEventListener('click', function() { map.fitBounds(COUNTY); });
 
-  // Reset — zoom back to county
-  document.getElementById('resetBtn').addEventListener('click', function() {
-    map.fitBounds(COUNTY);
-  });
-
-  // My Location
   document.getElementById('locateBtn').addEventListener('click', function() {
     var btn = this;
     if (!navigator.geolocation) return;
     btn.disabled = true;
-
     navigator.geolocation.getCurrentPosition(
       function(pos) {
-        var latlng = [pos.coords.latitude, pos.coords.longitude];
+        var ll = [pos.coords.latitude, pos.coords.longitude];
         if (locationMarker) map.removeLayer(locationMarker);
-        locationMarker = L.marker(latlng, {
-          icon: L.divIcon({
-            className: '',
-            html: '<div class="location-dot"></div>',
-            iconSize: [16, 16],
-            iconAnchor: [8, 8]
-          })
+        locationMarker = L.marker(ll, {
+          icon: L.divIcon({ className: '', html: '<div class="location-dot"></div>', iconSize: [16, 16], iconAnchor: [8, 8] })
         }).addTo(map);
-        map.setView(latlng, 14);
+        map.setView(ll, 14);
         btn.disabled = false;
       },
-      function(err) {
+      function() {
         alert('Unable to determine your location. Please check your browser location permissions.');
         btn.disabled = false;
       },
