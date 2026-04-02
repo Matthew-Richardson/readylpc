@@ -5,32 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ReadyLaPlata — La Plata County Evacuation Viewer</title>
 
-  <!-- Detect slow connections and redirect to lite version -->
-  <script>
-  (function() {
-    if (sessionStorage.getItem('preferFullSite')) return;
-
-    // Android/Chrome: Network Information API
-    var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    if (conn && conn.effectiveType) {
-      if (conn.saveData) { location.replace('evac-lite.html'); return; }
-      var t = conn.effectiveType;
-      if (t === 'slow-2g' || t === '2g' || t === '3g') { location.replace('evac-lite.html'); return; }
-      return;
-    }
-
-    // All other browsers (Safari/iOS, Firefox): timed fetch
-    var controller = new AbortController();
-    var timer = setTimeout(function() { controller.abort(); location.replace('evac-lite.html'); }, 1500);
-    fetch('shared-styles.css?_=' + Date.now(), { signal: controller.signal }).then(function() {
-      clearTimeout(timer);
-    }).catch(function() {
-      clearTimeout(timer);
-      location.replace('evac-lite.html');
-    });
-  })();
-  </script>
-
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LF6VNLVXVQ"></script>
   <script>
