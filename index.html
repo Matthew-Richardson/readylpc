@@ -20,20 +20,22 @@
       if (etype === '4g' && typeof conn.downlink === 'number' && conn.downlink < 2.0) { location.replace('evac-lite.html'); return; }
     }
 
-    // Fallback for Safari/iOS/Firefox and DevTools throttling:
-    // Fetch a ~200KB CSS file from the ArcGIS CDN. If it takes >1.5s,
-    // the full 1.5MB API would take 15s+ which is unusable.
+    // Fallback for Safari/iOS/Firefox:
+    // Fetch the ArcGIS JS API entry point (~1.5MB). If it takes >4s,
+    // the full site will be unusable. On good connections this loads in <1s.
     var done = false;
     var timer = setTimeout(function() {
       if (!done) { done = true; location.replace('evac-lite.html'); }
-    }, 1500);
+    }, 4000);
 
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'https://js.arcgis.com/4.31/esri/css/main.css?' + Date.now(), true);
+    xhr.open('GET', 'https://js.arcgis.com/4.31/?' + Date.now(), true);
+    xhr.setRequestHeader('Cache-Control', 'no-cache, no-store');
+    xhr.setRequestHeader('Pragma', 'no-cache');
     xhr.onload = function() { if (!done) { done = true; clearTimeout(timer); } };
     xhr.onerror = function() { if (!done) { done = true; clearTimeout(timer); location.replace('evac-lite.html'); } };
     xhr.ontimeout = function() { if (!done) { done = true; clearTimeout(timer); location.replace('evac-lite.html'); } };
-    xhr.timeout = 1500;
+    xhr.timeout = 4000;
     xhr.send();
   })();
   </script>
