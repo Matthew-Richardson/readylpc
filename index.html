@@ -6,21 +6,21 @@
   <title>ReadyLaPlata — La Plata County Evacuation Viewer</title>
 
   <!-- Detect slow connections and redirect to lite version before anything else loads -->
+  <!-- Runs every page load. Bypassed for the session if user clicks "Full Site" on lite page. -->
   <script>
   (function() {
     if (sessionStorage.getItem('preferFullSite')) return;
 
-    // Network Information API (Android Chrome, Samsung Internet)
     var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    if (conn && conn.effectiveType) {
-      if (conn.saveData || conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g' || conn.effectiveType === '3g') {
-        location.replace('evac-lite.html');
-        return;
-      }
+    if (conn) {
+      // Redirect on 3g or worse, data saver, or slow 4g (under 1.5 Mbps)
+      if (conn.saveData) { location.replace('evac-lite.html'); return; }
+      var etype = conn.effectiveType;
+      if (etype === 'slow-2g' || etype === '2g' || etype === '3g') { location.replace('evac-lite.html'); return; }
+      if (etype === '4g' && typeof conn.downlink === 'number' && conn.downlink < 2.0) { location.replace('evac-lite.html'); return; }
     }
 
-    // Fallback for Safari/iOS/Firefox: time a real download from the ArcGIS CDN
-    // If it can't complete in 3s, the 1.5MB API will be unusable
+    // Fallback for Safari/iOS/Firefox: time a download from the ArcGIS CDN
     var done = false;
     var timer = setTimeout(function() {
       if (!done) { done = true; location.replace('evac-lite.html'); }
