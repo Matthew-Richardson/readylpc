@@ -916,34 +916,34 @@ a:focus-visible,
 /* Incident chip responsive styles */
 @media (max-width: 520px) {
   .incident-chips {
-    gap: 6px;
+    gap: 8px;
   }
 
   .incident-chip {
-    padding: 7px 10px;
-    border-radius: 8px;
-    font-size: 13px;
-    gap: 6px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 15px;
+    gap: 10px;
   }
 
   .incident-chip-icon {
-    width: 16px;
-    height: 16px;
-    font-size: 10px;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
   }
 }
 
 @media (max-width: 420px) {
   .incident-chip {
-    padding: 6px 8px;
-    font-size: 12px;
-    gap: 5px;
+    padding: 10px 12px;
+    font-size: 14px;
+    gap: 8px;
   }
 
   .incident-chip-icon {
-    width: 14px;
-    height: 14px;
-    font-size: 9px;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
   }
 }
 
