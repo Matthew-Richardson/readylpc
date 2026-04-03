@@ -2323,60 +2323,6 @@ main {
   color: #78350f;
 }
 
-/* Event variant (blue/teal - for community events, exercises) */
-.announcement-key-message--event {
-  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdfa 100%);
-  border-color: #6ee7b7;
-}
-
-.announcement-key-message--event .announcement-key-message-icon {
-  color: #059669;
-}
-
-.announcement-key-message--event .announcement-key-message-text {
-  color: #065f46;
-}
-
-.announcement-key-message--event .announcement-key-message-text strong {
-  color: #064e3b;
-}
-
-/* Info variant (blue - for general information) */
-.announcement-key-message--info {
-  background: linear-gradient(135deg, #eff6ff 0%, #e8f0fe 100%);
-  border-color: #93c5fd;
-}
-
-.announcement-key-message--info .announcement-key-message-icon {
-  color: #2563eb;
-}
-
-.announcement-key-message--info .announcement-key-message-text {
-  color: #1e40af;
-}
-
-.announcement-key-message--info .announcement-key-message-text strong {
-  color: #1e3a8a;
-}
-
-/* Fire variant (warm red/orange - for fire season, exercises) */
-.announcement-key-message--fire {
-  background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
-  border-color: #fdba74;
-}
-
-.announcement-key-message--fire .announcement-key-message-icon {
-  color: #ea580c;
-}
-
-.announcement-key-message--fire .announcement-key-message-text {
-  color: #9a3412;
-}
-
-.announcement-key-message--fire .announcement-key-message-text strong {
-  color: #7c2d12;
-}
-
 /* ========== ANNOUNCEMENT PRIMARY CTA ========== */
 
 .announcement-primary-cta {
