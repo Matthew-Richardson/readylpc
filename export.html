@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LPC Alerts KML Export — ReadyLaPlata</title>
-  <meta name="description" content="Export evacuation zones as KML for LPC Alert notifications.">
+  <title>LPC Alerts GeoJSON Export — ReadyLaPlata</title>
+  <meta name="description" content="Export individual evacuation zones as GeoJSON for LPC Alert notifications.">
   <meta name="theme-color" content="#0b4da2">
   
   <!-- Performance: DNS prefetch for external resources -->
@@ -148,12 +148,126 @@
     .info-box p { margin: 0; font-size: 14px; color: #1e293b; }
     
     /* ========================================
-       Export Button
+       Zone List Table
        ======================================== */
-    .export-btn {
+    .zone-table-wrapper {
+      margin-top: 16px;
+      display: none;
+    }
+
+    .zone-table-wrapper.show { display: block; }
+
+    .feature-count {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 12px;
+    }
+
+    .feature-count strong { color: #0f172a; }
+
+    .zone-table {
       width: 100%;
-      padding: 16px 24px;
-      font-size: 17px;
+      border-collapse: collapse;
+    }
+
+    .zone-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: #64748b;
+      padding: 8px 12px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .zone-table th:last-child { text-align: right; }
+
+    .zone-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    .zone-table tr:last-child td { border-bottom: none; }
+
+    .zone-table tr:hover td { background: #f8fafc; }
+
+    .zone-name { font-weight: 600; color: #0f172a; }
+
+    .zone-status {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+    }
+
+    .zone-status.status-set {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .zone-status.status-go {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .zone-status.status-unknown {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .download-cell { text-align: right; }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      color: #0b4da2;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .download-btn:hover {
+      background: #dbeafe;
+      border-color: #93c5fd;
+    }
+
+    .download-btn:active { transform: scale(0.97); }
+
+    .download-btn svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    /* Download all button */
+    .download-all-wrapper {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+      display: none;
+    }
+
+    .download-all-wrapper.show { display: block; }
+
+    .download-all-btn {
+      width: 100%;
+      padding: 14px 24px;
+      font-size: 15px;
       font-weight: 700;
       font-family: inherit;
       color: #fff;
@@ -168,28 +282,16 @@
       transition: all 0.15s;
       box-shadow: 0 4px 12px rgba(11, 77, 162, 0.25);
     }
-    
-    .export-btn:hover:not(:disabled) { 
+
+    .download-all-btn:hover {
       background: #0a4291;
-      transform: translateY(-1px); 
-      box-shadow: 0 6px 16px rgba(11, 77, 162, 0.35); 
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(11, 77, 162, 0.35);
     }
-    .export-btn:active:not(:disabled) { transform: translateY(0); }
-    .export-btn:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; }
-    .export-btn svg { width: 22px; height: 22px; }
-    
-    /* Loading spinner */
-    .spinner {
-      width: 22px;
-      height: 22px;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    
-    @keyframes spin { to { transform: rotate(360deg); } }
-    
+
+    .download-all-btn:active { transform: translateY(0); }
+    .download-all-btn svg { width: 20px; height: 20px; }
+
     /* ========================================
        Status Messages
        ======================================== */
@@ -206,63 +308,6 @@
     .status-msg.success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
     .status-msg.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
     .status-msg.loading { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
-    
-    /* ========================================
-       Feature Count & Zone List
-       ======================================== */
-    .feature-count { font-size: 14px; color: #64748b; margin-top: 10px; display: none; }
-    .feature-count.show { display: block; }
-    .feature-count strong { color: #0f172a; }
-    
-    .zone-list {
-      margin-top: 12px;
-      padding: 12px 14px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      display: none;
-    }
-    
-    .zone-list.show { display: block; }
-    
-    .zone-list-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-      color: #64748b;
-      margin-bottom: 8px;
-    }
-    
-    .zone-list-items {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-    
-    /* Zone status chips */
-    .zone-chip {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px 10px;
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      font-size: 13px;
-      color: #1e293b;
-    }
-    
-    .zone-chip.status-set {
-      background: #fef3c7;
-      border-color: #fcd34d;
-      color: #92400e;
-    }
-    
-    .zone-chip.status-go {
-      background: #dcfce7;
-      border-color: #86efac;
-      color: #166534;
-    }
     
     /* ========================================
        Navigation & Footer
@@ -312,6 +357,10 @@
       .content-wrapper { padding: 16px 12px 32px; }
       .page-title { font-size: 24px; }
       .export-card { padding: 20px; border-radius: 12px; }
+      .zone-table th:nth-child(2),
+      .zone-table td:nth-child(2) { display: none; }
+      .download-btn span { display: none; }
+      .download-btn { padding: 7px 10px; }
     }
   </style>
 </head>
@@ -321,7 +370,7 @@
     
     <!-- Header -->
     <header class="header">
-      <h1 class="header-title">LPC Alerts KML Export</h1>
+      <h1 class="header-title">LPC Alerts GeoJSON Export</h1>
       <p class="header-subtitle">ReadyLaPlata — Evacuation Zone Export Tool</p>
     </header>
     
@@ -336,7 +385,7 @@
       </a>
       
       <h1 class="page-title">Export for LPC Alerts</h1>
-      <p class="page-subtitle">Export evacuation zones as a dissolved KML boundary for LPC Alert notifications.</p>
+      <p class="page-subtitle">Download individual evacuation zones as GeoJSON for LPC Alert geotargeting.</p>
       
       <!-- Export Card -->
       <div id="exportCard" class="export-card">
@@ -352,11 +401,6 @@
               <polyline points="6 9 12 15 18 9"/>
             </svg>
           </div>
-          <div id="featureCount" class="feature-count"></div>
-          <div id="zoneList" class="zone-list">
-            <div class="zone-list-label">Zones to export</div>
-            <div id="zoneListItems" class="zone-list-items"></div>
-          </div>
         </div>
         
         <!-- Info Box -->
@@ -368,21 +412,36 @@
               <line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
             <p>
-              Exports as <strong>KML</strong> with all zones dissolved into a single boundary for LPC Alerts
+              Each zone exports as an individual <strong>GeoJSON</strong> file with its original geometry for LPC Alerts geotargeting.
             </p>
           </div>
         </div>
         
-        <!-- Export Button -->
+        <!-- Zone Table -->
         <div class="card-section">
-          <button id="exportBtn" class="export-btn" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            <span id="btnText">Export KML</span>
-          </button>
+          <div id="zoneTableWrapper" class="zone-table-wrapper">
+            <div id="featureCount" class="feature-count"></div>
+            <table class="zone-table">
+              <thead>
+                <tr>
+                  <th>Zone Name</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="zoneTableBody"></tbody>
+            </table>
+            <div id="downloadAllWrapper" class="download-all-wrapper">
+              <button id="downloadAllBtn" class="download-all-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download All Zones
+              </button>
+            </div>
+          </div>
           <div id="statusMsg" class="status-msg"></div>
         </div>
         
@@ -418,25 +477,27 @@
     // ========================================
     var CONFIG = {
       featureServiceUrl: 'https://services2.arcgis.com/ilLrLpXfElYxSy9y/ArcGIS/rest/services/LPC_Evac_Zones_View/FeatureServer/0',
-      outSR: 4326  // WGS84 for KML
+      outSR: 4326  // WGS84 for GeoJSON
     };
     
     // ========================================
     // DOM References
     // ========================================
     var incidentSelect = document.getElementById('incidentSelect');
-    var exportBtn = document.getElementById('exportBtn');
-    var btnText = document.getElementById('btnText');
     var statusMsg = document.getElementById('statusMsg');
     var featureCountEl = document.getElementById('featureCount');
-    var zoneListEl = document.getElementById('zoneList');
-    var zoneListItemsEl = document.getElementById('zoneListItems');
+    var zoneTableWrapper = document.getElementById('zoneTableWrapper');
+    var zoneTableBody = document.getElementById('zoneTableBody');
+    var downloadAllWrapper = document.getElementById('downloadAllWrapper');
+    var downloadAllBtn = document.getElementById('downloadAllBtn');
     var exportCard = document.getElementById('exportCard');
     var emptyState = document.getElementById('emptyState');
     
-    // Store incident data
-    var incidentFeatureCounts = {};
+    // Store incident data: { incidentName: [ { name, status, objectId }, ... ] }
     var incidentZones = {};
+    
+    // Cache queried feature geometries: { objectId: geoJSONFeature }
+    var featureCache = {};
     
     // ========================================
     // Utility Functions
@@ -471,20 +532,7 @@
     }
     
     /**
-     * Set button loading state
-     */
-    function setButtonLoading(loading) {
-      if (loading) {
-        btnText.innerHTML = '<span class="spinner"></span>';
-        exportBtn.disabled = true;
-      } else {
-        btnText.textContent = 'Export KML';
-        exportBtn.disabled = !incidentSelect.value;
-      }
-    }
-    
-    /**
-     * Convert ArcGIS feature to GeoJSON
+     * Convert ArcGIS feature to GeoJSON Feature
      */
     function arcgisToGeoJSON(feature) {
       if (!feature.geometry || !feature.geometry.rings) return null;
@@ -500,122 +548,43 @@
     }
     
     /**
-     * Compute convex hull using Graham scan algorithm
+     * Generate a safe filename from zone and incident names
      */
-    function convexHull(points) {
-      if (points.length < 3) return points;
-      
-      // Find bottom-most point (or left-most in case of tie)
-      var start = points[0];
-      for (var i = 1; i < points.length; i++) {
-        if (points[i][1] < start[1] || 
-            (points[i][1] === start[1] && points[i][0] < start[0])) {
-          start = points[i];
-        }
-      }
-      
-      // Sort points by polar angle
-      var sorted = points.slice().sort(function(a, b) {
-        var angleA = Math.atan2(a[1] - start[1], a[0] - start[0]);
-        var angleB = Math.atan2(b[1] - start[1], b[0] - start[0]);
-        if (angleA !== angleB) return angleA - angleB;
-        var distA = Math.pow(a[0] - start[0], 2) + Math.pow(a[1] - start[1], 2);
-        var distB = Math.pow(b[0] - start[0], 2) + Math.pow(b[1] - start[1], 2);
-        return distA - distB;
-      });
-      
-      // Build hull
-      var hull = [];
-      for (var i = 0; i < sorted.length; i++) {
-        while (hull.length >= 2) {
-          var a = hull[hull.length - 2];
-          var b = hull[hull.length - 1];
-          var c = sorted[i];
-          var cross = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
-          if (cross <= 0) {
-            hull.pop();
-          } else {
-            break;
-          }
-        }
-        hull.push(sorted[i]);
-      }
-      
-      // Close the ring
-      if (hull.length > 0 && (hull[0][0] !== hull[hull.length-1][0] || hull[0][1] !== hull[hull.length-1][1])) {
-        hull.push(hull[0]);
-      }
-      
-      return hull;
+    function safeFilename(incident, zoneName) {
+      var inc = incident.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 20);
+      var zone = zoneName.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30);
+      return inc + '__' + zone + '.geojson';
     }
     
     /**
-     * Generate KML content from GeoJSON
+     * Trigger a file download in the browser
      */
-    function generateKML(geojson, incidentName) {
-      var kml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-      kml += '<kml xmlns="http://www.opengis.net/kml/2.2">\n';
-      kml += '  <Document>\n';
-      kml += '    <name>' + escapeXml(incidentName) + ' - Evacuation Boundary</name>\n';
-      kml += '    <description>Dissolved evacuation zone boundary for LPC Alerts</description>\n';
-      
-      // Style for the boundary
-      kml += '    <Style id="evacStyle">\n';
-      kml += '      <LineStyle>\n';
-      kml += '        <color>ff0000ff</color>\n';
-      kml += '        <width>3</width>\n';
-      kml += '      </LineStyle>\n';
-      kml += '      <PolyStyle>\n';
-      kml += '        <color>400000ff</color>\n';
-      kml += '      </PolyStyle>\n';
-      kml += '    </Style>\n';
-      
-      geojson.features.forEach(function(feature) {
-        var props = feature.properties || {};
-        var name = props.name || incidentName;
-        
-        kml += '    <Placemark>\n';
-        kml += '      <name>' + escapeXml(name) + '</name>\n';
-        if (props.zones) {
-          kml += '      <description>Zones: ' + escapeXml(props.zones) + '</description>\n';
-        }
-        kml += '      <styleUrl>#evacStyle</styleUrl>\n';
-        
-        if (feature.geometry.type === 'Polygon') {
-          kml += '      <Polygon>\n';
-          kml += '        <outerBoundaryIs>\n';
-          kml += '          <LinearRing>\n';
-          kml += '            <coordinates>\n';
-          feature.geometry.coordinates[0].forEach(function(coord) {
-            kml += '              ' + coord[0] + ',' + coord[1] + ',0\n';
-          });
-          kml += '            </coordinates>\n';
-          kml += '          </LinearRing>\n';
-          kml += '        </outerBoundaryIs>\n';
-          kml += '      </Polygon>\n';
-        }
-        
-        kml += '    </Placemark>\n';
-      });
-      
-      kml += '  </Document>\n';
-      kml += '</kml>';
-      
-      return kml;
+    function downloadFile(content, filename, mimeType) {
+      var blob = new Blob([content], { type: mimeType });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
     
     /**
-     * Escape XML special characters
+     * Build a GeoJSON FeatureCollection from one or more GeoJSON features
      */
-    function escapeXml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&apos;');
+    function wrapFeatureCollection(features) {
+      return JSON.stringify({
+        type: 'FeatureCollection',
+        features: features
+      }, null, 2);
     }
+    
+    /**
+     * Download icon SVG string for inline use
+     */
+    var downloadIconSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
     
     // ========================================
     // ArcGIS API Integration
@@ -632,18 +601,17 @@
       loadIncidents();
       
       /**
-       * Load all unique incidents from the feature layer
+       * Load all unique incidents and their zones from the feature layer
        */
       function loadIncidents() {
         var query = featureLayer.createQuery();
-        query.where = '1=1';  // Get all features
+        query.where = '1=1';
         query.outFields = ['*'];
-        query.returnGeometry = false;  // Don't need geometry for listing
+        query.returnGeometry = false;
         
         featureLayer.queryFeatures(query).then(function(result) {
           var incidents = {};
           
-          // Group zones by incident
           result.features.forEach(function(f) {
             var incident = getAttr(f.attributes, 'incident', 'Incident', 'INCIDENT');
             if (incident && String(incident).trim()) {
@@ -652,36 +620,35 @@
                 incidents[incName] = [];
               }
               
-              var zoneName = getAttr(f.attributes, 'zonename', 'Zonename', 'ZONENAME') || 
+              var zoneName = getAttr(f.attributes, 'zonename', 'Zonename', 'ZONENAME') ||
                              getAttr(f.attributes, 'zone', 'Zone', 'ZONE') || 'Unknown';
               var status = getAttr(f.attributes, 'status', 'Status', 'STATUS') || '';
+              var objectId = getAttr(f.attributes, 'OBJECTID', 'objectid', 'ObjectId', 'FID');
               
               incidents[incName].push({
                 name: String(zoneName),
-                status: String(status).toLowerCase()
+                status: String(status).toLowerCase(),
+                objectId: objectId
               });
             }
           });
           
           var incidentList = Object.keys(incidents).sort();
           
-          // Show empty state if no incidents
           if (incidentList.length === 0) {
             exportCard.style.display = 'none';
             emptyState.style.display = 'block';
             return;
           }
           
-          // Store zone details and counts
           incidentList.forEach(function(inc) {
             incidentZones[inc] = incidents[inc];
-            incidentFeatureCounts[inc] = incidents[inc].length;
           });
           
           // Populate dropdown
           incidentSelect.innerHTML = '<option value="">Select an incident...</option>';
           incidentList.forEach(function(inc) {
-            var count = incidentFeatureCounts[inc] || 0;
+            var count = incidents[inc].length;
             var opt = document.createElement('option');
             opt.value = inc;
             opt.textContent = inc + ' (' + count + ' zone' + (count !== 1 ? 's' : '') + ')';
@@ -697,171 +664,209 @@
         });
       }
       
-      // ========================================
-      // Event Handlers
-      // ========================================
-      
       /**
-       * Handle incident selection change
-       * Updates the zone list display and enables/disables export button
+       * Query a single feature's geometry by OBJECTID
        */
-      incidentSelect.addEventListener('change', function() {
-        var selected = this.value;
-        hideStatus();
-        
-        if (selected) {
-          exportBtn.disabled = false;
-          var count = incidentFeatureCounts[selected] || 0;
-          featureCountEl.innerHTML = '<strong>' + count + '</strong> evacuation zone' + (count !== 1 ? 's' : '') + ' will be dissolved into single boundary';
-          featureCountEl.classList.add('show');
-          
-          // Display zone chips
-          var zones = incidentZones[selected] || [];
-          if (zones.length > 0) {
-            zoneListItemsEl.innerHTML = '';
-            zones.forEach(function(zone) {
-              var chip = document.createElement('span');
-              chip.className = 'zone-chip';
-              if (zone.status === 'set') {
-                chip.className += ' status-set';
-              } else if (zone.status === 'go') {
-                chip.className += ' status-go';
-              }
-              chip.textContent = zone.name;
-              zoneListItemsEl.appendChild(chip);
-            });
-            zoneListEl.classList.add('show');
-          } else {
-            zoneListEl.classList.remove('show');
-          }
-        } else {
-          exportBtn.disabled = true;
-          featureCountEl.classList.remove('show');
-          zoneListEl.classList.remove('show');
+      function queryZoneGeometry(objectId) {
+        if (featureCache[objectId]) {
+          return Promise.resolve(featureCache[objectId]);
         }
-      });
+        
+        var query = featureLayer.createQuery();
+        query.where = 'OBJECTID = ' + objectId;
+        query.outFields = ['*'];
+        query.returnGeometry = true;
+        query.outSpatialReference = { wkid: CONFIG.outSR };
+        
+        return featureLayer.queryFeatures(query).then(function(result) {
+          if (!result.features || result.features.length === 0) {
+            throw new Error('Zone not found');
+          }
+          var geoJSON = arcgisToGeoJSON(result.features[0]);
+          if (!geoJSON) {
+            throw new Error('Could not convert geometry');
+          }
+          featureCache[objectId] = geoJSON;
+          return geoJSON;
+        });
+      }
       
       /**
-       * Handle export button click
-       * Queries features, dissolves into convex hull, and generates KML download
+       * Query all features for an incident
        */
-      exportBtn.addEventListener('click', function() {
-        var incident = incidentSelect.value;
-        if (!incident) return;
-        
-        setButtonLoading(true);
-        hideStatus();
-        showStatus('Querying features...', 'loading');
-        
-        // Build query with escaped incident name to prevent SQL injection
+      function queryIncidentGeometries(incident) {
         var query = featureLayer.createQuery();
         query.where = "incident = '" + incident.replace(/'/g, "''") + "'";
         query.outFields = ['*'];
         query.returnGeometry = true;
         query.outSpatialReference = { wkid: CONFIG.outSR };
         
-        featureLayer.queryFeatures(query).then(function(result) {
-          
+        return featureLayer.queryFeatures(query).then(function(result) {
           if (!result.features || result.features.length === 0) {
-            showStatus('No features found for this incident.', 'error');
-            setButtonLoading(false);
-            return;
+            throw new Error('No features found');
           }
           
-          showStatus('Converting ' + result.features.length + ' features...', 'loading');
+          var geoJSONFeatures = [];
+          result.features.forEach(function(f) {
+            var gj = arcgisToGeoJSON(f);
+            if (gj) {
+              var oid = getAttr(f.attributes, 'OBJECTID', 'objectid', 'ObjectId', 'FID');
+              if (oid) featureCache[oid] = gj;
+              geoJSONFeatures.push(gj);
+            }
+          });
           
-          // Convert to GeoJSON
-          var geoJSONFeatures = result.features
-            .map(function(f) { return arcgisToGeoJSON(f); })
-            .filter(function(f) { return f !== null; });
+          return geoJSONFeatures;
+        });
+      }
+      
+      // ========================================
+      // Event Handlers
+      // ========================================
+      
+      /**
+       * Handle incident selection: populate zone table
+       */
+      incidentSelect.addEventListener('change', function() {
+        var selected = this.value;
+        hideStatus();
+        
+        if (!selected) {
+          zoneTableWrapper.classList.remove('show');
+          downloadAllWrapper.classList.remove('show');
+          return;
+        }
+        
+        var zones = incidentZones[selected] || [];
+        var count = zones.length;
+        
+        featureCountEl.innerHTML = '<strong>' + count + '</strong> evacuation zone' + (count !== 1 ? 's' : '');
+        
+        // Build table rows
+        zoneTableBody.innerHTML = '';
+        zones.forEach(function(zone, idx) {
+          var tr = document.createElement('tr');
           
-          if (geoJSONFeatures.length === 0) {
-            showStatus('Could not convert features.', 'error');
-            setButtonLoading(false);
-            return;
+          // Zone name
+          var tdName = document.createElement('td');
+          tdName.innerHTML = '<span class="zone-name">' + escapeHtml(zone.name) + '</span>';
+          tr.appendChild(tdName);
+          
+          // Status
+          var tdStatus = document.createElement('td');
+          var statusClass = 'status-unknown';
+          var statusLabel = zone.status || 'N/A';
+          if (zone.status === 'set') {
+            statusClass = 'status-set';
+            statusLabel = 'SET';
+          } else if (zone.status === 'go') {
+            statusClass = 'status-go';
+            statusLabel = 'GO';
           }
+          tdStatus.innerHTML = '<span class="zone-status ' + statusClass + '">' + statusLabel.toUpperCase() + '</span>';
+          tr.appendChild(tdStatus);
           
-          // Generate filename: first 3 letters of incident + datetime
-          var prefix = incident.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase();
-          if (prefix.length < 3) prefix = (prefix + 'XXX').substring(0, 3);
-          var now = new Date();
-          var datetime = now.getFullYear().toString() +
-                        ('0' + (now.getMonth() + 1)).slice(-2) +
-                        ('0' + now.getDate()).slice(-2) + '_' +
-                        ('0' + now.getHours()).slice(-2) +
-                        ('0' + now.getMinutes()).slice(-2);
-          var filename = prefix + '_' + datetime;
+          // Download button
+          var tdDownload = document.createElement('td');
+          tdDownload.className = 'download-cell';
+          var btn = document.createElement('button');
+          btn.className = 'download-btn';
+          btn.innerHTML = downloadIconSVG + '<span>GeoJSON</span>';
+          btn.setAttribute('data-object-id', zone.objectId);
+          btn.setAttribute('data-zone-name', zone.name);
+          btn.setAttribute('data-incident', selected);
+          btn.addEventListener('click', handleZoneDownload);
+          tdDownload.appendChild(btn);
+          tr.appendChild(tdDownload);
           
-          try {
-            showStatus('Dissolving ' + geoJSONFeatures.length + ' zones into single boundary...', 'loading');
-            
-            // Collect all points from all polygon outer rings
-            var allPoints = [];
-            var zoneNames = [];
-            
-            geoJSONFeatures.forEach(function(feature) {
-              var props = feature.properties || {};
-              var zoneName = props.zonename || props.ZONENAME || props.zone || 'Zone';
-              var status = props.STATUS || props.status || '';
-              zoneNames.push(zoneName + (status ? ' (' + status + ')' : ''));
-              
-              if (feature.geometry.type === 'Polygon') {
-                // Get outer ring points (first ring)
-                feature.geometry.coordinates[0].forEach(function(pt) {
-                  allPoints.push(pt);
-                });
-              }
-            });
-            
-            // Compute convex hull to create single dissolved boundary
-            var hull = convexHull(allPoints);
-            
-            // Create single dissolved feature
-            var dissolvedFeature = {
-              type: 'Feature',
-              properties: {
-                name: incident,
-                zones: zoneNames.join(', ')
-              },
-              geometry: {
-                type: 'Polygon',
-                coordinates: [hull]
-              }
-            };
-            
-            var dissolvedGeoJSON = { type: 'FeatureCollection', features: [dissolvedFeature] };
-            
-            // Generate KML
-            var kmlContent = generateKML(dissolvedGeoJSON, incident);
-            
-            // Create download
-            var blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml' });
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = filename + '.kml';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showStatus('Successfully exported dissolved boundary!', 'success');
-            setButtonLoading(false);
-            
-          } catch (exportErr) {
-            console.error('Export generation error:', exportErr);
-            showStatus('Export failed: ' + exportErr.message, 'error');
-            setButtonLoading(false);
-          }
+          zoneTableBody.appendChild(tr);
+        });
+        
+        zoneTableWrapper.classList.add('show');
+        
+        if (count > 1) {
+          downloadAllWrapper.classList.add('show');
+        } else {
+          downloadAllWrapper.classList.remove('show');
+        }
+      });
+      
+      /**
+       * Handle individual zone download
+       */
+      function handleZoneDownload(e) {
+        var btn = e.currentTarget;
+        var objectId = btn.getAttribute('data-object-id');
+        var zoneName = btn.getAttribute('data-zone-name');
+        var incident = btn.getAttribute('data-incident');
+        
+        var origHTML = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner"></span>';
+        btn.disabled = true;
+        
+        queryZoneGeometry(objectId).then(function(geoJSON) {
+          var content = wrapFeatureCollection([geoJSON]);
+          var filename = safeFilename(incident, zoneName);
+          downloadFile(content, filename, 'application/geo+json');
+          btn.innerHTML = origHTML;
+          btn.disabled = false;
+        }).catch(function(err) {
+          console.error('Download error:', err);
+          showStatus('Failed to download ' + zoneName + ': ' + err.message, 'error');
+          btn.innerHTML = origHTML;
+          btn.disabled = false;
+        });
+      }
+      
+      /**
+       * Handle "Download All Zones" - exports each zone as a separate file
+       */
+      downloadAllBtn.addEventListener('click', function() {
+        var incident = incidentSelect.value;
+        if (!incident) return;
+        
+        var origHTML = downloadAllBtn.innerHTML;
+        downloadAllBtn.innerHTML = '<span class="spinner" style="width:20px;height:20px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;"></span> Downloading...';
+        downloadAllBtn.disabled = true;
+        showStatus('Querying all zone geometries...', 'loading');
+        
+        queryIncidentGeometries(incident).then(function(features) {
+          features.forEach(function(feature) {
+            var props = feature.properties || {};
+            var zoneName = props.zonename || props.ZONENAME || props.zone || props.Zone || 'Zone';
+            var content = wrapFeatureCollection([feature]);
+            var filename = safeFilename(incident, zoneName);
+            downloadFile(content, filename, 'application/geo+json');
+          });
+          
+          hideStatus();
+          showStatus('Downloaded ' + features.length + ' zone file' + (features.length !== 1 ? 's' : '') + '.', 'success');
+          downloadAllBtn.innerHTML = origHTML;
+          downloadAllBtn.disabled = false;
           
         }).catch(function(err) {
-          console.error('Export error:', err);
-          showStatus('Export failed: ' + (err.message || 'Unknown error'), 'error');
-          setButtonLoading(false);
+          console.error('Download all error:', err);
+          showStatus('Failed to download zones: ' + err.message, 'error');
+          downloadAllBtn.innerHTML = origHTML;
+          downloadAllBtn.disabled = false;
         });
       });
       
     });
+    
+    /**
+     * Escape HTML special characters
+     */
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+    
+    /* Spinner keyframes already in CSS above */
   </script>
   
 </body>
